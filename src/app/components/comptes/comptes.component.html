@@ -1,0 +1,44 @@
+<section class="container mt-5">
+  <div class="text-center">
+    <h1 class="mb-5">Récapitulatif des comptes</h1>
+  </div>
+
+  <div class="d-flex justify-content-center">
+    <button class="mb-5" (click)="AddOperation()">Ajouter une dépense</button>
+  </div>
+
+  <div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Compte</th>
+          <th scope="col">Crédit</th>
+          <th scope="col">Débit</th>
+          <th scope="col">Catégorie</th>
+          <th scope="col">Description 1</th>
+          <th scope="col">Description 2</th>
+          <th scope="col">Edition</th>
+          <th scope="col">Suppression</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let operation of operationList">
+          <th>{{ operation.operationdate | date: "dd-MM-yyyy" }}</th>
+          <td>{{ operation.compte }}</td>
+          <td>{{ operation.montant ? operation.montant + " €" : "-" }}</td>
+          <td>{{ operation.montant ? "-" : operation.montant + " €" }}</td>
+          <td>{{ operation.categorie }}</td>
+          <td>{{ operation.description1 }}</td>
+          <td>{{ operation.description2 }}</td>
+          <td>
+            <button (click)="openOperationDetail(operation)">Editer</button>
+          </td>
+          <td>
+            <button (click)="deleteOperation(operation)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
