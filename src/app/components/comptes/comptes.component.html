@@ -13,8 +13,7 @@
         <tr>
           <th scope="col">Date</th>
           <th scope="col">Compte</th>
-          <th scope="col">Crédit</th>
-          <th scope="col">Débit</th>
+          <th scope="col">Montant</th>
           <th scope="col">Catégorie</th>
           <th scope="col">Description 1</th>
           <th scope="col">Description 2</th>
@@ -24,10 +23,15 @@
       </thead>
       <tbody>
         <tr *ngFor="let operation of operationList">
-          <th>{{ operation.operationdate | date: "dd-MM-yyyy" }}</th>
+          <th>{{ operation.operationDate | date: "dd-MM-yyyy" }}</th>
           <td>{{ operation.compte }}</td>
-          <td>{{ operation.montant ? operation.montant + " €" : "-" }}</td>
-          <td>{{ operation.montant ? "-" : operation.montant + " €" }}</td>
+          <td>
+            {{
+              operation.type
+                ? "+ " + operation.montant + " €"
+                : "- " + operation.montant + " €"
+            }}
+          </td>
           <td>{{ operation.categorie }}</td>
           <td>{{ operation.description1 }}</td>
           <td>{{ operation.description2 }}</td>

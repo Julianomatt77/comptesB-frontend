@@ -37,6 +37,7 @@ export class OperationFormComponent implements OnInit {
       this.buttonLabel = 'Mettre à jour';
       this.id = data.operation._id;
       this.operation = data.operation;
+      this.operation.operationDate = new Date(this.operation.operationDate);
     } else {
       this.addOrEdit = 'add';
       this.buttonLabel = 'Ajouter';
@@ -47,21 +48,23 @@ export class OperationFormComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       montant: '',
-      type: '',
+      type: false,
       categorie: '',
       compte: '',
       description1: '',
       description2: '',
-      operationDate: '',
+      operationDate: Date(),
     });
+
     this.initForm();
   }
 
   private initForm(): void {
-    console.log(this.addOrEdit);
     if (this.addOrEdit == 'edit') {
       this.operationService.getOneOperation(this.id).subscribe((data) => {
+        console.log(data);
         this.operation = data;
+        this.operation.operationDate = new Date(this.operation.operationDate);
         // ? data
         // : new Operation(0, 0, false, '', '', '', '', new Date());
       });
