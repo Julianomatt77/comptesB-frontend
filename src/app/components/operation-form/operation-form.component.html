@@ -16,9 +16,10 @@
       class="form-control"
       formControlName="operationDate"
       [ngModel]="operation.operationDate | date: 'dd-MM-yyyy'"
-      (ngModelChange)="operation.operationDate = $event"
+      (change)="changeFn($event)"
     />
   </div>
+
   <div class="form-group mt-2">
     <label for="type">Entrée d'argent ?</label>
     <input
@@ -32,22 +33,32 @@
 
   <div class="form-group mt-2">
     <label for="categorie">Catégorie</label>
-    <input
+    <select
       id="categorie"
       class="form-control"
       formControlName="categorie"
       [(ngModel)]="operation.categorie"
-    />
+    >
+      <option *ngFor="let categorie of categorieList" [ngValue]="categorie">
+        {{ categorie }}
+      </option>
+    </select>
   </div>
+
   <div class="form-group mt-2">
     <label for="compte">Compte</label>
-    <input
+    <select
       id="compte"
       class="form-control"
       formControlName="compte"
       [(ngModel)]="operation.compte"
-    />
+    >
+      <option *ngFor="let compte of compteList" [ngValue]="compte">
+        {{ compte }}
+      </option>
+    </select>
   </div>
+
   <div class="form-group mt-2">
     <label for="description1">Description 1</label>
     <input

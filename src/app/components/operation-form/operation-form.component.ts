@@ -24,6 +24,28 @@ export class OperationFormComponent implements OnInit {
   operation!: Operation;
   addOrEdit!: string;
   buttonLabel!: string;
+  categorieList: string[] = [
+    'Courses',
+    'Divers',
+    'Essence',
+    'Prélèvement',
+    'Pub',
+    'Remboursement',
+    'Restaurant',
+    'Salaire',
+    'Transfert',
+    'Voyage',
+  ];
+  compteList: string[] = [
+    'Boursorama',
+    'Crédit Mutuel',
+    'Revolut',
+    'PEA',
+    'PER',
+    'CTO Bourse Direct',
+    'CTO Revolut',
+    'Assurance Vie',
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -85,5 +107,9 @@ export class OperationFormComponent implements OnInit {
         this.dialogRef.close();
       });
     }
+  }
+
+  changeFn(e: any) {
+    this.operation.operationDate = e.target.value;
   }
 }
