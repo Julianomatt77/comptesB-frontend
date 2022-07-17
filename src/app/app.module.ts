@@ -14,6 +14,7 @@ import { ViewOrEditComponent } from './components/view-or-edit/view-or-edit.comp
 import { OperationFormComponent } from './components/operation-form/operation-form.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
+import { CompteFormComponent } from './components/compte-form/compte-form.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { MatDialogModule } from '@angular/material/dialog';
     LoginComponent,
     ViewOrEditComponent,
     OperationFormComponent,
+    CompteFormComponent,
   ],
   imports: [
     BrowserModule,
