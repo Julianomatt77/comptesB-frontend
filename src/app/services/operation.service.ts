@@ -11,30 +11,34 @@ export class OperationService {
 
   public createOperation(operation: Operation) {
     return this.http.post<Operation>(
-      `${environment.baseUrl}/operations`,
+      `${environment.baseUrl}/operations/createOperation`,
       operation
     );
   }
 
   public getAllOperations() {
-    return this.http.get<any[]>(`${environment.baseUrl}/operations`);
+    return this.http.get<any[]>(
+      `${environment.baseUrl}/operations/getAllOperations`
+    );
   }
 
-  public getOneOperation(id: number) {
-    return this.http.get<Operation>(`${environment.baseUrl}/operations/${id}`);
+  public getOneOperation(id: string) {
+    return this.http.get<Operation>(
+      `${environment.baseUrl}/operations/getOneOperation/${id}`
+    );
   }
 
-  public updateOneOperation(value: { id: number; operation: Operation }) {
+  public updateOneOperation(value: { id: string; operation: Operation }) {
     console.log(value);
     return this.http.post<Operation>(
-      `${environment.baseUrl}/operations/${value.id}`,
+      `${environment.baseUrl}/operations/updateOneOperation/${value.id}`,
       value
     );
   }
 
-  public deleteOperation(id: number) {
+  public deleteOperation(id: string) {
     return this.http.delete<Operation>(
-      `${environment.baseUrl}/operations/${id}`
+      `${environment.baseUrl}/operations/deleteOperation/${id}`
     );
   }
 }

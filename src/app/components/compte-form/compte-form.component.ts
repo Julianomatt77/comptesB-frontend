@@ -18,7 +18,7 @@ import { CompteService } from 'src/app/services/compte.service';
 })
 export class CompteFormComponent implements OnInit {
   @Output() formSubmitted: EventEmitter<Compte>;
-  @Input() id!: number;
+  @Input() id!: string;
 
   form!: FormGroup;
   compte!: Compte;

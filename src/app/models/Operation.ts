@@ -1,5 +1,5 @@
 export class Operation {
-  private _id: number;
+  private _id: string;
   private _montant: number;
   private _type: boolean;
   private _categorie: string;
@@ -7,16 +7,18 @@ export class Operation {
   private _description1: string;
   private _description2: string;
   private _operationDate: Date;
+  private _solde: number;
 
   constructor(
-    id: number,
+    id: string,
     montant: number,
     type: boolean,
     categorie: string,
     compte: string,
     description1: string,
     description2: string,
-    operationDate: Date
+    operationDate: Date,
+    solde: number
   ) {
     this._id = id;
     this._montant = montant;
@@ -26,13 +28,30 @@ export class Operation {
     this._description1 = description1;
     this._description2 = description2;
     this._operationDate = operationDate;
+    this._solde = solde;
+  }
+
+  /**
+   * Getter solde
+   * @return {number}
+   */
+  public get solde(): number {
+    return this._solde;
+  }
+
+  /**
+   * Setter solde
+   * @param {number} value
+   */
+  public set solde(value: number) {
+    this._solde = value;
   }
 
   /**
    * Getter id
-   * @return {number}
+   * @return {string}
    */
-  public get id(): number {
+  public get id(): string {
     return this._id;
   }
 
@@ -94,9 +113,9 @@ export class Operation {
 
   /**
    * Setter id
-   * @param {number} value
+   * @param {string} value
    */
-  public set id(value: number) {
+  public set id(value: string) {
     this._id = value;
   }
 

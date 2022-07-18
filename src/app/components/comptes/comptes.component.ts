@@ -1,10 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Operation } from 'src/app/models/Operation';
 import { OperationService } from 'src/app/services/operation.service';
 import { OperationFormComponent } from '../operation-form/operation-form.component';
 import { MatDialog } from '@angular/material/dialog';
 import { CompteFormComponent } from '../compte-form/compte-form.component';
 import { CompteService } from 'src/app/services/compte.service';
+import { forkJoin } from 'rxjs';
+import { MatSort } from '@angular/material/sort';
+import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-comptes',
@@ -13,9 +17,31 @@ import { CompteService } from 'src/app/services/compte.service';
 })
 export class ComptesComponent implements OnInit {
   operationList: any[] = [];
-  operationId!: number;
+  operationId!: string;
+  operation!: Operation;
+  totalCredit = 0;
+  totalDebit = 0;
 
   compteList: any[] = [];
+  compteId = '';
+
+  // datasource = [];
+  // dataSource!: MatTableDataSource<any>;
+  dataSource = new MatTableDataSource(this.operationList);
+  @ViewChild(MatSort) sort!: MatSort | undefined;
+  @ViewChild('table') table!: MatTable<any> | undefined;
+  childRevelancy = { displayColumns: [], hideColumns: [], data: [] };
+  columnsToDisplay = [
+    'operationDate',
+    'compte',
+    'montant',
+    'categorie',
+    'description1',
+    'description2',
+    'edition',
+    'suppression',
+  ];
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private operationService: OperationService,
@@ -24,17 +50,33 @@ export class ComptesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.dataSource = new MatTableDataSource(this.operationList);
     this.showOperations();
     this.showAccounts();
+  }
+
+  ngAfterViewInit() {
+    // this.showOperations();
+    // this.dataSource.paginator = this.paginator;
+    // console.log(this.paginator);
   }
 
   /* ************************* Opêrations *********** */
   showOperations() {
     this.operationList = [];
+    this.totalCredit = 0;
+    this.totalDebit = 0;
     this.operationService.getAllOperations().subscribe((data) => {
       data.forEach((operation) => {
         this.operationList.push(operation);
+
+        if (operation.type == false) {
+          this.totalDebit += operation.montant;
+        } else {
+          this.totalCredit += operation.montant;
+        }
       });
+      this.dataSource = new MatTableDataSource(this.operationList);
     });
   }
 
@@ -51,16 +93,13 @@ export class ComptesComponent implements OnInit {
       .afterClosed()
       .subscribe(() => {
         this.showOperations();
+        this.showAccounts();
       });
 
     // console.log('Ajoutez une opération');
   }
 
   openOperationDetail(operation: any) {
-    // console.log(operation._id);
-    // this.operationService.getOneOperation(operation._id);
-    // this.operationId = operation._id;
-
     this.dialog
       .open(OperationFormComponent, {
         data: {
@@ -73,15 +112,41 @@ export class ComptesComponent implements OnInit {
       .afterClosed()
       .subscribe(() => {
         this.showOperations();
+        this.showAccounts();
       });
   }
 
   deleteOperation(operation: any) {
-    // console.log(operation._id);
-    this.operationService.deleteOperation(operation._id).subscribe(() => {
-      this.showOperations();
-    });
-    // console.log('operation deleted');
+    this.operationId = operation._id;
+
+    this.operationService
+      .getOneOperation(this.operationId)
+      .subscribe((data) => {
+        this.operation = data;
+        this.compteService
+          .getOneAccountByName(operation.compte)
+          .subscribe((compte) => {
+            let montantRestitue = -this.operation.montant;
+            this.compteId = compte._id;
+
+            compte.soldeActuel = compte.soldeActuel + montantRestitue;
+
+            const compteData = {
+              id: this.compteId,
+              compte: compte,
+            };
+
+            let updateSolde = this.compteService.updateOneAccount(compteData);
+            let deleteOperation = this.operationService.deleteOperation(
+              this.operationId
+            );
+
+            forkJoin([updateSolde, deleteOperation]).subscribe(() => {
+              this.showOperations();
+              this.showAccounts();
+            });
+          });
+      });
   }
 
   /* ************************* Accounts *********** */

@@ -11,26 +11,47 @@ export class CompteService {
 
   public createAccount(compte: Compte) {
     console.log(compte);
-    return this.http.post<Compte>(`${environment.baseUrl}/comptes`, compte);
+    return this.http.post<Compte>(
+      `${environment.baseUrl}/comptes/createAccount`,
+      compte
+    );
   }
 
   public getAllAccounts() {
-    return this.http.get<any[]>(`${environment.baseUrl}/comptes`);
+    return this.http.get<any[]>(
+      `${environment.baseUrl}/comptes/getAllAccounts`
+    );
   }
 
-  public getOneAccount(id: number) {
-    return this.http.get<Compte>(`${environment.baseUrl}/comptes/${id}`);
+  public getOneAccount(id: string) {
+    return this.http.get<Compte>(
+      `${environment.baseUrl}/comptes/getOneAccount/${id}`
+    );
+  }
+  public getOneAccountByName(name: string) {
+    return this.http.get<Compte>(
+      `${environment.baseUrl}/comptes/getOneAccountByName/${name}`
+    );
   }
 
-  public updateOneAccount(value: { id: number; compte: Compte }) {
+  public updateOneAccount(value: { id: string; compte: Compte }) {
     // console.log(value);
     return this.http.post<Compte>(
-      `${environment.baseUrl}/comptes/${value.id}`,
+      `${environment.baseUrl}/comptes/updateOneAccount/${value.id}`,
       value
     );
   }
 
-  public deleteAccount(id: number) {
-    return this.http.delete<Compte>(`${environment.baseUrl}/comptes/${id}`);
+  public deleteAccount(id: string) {
+    return this.http.delete<Compte>(
+      `${environment.baseUrl}/comptes/deleteAccount/${id}`
+    );
+  }
+
+  public updateSolde(name: string, solde: number) {
+    return this.http.post<any>(
+      `${environment.baseUrl}/comptes/updateSolde/${name}`,
+      solde
+    );
   }
 }

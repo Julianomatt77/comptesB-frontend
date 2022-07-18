@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -15,6 +15,10 @@ import { OperationFormComponent } from './components/operation-form/operation-fo
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
+import { registerLocaleData } from '@angular/common';
+import * as fr from '@angular/common/locales/fr';
+import { MatTable, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 
 @NgModule({
   declarations: [
@@ -36,8 +40,14 @@ import { CompteFormComponent } from './components/compte-form/compte-form.compon
     HttpClientModule,
     BrowserAnimationsModule,
     MatDialogModule,
+    MatTableModule,
+    MatPaginatorModule,
   ],
-  providers: [],
+  providers: [{ provide: LOCALE_ID, useValue: 'fr-FR' }],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule {
+  constructor() {
+    registerLocaleData(fr.default);
+  }
+}

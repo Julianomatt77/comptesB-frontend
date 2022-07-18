@@ -1,5 +1,5 @@
 export class Compte {
-  private _id: string;
+  _id: string;
   private _name: string;
   private _typeCompte: string;
   private _soldeInitial: number;
