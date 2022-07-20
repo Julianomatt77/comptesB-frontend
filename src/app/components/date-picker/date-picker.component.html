@@ -1,0 +1,14 @@
+<!-- <ngx-datepicker [(ngModel)]="date"></ngx-datepicker> -->
+<div class="container">
+  <div class="form-group">
+    <label for="sel1" class="form-label">Date Range Filter:</label>
+    <input
+      class="dateadded form-control"
+      type="text"
+      name="daterangeInput"
+      daterangepicker
+      [options]="options"
+      (selected)="selectedDate($event, daterange)"
+    />
+  </div>
+</div>

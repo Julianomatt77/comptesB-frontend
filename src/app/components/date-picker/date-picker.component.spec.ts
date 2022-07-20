@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ViewOrEditComponent } from './view-or-edit.component';
+import { DatePickerComponent } from './date-picker.component';
 
-describe('ViewOrEditComponent', () => {
-  let component: ViewOrEditComponent;
-  let fixture: ComponentFixture<ViewOrEditComponent>;
+describe('DatePickerComponent', () => {
+  let component: DatePickerComponent;
+  let fixture: ComponentFixture<DatePickerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ViewOrEditComponent ]
+      declarations: [ DatePickerComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ViewOrEditComponent);
+    fixture = TestBed.createComponent(DatePickerComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

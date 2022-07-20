@@ -10,7 +10,6 @@ import { ComptesComponent } from './components/comptes/comptes.component';
 import { LoginComponent } from './components/login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { ViewOrEditComponent } from './components/view-or-edit/view-or-edit.component';
 import { OperationFormComponent } from './components/operation-form/operation-form.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -19,6 +18,11 @@ import { registerLocaleData } from '@angular/common';
 import * as fr from '@angular/common/locales/fr';
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { DatepickerModule } from 'ng2-datepicker';
+import { DatePickerComponent } from './components/date-picker/date-picker.component';
+import { Daterangepicker } from 'ng2-daterangepicker';
+// import { CookieService } from 'ngx-cookie-service';
+import { RegisterComponent } from './components/register/register.component';
 
 @NgModule({
   declarations: [
@@ -28,9 +32,10 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
     ErrorComponent,
     ComptesComponent,
     LoginComponent,
-    ViewOrEditComponent,
     OperationFormComponent,
     CompteFormComponent,
+    DatePickerComponent,
+    RegisterComponent,
   ],
   imports: [
     BrowserModule,
@@ -42,6 +47,9 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
     MatDialogModule,
     MatTableModule,
     MatPaginatorModule,
+    DatepickerModule,
+    Daterangepicker,
+    // CookieService,
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'fr-FR' }],
   bootstrap: [AppComponent],

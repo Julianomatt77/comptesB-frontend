@@ -53,6 +53,7 @@ export class ComptesComponent implements OnInit {
     this.dataSource = new MatTableDataSource(this.operationList);
     this.showOperations();
     this.showAccounts();
+    this.dataSource.paginator = this.paginator;
   }
 
   ngAfterViewInit() {
@@ -77,6 +78,7 @@ export class ComptesComponent implements OnInit {
         }
       });
       this.dataSource = new MatTableDataSource(this.operationList);
+      this.dataSource.paginator = this.paginator;
     });
   }
 
@@ -194,4 +196,6 @@ export class ComptesComponent implements OnInit {
       this.showAccounts();
     });
   }
+
+  /************** Date picker ***********/
 }

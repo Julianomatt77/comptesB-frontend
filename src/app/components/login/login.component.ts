@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthService } from 'src/app/services/auth.service';
+import { AuthService } from '../../services/auth.service';
+import { StorageService } from '../../services/storage.service';
 
 @Component({
   selector: 'app-login',
@@ -8,26 +8,47 @@ import { AuthService } from 'src/app/services/auth.service';
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
-  username!: string;
-  password!: string;
-  errMsg!: string;
+  form: any = {
+    username: null,
+    password: null,
+  };
+  isLoggedIn = false;
+  isLoginFailed = false;
+  errorMessage = '';
+  roles: string[] = [];
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private storageService: StorageService
+  ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (this.storageService.isLoggedIn()) {
+      this.isLoggedIn = true;
+      this.roles = this.storageService.getUser().roles;
+    }
+  }
 
-  onSubmitAuthForm(): void {
-    //reset errMsg
-    // this.errMsg = '';
-    // this.authService
-    //   .signIn(this.username, this.password)
-    //   .then(() => {
-    //     //redirect user to series view
-    //     this.router.navigateByUrl('/series');
-    //   })
-    //   .catch((errMsg) => {
-    //     //If wrong logins, display en error message
-    //     this.errMsg = errMsg;
-    //   });
+  onSubmit(): void {
+    const { username, password } = this.form;
+
+    this.authService.login(username, password).subscribe({
+      next: (data) => {
+        this.storageService.saveUser(data);
+
+        this.isLoginFailed = false;
+        this.isLoggedIn = true;
+        this.roles = this.storageService.getUser().roles;
+        this.reloadPage();
+      },
+      error: (err) => {
+        this.errorMessage = err.error.message;
+        this.isLoginFailed = true;
+      },
+    });
+  }
+
+  reloadPage(): void {
+    window.location.reload();
   }
 }

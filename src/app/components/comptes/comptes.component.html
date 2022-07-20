@@ -3,6 +3,24 @@
     <h1 class="mb-5">Récapitulatif des comptes</h1>
   </div>
 
+  <!-- <div class="input-group">
+    <input
+      type="text"
+      class="form-control"
+      [(ngModel)]="value"
+      (ngModelChange)="onValueChange($event)"
+      #dp="bsDatepicker"
+      bsDatepicker
+      [bsConfig]="{ dateInputFormat: 'MMMM' }"
+    />
+    <span class="input-group-addon" (click)="dp.toggle()">
+      <span class="fa fa-calendar pointer"></span>
+    </span>
+  </div> -->
+  <!-- <div>
+    <app-date-picker></app-date-picker>
+  </div> -->
+
   <div class="row">
     <div class="col-lg-8">
       <div class="d-flex justify-content-center">
@@ -16,7 +34,67 @@
         <div>Différence = {{ totalCredit + totalDebit }} €</div>
       </div>
       <div>
-        <table class="table">
+        <!-- Angular mat table -->
+        <table mat-table [dataSource]="dataSource">
+          <ng-container matColumnDef="operationDate">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.operationDate | date: "MMMM y" }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="compte">
+            <th mat-header-cell *matHeaderCellDef>Compte</th>
+            <td mat-cell *matCellDef="let element">{{ element.compte }}</td>
+          </ng-container>
+          <ng-container matColumnDef="montant">
+            <th mat-header-cell *matHeaderCellDef>Montant</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.montant + " €" }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="categorie">
+            <th mat-header-cell *matHeaderCellDef>Catégorie</th>
+            <td mat-cell *matCellDef="let element">{{ element.categorie }}</td>
+          </ng-container>
+          <ng-container matColumnDef="description1">
+            <th mat-header-cell *matHeaderCellDef>Description 1</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.description1 }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="description2">
+            <th mat-header-cell *matHeaderCellDef>Description 2</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.description2 }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="edition">
+            <th mat-header-cell *matHeaderCellDef>Edition</th>
+            <td mat-cell *matCellDef="let element">
+              <button (click)="openOperationDetail(element)">Editer</button>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="suppression">
+            <th mat-header-cell *matHeaderCellDef>Suppression</th>
+            <td mat-cell *matCellDef="let element">
+              <button (click)="deleteOperation(element)">Supprimer</button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+          <tr
+            mat-row
+            *matRowDef="let myRowData; columns: columnsToDisplay"
+          ></tr>
+        </table>
+
+        <mat-paginator
+          [pageSizeOptions]="[10, 50, 100]"
+          showFirstLastButtons
+          aria-label="Select page of operations"
+        >
+        </mat-paginator>
+        <!-- <table class="table">
           <thead>
             <tr>
               <th scope="col">Date</th>
@@ -47,7 +125,7 @@
               </td>
             </tr>
           </tbody>
-        </table>
+        </table> -->
       </div>
     </div>
     <div class="col-lg-4">
@@ -80,55 +158,4 @@
       </div>
     </div>
   </div>
-
-  <!-- Angular mat table -->
-  <table mat-table [dataSource]="dataSource">
-    <ng-container matColumnDef="operationDate">
-      <th mat-header-cell *matHeaderCellDef>Date</th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.operationDate | date: "MMMM y" }}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="compte">
-      <th mat-header-cell *matHeaderCellDef>Compte</th>
-      <td mat-cell *matCellDef="let element">{{ element.compte }}</td>
-    </ng-container>
-    <ng-container matColumnDef="montant">
-      <th mat-header-cell *matHeaderCellDef>Montant</th>
-      <td mat-cell *matCellDef="let element">{{ element.montant + " €" }}</td>
-    </ng-container>
-    <ng-container matColumnDef="categorie">
-      <th mat-header-cell *matHeaderCellDef>Catégorie</th>
-      <td mat-cell *matCellDef="let element">{{ element.categorie }}</td>
-    </ng-container>
-    <ng-container matColumnDef="description1">
-      <th mat-header-cell *matHeaderCellDef>Description 1</th>
-      <td mat-cell *matCellDef="let element">{{ element.description1 }}</td>
-    </ng-container>
-    <ng-container matColumnDef="description2">
-      <th mat-header-cell *matHeaderCellDef>Description 2</th>
-      <td mat-cell *matCellDef="let element">{{ element.description2 }}</td>
-    </ng-container>
-    <ng-container matColumnDef="edition">
-      <th mat-header-cell *matHeaderCellDef>Edition</th>
-      <td mat-cell *matCellDef="let element">
-        <button (click)="openOperationDetail(element)">Editer</button>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="suppression">
-      <th mat-header-cell *matHeaderCellDef>Suppression</th>
-      <td mat-cell *matCellDef="let element">
-        <button (click)="deleteOperation(element)">Supprimer</button>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-    <tr mat-row *matRowDef="let myRowData; columns: columnsToDisplay"></tr>
-  </table>
-  <mat-paginator
-    [pageSizeOptions]="[10, 50, 100]"
-    showFirstLastButtons
-    aria-label="Select page of operations"
-  >
-  </mat-paginator>
 </section>
