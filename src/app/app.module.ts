@@ -23,6 +23,7 @@ import { DatePickerComponent } from './components/date-picker/date-picker.compon
 import { Daterangepicker } from 'ng2-daterangepicker';
 // import { CookieService } from 'ngx-cookie-service';
 import { RegisterComponent } from './components/register/register.component';
+import { tokenInterceptor } from './token.interceptor';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,7 @@ import { RegisterComponent } from './components/register/register.component';
     Daterangepicker,
     // CookieService,
   ],
-  providers: [{ provide: LOCALE_ID, useValue: 'fr-FR' }],
+  providers: [{ provide: LOCALE_ID, useValue: 'fr-FR' }, tokenInterceptor],
   bootstrap: [AppComponent],
 })
 export class AppModule {
