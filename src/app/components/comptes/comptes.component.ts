@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { Operation } from 'src/app/models/Operation';
 import { OperationService } from 'src/app/services/operation.service';
 import { OperationFormComponent } from '../operation-form/operation-form.component';
@@ -10,6 +16,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { CookieService } from 'ngx-cookie-service';
+import { FormGroup, FormBuilder } from '@angular/forms';
 
 @Component({
   selector: 'app-comptes',
@@ -17,6 +24,8 @@ import { CookieService } from 'ngx-cookie-service';
   styleUrls: ['./comptes.component.css'],
 })
 export class ComptesComponent implements OnInit {
+  @Output() formSubmitted: EventEmitter<string>;
+
   operationList: any[] = [];
   operationId!: string;
   operation!: Operation;
@@ -44,23 +53,36 @@ export class ComptesComponent implements OnInit {
   ];
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
+  form!: FormGroup;
+  todayMonth = new Date(Date.now()).getMonth() + 1;
+  todayYear = new Date(Date.now()).getFullYear().toString();
+  todayMonthString = this.todayMonth.toString();
+  dateFiltered = false;
+
   constructor(
+    private fb: FormBuilder,
     private operationService: OperationService,
     private compteService: CompteService,
     public dialog: MatDialog
-  ) {}
+  ) {
+    this.formSubmitted = new EventEmitter<string>();
+  }
 
   ngOnInit(): void {
     this.dataSource = new MatTableDataSource(this.operationList);
     this.showOperations();
     this.showAccounts();
     this.dataSource.paginator = this.paginator;
-  }
 
-  ngAfterViewInit() {
-    // this.showOperations();
-    // this.dataSource.paginator = this.paginator;
-    // console.log(this.paginator);
+    if (this.todayMonthString.length < 2) {
+      this.todayMonthString = 0 + this.todayMonthString;
+    }
+
+    this.form = this.fb.group({
+      rangeDate: this.todayYear + '-' + this.todayMonthString,
+    });
+
+    // console.log(this.todayMonthString, this.todayYear);
   }
 
   /* ************************* Opêrations *********** */
@@ -81,6 +103,7 @@ export class ComptesComponent implements OnInit {
       this.dataSource = new MatTableDataSource(this.operationList);
       this.dataSource.paginator = this.paginator;
     });
+    console.log(this.dateFiltered);
   }
 
   AddOperation() {
@@ -199,4 +222,39 @@ export class ComptesComponent implements OnInit {
   }
 
   /************** Date picker ***********/
+  onSubmitChangeDate() {
+    let tempMonth = '';
+    this.todayMonthString = this.form.value.rangeDate.split('-')[1];
+    this.todayYear = this.form.value.rangeDate.split('-')[0];
+
+    if ((new Date(Date.now()).getMonth() + 1).toString().length < 2) {
+      tempMonth = '0' + (new Date(Date.now()).getMonth() + 1).toString();
+    } else {
+      tempMonth = (new Date(Date.now()).getMonth() + 1).toString();
+    }
+
+    if (
+      this.todayMonthString != tempMonth ||
+      this.todayYear != new Date(Date.now()).getFullYear().toString()
+    ) {
+      this.dateFiltered = true;
+    }
+
+    // TODO : Appel au backend une fonction getOperationsByMonth et get AccountsByMonth
+  }
+
+  resetDateFilters() {
+    this.todayMonth = new Date(Date.now()).getMonth() + 1;
+    this.todayYear = new Date(Date.now()).getFullYear().toString();
+    this.todayMonthString = this.todayMonth.toString();
+    if (this.todayMonthString.length < 2) {
+      this.todayMonthString = 0 + this.todayMonthString;
+    }
+    this.dateFiltered = false;
+
+    this.dataSource = new MatTableDataSource(this.operationList);
+    this.showOperations();
+    this.showAccounts();
+    this.dataSource.paginator = this.paginator;
+  }
 }

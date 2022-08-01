@@ -21,6 +21,28 @@
     <app-date-picker></app-date-picker>
   </div> -->
 
+  <div>
+    <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()">
+      <div class="d-flex align-items-center">
+        <div class="mx-2">
+          <input
+            type="month"
+            value="{{ todayYear }}-{{ todayMonthString }}"
+            formControlName="rangeDate"
+          />
+        </div>
+        <div class="mx-2">
+          <button type="submit" class="btn btn-dark">Filtrer</button>
+        </div>
+        <div class="mx-2">
+          <button class="btn btn-dark" (click)="resetDateFilters()">
+            Reset
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
   <div class="row">
     <div class="col-lg-8">
       <div class="d-flex justify-content-center">
