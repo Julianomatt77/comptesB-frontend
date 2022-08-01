@@ -9,6 +9,7 @@ import { forkJoin } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-comptes',

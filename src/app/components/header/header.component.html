@@ -1,8 +1,9 @@
 <nav class="pt-2">
   <div class="d-flex justify-content-evenly">
     <button [routerLink]="['/']">Accueil</button>
-    <button [routerLink]="['/comptes']">Comptes</button>
-    <button [routerLink]="['/login']">Connexion</button>
-    <button (click)="logout()">Se déconnecter</button>
+    <button *ngIf="isLoggedIn" [routerLink]="['/comptes']">Comptes</button>
+    <button *ngIf="!isLoggedIn" [routerLink]="['/login']">Connexion</button>
+
+    <button *ngIf="isLoggedIn" (click)="logout()">Se déconnecter</button>
   </div>
 </nav>

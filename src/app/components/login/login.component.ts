@@ -71,8 +71,10 @@ export class LoginComponent implements OnInit {
           false,
           'Strict'
         );
+
+        // Redirection après login
         setTimeout(() => {
-          this.router.navigateByUrl('/');
+          this.router.navigateByUrl('/comptes');
         }, 2000);
         // this.reloadPage();
       },

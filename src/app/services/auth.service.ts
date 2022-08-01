@@ -15,14 +15,17 @@ import { map } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class AuthService {
-  public isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  // public isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  public isAuthenticatedSubject: BehaviorSubject<boolean>;
   public currentUserSubject = new BehaviorSubject<any>(undefined);
 
   constructor(
     private http: HttpClient,
     private router: Router,
     private cookieService: CookieService
-  ) {}
+  ) {
+    this.isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  }
 
   login(username: string, password?: string): Observable<any> {
     this.isAuthenticatedSubject.next(true);
@@ -42,6 +45,7 @@ export class AuthService {
 
   logout(): Observable<any> {
     this.cookieService.deleteAll('/');
+    this.isAuthenticatedSubject.next(false);
     this.router.navigateByUrl('/');
     // this.currentUserSubject.next(new User);
     return this.http.post(environment.baseUrl + '/auth/signout', {});
