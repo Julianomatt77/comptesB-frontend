@@ -17,6 +17,7 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { CookieService } from 'ngx-cookie-service';
 import { FormGroup, FormBuilder } from '@angular/forms';
+import { faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-comptes',
@@ -59,6 +60,9 @@ export class ComptesComponent implements OnInit {
   todayMonthString = this.todayMonth.toString();
   dateFiltered = false;
 
+  faPen = faPen;
+  faTrashCan = faTrashCan;
+
   constructor(
     private fb: FormBuilder,
     private operationService: OperationService,
@@ -81,8 +85,20 @@ export class ComptesComponent implements OnInit {
     this.form = this.fb.group({
       rangeDate: this.todayYear + '-' + this.todayMonthString,
     });
+  }
 
-    // console.log(this.todayMonthString, this.todayYear);
+  totalOperations(montant: number, type: boolean) {
+    if (type == false) {
+      this.totalDebit += montant;
+    } else {
+      this.totalCredit += montant;
+    }
+
+    let temp1 = Math.round(this.totalDebit * 100) / 100;
+    this.totalDebit = temp1;
+
+    let temp2 = Math.round(this.totalCredit * 100) / 100;
+    this.totalCredit = temp2;
   }
 
   /* ************************* Opêrations *********** */
@@ -94,11 +110,7 @@ export class ComptesComponent implements OnInit {
       data.forEach((operation) => {
         this.operationList.push(operation);
 
-        if (operation.type == false) {
-          this.totalDebit += operation.montant;
-        } else {
-          this.totalCredit += operation.montant;
-        }
+        this.totalOperations(operation.montant, operation.type);
       });
       this.dataSource = new MatTableDataSource(this.operationList);
       this.dataSource.paginator = this.paginator;
@@ -178,6 +190,8 @@ export class ComptesComponent implements OnInit {
     this.compteList = [];
     this.compteService.getAllAccounts().subscribe((data) => {
       data.forEach((compte) => {
+        let temp = Math.round(compte.soldeActuel * 100) / 100;
+        compte.soldeActuel = temp;
         this.compteList.push(compte);
       });
     });
@@ -252,11 +266,7 @@ export class ComptesComponent implements OnInit {
         data.forEach((operation) => {
           this.operationList.push(operation);
 
-          if (operation.type == false) {
-            this.totalDebit += operation.montant;
-          } else {
-            this.totalCredit += operation.montant;
-          }
+          this.totalOperations(operation.montant, operation.type);
         });
         this.dataSource = new MatTableDataSource(this.operationList);
         this.dataSource.paginator = this.paginator;

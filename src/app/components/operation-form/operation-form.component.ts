@@ -37,11 +37,17 @@ export class OperationFormComponent implements OnInit {
     'Salaire',
     'Transfert',
     'Voyage',
+    'santé',
   ];
   compteList: string[] = [];
 
   compteId = '';
   tempMontant = 0;
+
+  operationDateDay!: string;
+  operationDateMonth!: string;
+  operationDateYear!: string;
+  operationdateString!: string;
 
   constructor(
     private fb: FormBuilder,
@@ -56,7 +62,9 @@ export class OperationFormComponent implements OnInit {
       this.buttonLabel = 'Mettre à jour';
       this.id = data.operation._id;
       this.operation = data.operation;
-      this.operation.operationDate = new Date(this.operation.operationDate);
+      this.operation.operationDate = new Date(
+        this.operation.operationDate.toString()
+      );
     } else {
       this.addOrEdit = 'add';
       this.buttonLabel = 'Ajouter';
@@ -68,7 +76,7 @@ export class OperationFormComponent implements OnInit {
         '',
         '',
         '',
-        new Date(),
+        new Date(Date.now()),
         0
       );
     }
@@ -99,13 +107,9 @@ export class OperationFormComponent implements OnInit {
     if (this.addOrEdit == 'edit') {
       this.operationService.getOneOperation(this.id).subscribe((data) => {
         this.operation = data;
-        console.log(this.operation);
         this.operation.operationDate = new Date(this.operation.operationDate);
-        // ? data
-        // : new Operation(0, 0, false, '', '', '', '', new Date());
       });
       this.tempMontant = this.operation.montant;
-      console.log(this.tempMontant);
     }
   }
 

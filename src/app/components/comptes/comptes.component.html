@@ -91,15 +91,19 @@
             </td>
           </ng-container>
           <ng-container matColumnDef="edition">
-            <th mat-header-cell *matHeaderCellDef>Edition</th>
+            <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let element">
-              <button (click)="openOperationDetail(element)">Editer</button>
+              <button (click)="openOperationDetail(element)" class="btn">
+                <fa-icon [icon]="faPen"></fa-icon>
+              </button>
             </td>
           </ng-container>
           <ng-container matColumnDef="suppression">
-            <th mat-header-cell *matHeaderCellDef>Suppression</th>
+            <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let element">
-              <button (click)="deleteOperation(element)">Supprimer</button>
+              <button (click)="deleteOperation(element)" class="btn">
+                <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
+              </button>
             </td>
           </ng-container>
 
@@ -160,21 +164,27 @@
             <tr>
               <th scope="col">Compte</th>
               <th scope="col">Solde</th>
-              <th scope="col">Edition</th>
-              <th scope="col">Suppression</th>
+              <th scope="col"></th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let compte of compteList">
-              <td>{{ compte.name }}</td>
-              <td>{{ compte.soldeActuel + " €" }}</td>
-              <td>
-                <button (click)="openAccountDetail(compte)">Editer</button>
-              </td>
-              <td>
-                <button (click)="deleteAccount(compte)">Supprimer</button>
-              </td>
-            </tr>
+            <ng-container *ngFor="let compte of compteList">
+              <tr *ngIf="compte.typeCompte == 'Compte Courant'">
+                <td>{{ compte.name }}</td>
+                <td>{{ compte.soldeActuel + " €" }}</td>
+                <td>
+                  <button (click)="openAccountDetail(compte)" class="btn">
+                    <fa-icon [icon]="faPen"></fa-icon>
+                  </button>
+                </td>
+                <td>
+                  <button (click)="deleteAccount(compte)" class="btn">
+                    <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
+                  </button>
+                </td>
+              </tr>
+            </ng-container>
           </tbody>
         </table>
       </div>

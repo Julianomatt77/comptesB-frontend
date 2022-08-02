@@ -24,6 +24,7 @@ import { Daterangepicker } from 'ng2-daterangepicker';
 // import { CookieService } from 'ngx-cookie-service';
 import { RegisterComponent } from './components/register/register.component';
 import { tokenInterceptor } from './token.interceptor';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,8 @@ import { tokenInterceptor } from './token.interceptor';
     MatPaginatorModule,
     DatepickerModule,
     Daterangepicker,
+    FontAwesomeModule,
+    FontAwesomeModule,
     // CookieService,
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'fr-FR' }, tokenInterceptor],
