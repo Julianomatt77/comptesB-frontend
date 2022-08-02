@@ -22,6 +22,13 @@ export class OperationService {
     );
   }
 
+  public getOperationsFiltered(month: string, year: string) {
+    return this.http.post<any[]>(
+      `${environment.baseUrl}/operations/getOperationsFiltered`,
+      { month, year }
+    );
+  }
+
   public getOneOperation(id: string) {
     return this.http.get<Operation>(
       `${environment.baseUrl}/operations/getOneOperation/${id}`

@@ -103,7 +103,6 @@ export class ComptesComponent implements OnInit {
       this.dataSource = new MatTableDataSource(this.operationList);
       this.dataSource.paginator = this.paginator;
     });
-    console.log(this.dateFiltered);
   }
 
   AddOperation() {
@@ -121,8 +120,6 @@ export class ComptesComponent implements OnInit {
         this.showOperations();
         this.showAccounts();
       });
-
-    // console.log('Ajoutez une opération');
   }
 
   openOperationDetail(operation: any) {
@@ -224,15 +221,19 @@ export class ComptesComponent implements OnInit {
   /************** Date picker ***********/
   onSubmitChangeDate() {
     let tempMonth = '';
+
+    // Récupération de la date depuis le formulaire html
     this.todayMonthString = this.form.value.rangeDate.split('-')[1];
     this.todayYear = this.form.value.rangeDate.split('-')[0];
 
+    // Si pas de filtre -> date d'aujourd'hui
     if ((new Date(Date.now()).getMonth() + 1).toString().length < 2) {
       tempMonth = '0' + (new Date(Date.now()).getMonth() + 1).toString();
     } else {
       tempMonth = (new Date(Date.now()).getMonth() + 1).toString();
     }
 
+    // Si valeur du datepicker different de la date d'aujourd'hui almors un filtre est appliqué
     if (
       this.todayMonthString != tempMonth ||
       this.todayYear != new Date(Date.now()).getFullYear().toString()
@@ -240,7 +241,26 @@ export class ComptesComponent implements OnInit {
       this.dateFiltered = true;
     }
 
-    // TODO : Appel au backend une fonction getOperationsByMonth et get AccountsByMonth
+    // Appel au backend pour filtrer les données par date
+    this.operationList = [];
+    this.totalCredit = 0;
+    this.totalDebit = 0;
+
+    this.operationService
+      .getOperationsFiltered(this.todayMonthString, this.todayYear)
+      .subscribe((data) => {
+        data.forEach((operation) => {
+          this.operationList.push(operation);
+
+          if (operation.type == false) {
+            this.totalDebit += operation.montant;
+          } else {
+            this.totalCredit += operation.montant;
+          }
+        });
+        this.dataSource = new MatTableDataSource(this.operationList);
+        this.dataSource.paginator = this.paginator;
+      });
   }
 
   resetDateFilters() {
@@ -252,9 +272,7 @@ export class ComptesComponent implements OnInit {
     }
     this.dateFiltered = false;
 
-    this.dataSource = new MatTableDataSource(this.operationList);
     this.showOperations();
     this.showAccounts();
-    this.dataSource.paginator = this.paginator;
   }
 }

@@ -21,7 +21,7 @@
     <app-date-picker></app-date-picker>
   </div> -->
 
-  <div>
+  <div class="d-flex align-items-center">
     <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()">
       <div class="d-flex align-items-center">
         <div class="mx-2">
@@ -32,15 +32,15 @@
           />
         </div>
         <div class="mx-2">
-          <button type="submit" class="btn btn-dark">Filtrer</button>
-        </div>
-        <div class="mx-2">
-          <button class="btn btn-dark" (click)="resetDateFilters()">
-            Reset
-          </button>
+          <button type="submit" class="btn btn-success">Filtrer</button>
         </div>
       </div>
     </form>
+    <div class="mx-2">
+      <button class="btn btn-primary" (click)="resetDateFilters()">
+        Reset
+      </button>
+    </div>
   </div>
 
   <div class="row">
