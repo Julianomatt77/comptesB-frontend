@@ -86,11 +86,11 @@ export class OperationFormComponent implements OnInit {
     this.form = this.fb.group({
       montant: 0,
       type: false,
-      categorie: '',
-      compte: '',
-      description1: '',
+      categorie: ['', [Validators.required]],
+      compte: ['', [Validators.required]],
+      description1: ['', [Validators.required]],
       description2: '',
-      operationDate: Date(),
+      operationDate: [Date(), [Validators.required]],
       solde: 0,
     });
 

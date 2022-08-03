@@ -25,6 +25,7 @@ import { Daterangepicker } from 'ng2-daterangepicker';
 import { RegisterComponent } from './components/register/register.component';
 import { tokenInterceptor } from './token.interceptor';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { RecapComponent } from './components/recap/recap.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     CompteFormComponent,
     DatePickerComponent,
     RegisterComponent,
+    RecapComponent,
   ],
   imports: [
     BrowserModule,

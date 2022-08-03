@@ -2,6 +2,7 @@
   <div class="d-flex justify-content-evenly">
     <button [routerLink]="['/']">Accueil</button>
     <button *ngIf="isLoggedIn" [routerLink]="['/comptes']">Comptes</button>
+    <button *ngIf="isLoggedIn" [routerLink]="['/recap']">Récapitulatif</button>
     <button *ngIf="!isLoggedIn" [routerLink]="['/login']">Connexion</button>
 
     <button *ngIf="isLoggedIn" (click)="logout()">Se déconnecter</button>

@@ -1,0 +1,80 @@
+<section class="container mt-5">
+  <div class="text-center">
+    <h1 class="mb-5">Récapitulatif Annuel des comptes</h1>
+  </div>
+
+  <!-- <div class="input-group">
+    <input
+      type="text"
+      class="form-control"
+      [(ngModel)]="value"
+      (ngModelChange)="onValueChange($event)"
+      #dp="bsDatepicker"
+      bsDatepicker
+      [bsConfig]="{ dateInputFormat: 'MMMM' }"
+    />
+    <span class="input-group-addon" (click)="dp.toggle()">
+      <span class="fa fa-calendar pointer"></span>
+    </span>
+  </div> -->
+  <!-- <div>
+    <app-date-picker></app-date-picker>
+  </div> -->
+
+  <!-- <div class="d-flex align-items-center">
+    <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()">
+      <div class="d-flex align-items-center">
+        <div class="mx-2">
+          <input
+            type="month"
+            value="{{ todayYear }}-{{ todayMonthString }}"
+            formControlName="rangeDate"
+          />
+        </div>
+        <div class="mx-2">
+          <button type="submit" class="btn btn-success">Filtrer</button>
+        </div>
+      </div>
+    </form>
+  </div> -->
+
+  <div>
+    <div class="d-flex justify-content-evenly">
+      <div>Crédit = {{ totalCredit }} €</div>
+      <div>Débit = {{ totalDebit }} €</div>
+      <div>Différence = {{ totalCredit + totalDebit }} €</div>
+    </div>
+    <div class="d-flex justify-content-center">
+      <!-- Angular mat table -->
+      <table mat-table [dataSource]="dataSource" class="col-lg-6 col-12">
+        <ng-container matColumnDef="month">
+          <th mat-header-cell *matHeaderCellDef>Mois</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.month }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="economie">
+          <th mat-header-cell *matHeaderCellDef>Economie</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.economie + " €" }}
+          </td>
+        </ng-container>
+        <ng-container matColumnDef="solde">
+          <th mat-header-cell *matHeaderCellDef>Solde</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.solde + " €" }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+        <tr mat-row *matRowDef="let myRowData; columns: columnsToDisplay"></tr>
+      </table>
+      <!-- <mat-paginator
+        [pageSizeOptions]="[12]"
+        showFirstLastButtons
+        aria-label="Select page of operations"
+      >
+      </mat-paginator> -->
+    </div>
+  </div>
+</section>

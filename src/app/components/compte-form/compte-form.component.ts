@@ -7,7 +7,7 @@ import {
   Inject,
 } from '@angular/core';
 import { Compte } from 'src/app/models/Compte';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CompteService } from 'src/app/services/compte.service';
 
@@ -50,8 +50,8 @@ export class CompteFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      name: '',
-      typeCompte: '',
+      name: ['', [Validators.required]],
+      typeCompte: ['', [Validators.required]],
       soldeInitial: 0,
       soldeActuel: 0,
     });
