@@ -36,6 +36,7 @@ export class AuthService {
   }
 
   register(username: string, email: string, password: string): Observable<any> {
+    this.isAuthenticatedSubject.next(false);
     return this.http.post(environment.baseUrl + '/auth/signup', {
       username,
       email,

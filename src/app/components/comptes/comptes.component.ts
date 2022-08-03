@@ -32,6 +32,7 @@ export class ComptesComponent implements OnInit {
   operation!: Operation;
   totalCredit = 0;
   totalDebit = 0;
+  userId!: string;
 
   compteList: any[] = [];
   compteId = '';
@@ -67,9 +68,11 @@ export class ComptesComponent implements OnInit {
     private fb: FormBuilder,
     private operationService: OperationService,
     private compteService: CompteService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private cookieService: CookieService
   ) {
     this.formSubmitted = new EventEmitter<string>();
+    this.userId = this.cookieService.get('userId');
   }
 
   ngOnInit(): void {
@@ -108,9 +111,10 @@ export class ComptesComponent implements OnInit {
     this.totalDebit = 0;
     this.operationService.getAllOperations().subscribe((data) => {
       data.forEach((operation) => {
-        this.operationList.push(operation);
-
-        this.totalOperations(operation.montant, operation.type);
+        if (operation.userId == this.userId) {
+          this.operationList.push(operation);
+          this.totalOperations(operation.montant, operation.type);
+        }
       });
       this.dataSource = new MatTableDataSource(this.operationList);
       this.dataSource.paginator = this.paginator;
@@ -190,9 +194,11 @@ export class ComptesComponent implements OnInit {
     this.compteList = [];
     this.compteService.getAllAccounts().subscribe((data) => {
       data.forEach((compte) => {
-        let temp = Math.round(compte.soldeActuel * 100) / 100;
-        compte.soldeActuel = temp;
-        this.compteList.push(compte);
+        if (compte.userId == this.userId) {
+          let temp = Math.round(compte.soldeActuel * 100) / 100;
+          compte.soldeActuel = temp;
+          this.compteList.push(compte);
+        }
       });
     });
   }
@@ -260,17 +266,7 @@ export class ComptesComponent implements OnInit {
     this.totalCredit = 0;
     this.totalDebit = 0;
 
-    this.operationService
-      .getOperationsFiltered(this.todayMonthString, this.todayYear)
-      .subscribe((data) => {
-        data.forEach((operation) => {
-          this.operationList.push(operation);
-
-          this.totalOperations(operation.montant, operation.type);
-        });
-        this.dataSource = new MatTableDataSource(this.operationList);
-        this.dataSource.paginator = this.paginator;
-      });
+    this.showOperationsFiltered(this.todayMonthString, this.todayYear);
   }
 
   resetDateFilters() {
@@ -284,5 +280,20 @@ export class ComptesComponent implements OnInit {
 
     this.showOperations();
     this.showAccounts();
+  }
+
+  showOperationsFiltered(month: string, year: string) {
+    this.operationService
+      .getOperationsFiltered(month, year)
+      .subscribe((data) => {
+        data.forEach((operation) => {
+          if (operation.userId == this.userId) {
+            this.operationList.push(operation);
+            this.totalOperations(operation.montant, operation.type);
+          }
+        });
+        this.dataSource = new MatTableDataSource(this.operationList);
+        this.dataSource.paginator = this.paginator;
+      });
   }
 }
