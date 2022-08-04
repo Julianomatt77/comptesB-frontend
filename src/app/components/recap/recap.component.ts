@@ -31,19 +31,20 @@ export class RecapComponent implements OnInit {
   compteId = '';
   form!: FormGroup;
   operationPerYear: Recap[] = [
-    { month: '01', economie: 0, solde: 0 },
-    { month: '02', economie: 0, solde: 0 },
-    { month: '03', economie: 0, solde: 0 },
-    { month: '04', economie: 0, solde: 0 },
-    { month: '05', economie: 0, solde: 0 },
-    { month: '06', economie: 0, solde: 0 },
-    { month: '07', economie: 0, solde: 0 },
-    { month: '08', economie: 0, solde: 0 },
-    { month: '09', economie: 0, solde: 0 },
-    { month: '10', economie: 0, solde: 0 },
-    { month: '11', economie: 0, solde: 0 },
-    { month: '12', economie: 0, solde: 0 },
+    { month: 'Janvier', economie: 0, solde: 0 },
+    { month: 'Février', economie: 0, solde: 0 },
+    { month: 'Mars', economie: 0, solde: 0 },
+    { month: 'Avril', economie: 0, solde: 0 },
+    { month: 'Mai', economie: 0, solde: 0 },
+    { month: 'Juin', economie: 0, solde: 0 },
+    { month: 'Juillet', economie: 0, solde: 0 },
+    { month: 'Août', economie: 0, solde: 0 },
+    { month: 'Septembre', economie: 0, solde: 0 },
+    { month: 'Octobre', economie: 0, solde: 0 },
+    { month: 'Novembre', economie: 0, solde: 0 },
+    { month: 'Décembre', economie: 0, solde: 0 },
   ];
+  displayYear: Array<number> = [];
 
   dataSource = new MatTableDataSource(this.operationPerYear);
   @ViewChild(MatSort) sort!: MatSort | undefined;
@@ -68,13 +69,16 @@ export class RecapComponent implements OnInit {
     });
 
     this.userId = this.cookieService.get('userId');
-
-    // console.log(this.operationPerYear);
   }
 
   ngOnInit(): void {
+    let year = new Date(Date.now()).getFullYear() - 1;
+    for (let i = 0; i < 50; i++) {
+      this.displayYear.push(year - i);
+    }
+
     this.dataSource = new MatTableDataSource(this.operationPerYear);
-    this.showOperations();
+    this.showOperations(this.todayYear);
     this.dataSource.paginator = this.paginator;
 
     this.todayMonthString = this.datePickerService.transformMonth(
@@ -96,31 +100,21 @@ export class RecapComponent implements OnInit {
     this.totalCredit = temp2;
   }
 
-  showOperations() {
-    this.operationPerYear = [
-      { month: 'Janvier', economie: 0, solde: 0 },
-      { month: 'Février', economie: 0, solde: 0 },
-      { month: 'Mars', economie: 0, solde: 0 },
-      { month: 'Avril', economie: 0, solde: 0 },
-      { month: 'Mai', economie: 0, solde: 0 },
-      { month: 'Juin', economie: 0, solde: 0 },
-      { month: 'Juillet', economie: 0, solde: 0 },
-      { month: 'Août', economie: 0, solde: 0 },
-      { month: 'Septembre', economie: 0, solde: 0 },
-      { month: 'Octobre', economie: 0, solde: 0 },
-      { month: 'Novembre', economie: 0, solde: 0 },
-      { month: 'Décembre', economie: 0, solde: 0 },
-    ];
+  showOperations(year: string) {
+    // Remise à 0 du tableau
+    this.operationPerYear.forEach((data) => {
+      data.economie = 0;
+      data.solde = 0;
+    });
     this.totalCredit = 0;
     this.totalDebit = 0;
 
     for (let i = 0; i < 12; i++) {
       this.operationService
-        .getOperationsFiltered((i + 1).toString(), this.todayYear)
+        .getOperationsFiltered((i + 1).toString(), year)
         .subscribe((data) => {
           data.forEach((monthData) => {
             if (monthData.userId == this.userId) {
-              // console.log(monthData);
               this.operationPerYear[i].economie += monthData.montant;
               this.operationPerYear[i].economie =
                 Math.round(this.operationPerYear[i].economie * 100) / 100;
@@ -128,24 +122,22 @@ export class RecapComponent implements OnInit {
               this.totalOperations(monthData.montant, monthData.type);
             }
           });
-          console.log(this.operationPerYear);
+
+          // MAJ du tableau
           this.dataSource = new MatTableDataSource(this.operationPerYear);
           this.dataSource.paginator = this.paginator;
         });
     }
+  }
 
-    // this.operationService.getAllOperations().subscribe((data) => {
-    //   data.forEach((operation) => {
-    //     console.log(operation);
-    //     if (operation.userId == this.userId) {
+  onSubmitChangeDate() {
+    this.todayYear = this.form.value.rangeDate;
 
-    //       // this.operationList.push(operation);
+    // Si valeur du datepicker different de la date d'aujourd'hui almors un filtre est appliqué
+    if (this.todayYear != new Date(Date.now()).getFullYear().toString()) {
+      this.dateFiltered = true;
+    }
 
-    //       this.totalOperations(operation.montant, operation.type);
-    //     }
-    //   });
-    //   this.dataSource = new MatTableDataSource(this.operationPerYear);
-    //   // this.dataSource.paginator = this.paginator;
-    // });
+    this.showOperations(this.todayYear);
   }
 }
