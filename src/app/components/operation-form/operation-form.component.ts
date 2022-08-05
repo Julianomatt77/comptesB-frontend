@@ -30,6 +30,7 @@ export class OperationFormComponent implements OnInit {
     'Courses',
     'Divers',
     'Essence',
+    'Epargne',
     'Prélèvement',
     'Pub',
     'Remboursement',
