@@ -36,7 +36,6 @@ export class OperationService {
   }
 
   public updateOneOperation(value: { id: string; operation: Operation }) {
-    console.log(value);
     return this.http.post<Operation>(
       `${environment.baseUrl}/operations/updateOneOperation/${value.id}`,
       value
@@ -47,5 +46,16 @@ export class OperationService {
     return this.http.delete<Operation>(
       `${environment.baseUrl}/operations/deleteOperation/${id}`
     );
+  }
+
+  public uploadAccountHistory(soldeAllAccounts: any[]) {
+    return this.http.post<any[]>(
+      `${environment.baseUrl}/operations/uploadAccountHistory`,
+      soldeAllAccounts
+    );
+  }
+
+  public getAccountHistory() {
+    return this.http.get(`${environment.baseUrl}/operations/getAccountHistory`);
   }
 }
