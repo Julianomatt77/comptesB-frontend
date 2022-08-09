@@ -87,6 +87,7 @@ export class RecapComponent implements OnInit {
   ngOnInit(): void {
     let year = new Date(Date.now()).getFullYear() - 1;
     this.displayYear = [];
+    this.soldeAllAccounts = [];
 
     // Définition de la 1ere année affichée
     this.getOperations().subscribe((operation) => {
@@ -101,21 +102,89 @@ export class RecapComponent implements OnInit {
 
       this.operationsYears.unshift(new Date(Date.now()).getFullYear());
 
-      this.showOperationsPerMonth(this.todayYear).then(
-        () => {
-          this.getSoldePerMonth();
-          console.log(this.monthlySoldeHistory);
-        }
-        // console.log(this.monthlySoldeHistory)
-      );
+      //Récupération des opérations et de la liste des comptes courant (return soldeAllAccounts)
+      this.getBalancePerMonth();
 
-      this.displayDatas(this.todayYear);
+      this.initialyse(this.todayYear);
+      // this.displayDatas(this.todayYear);
+
       this.dataSource.paginator = this.paginator;
     });
 
     this.todayMonthString = this.datePickerService.transformMonth(
       this.todayMonthString
     );
+  }
+
+  initialyse(year: string) {
+    this.soldeAllAccounts = [];
+    this.monthlySoldeHistory = [];
+    let filteredArray = [];
+    let montantPerMonth = 0;
+
+    this.operationService.getAccountHistory().subscribe((history) => {
+      this.soldeAllAccounts = <any>history;
+      this.soldeAllAccounts.forEach((compte) => {
+        this.initialSolde = this.initialSolde + compte.soldeInitial;
+      });
+
+      this.operationsYears.reverse().forEach((operationyear) => {
+        for (let i = 0; i < 12; i++) {
+          let month: string;
+          let montantPerMonth = 0;
+          if (i < 9) {
+            month = 0 + (i + 1).toString();
+          } else {
+            month = (i + 1).toString();
+          }
+          this.monthlySoldeHistory.push({
+            dateSolde: operationyear + '-' + month,
+            economie: 0,
+            solde: this.initialSolde,
+          });
+
+          let operationMonth = operationyear + '-' + month;
+
+          let monthIndex = this.monthlySoldeHistory.findIndex(
+            (obj) => obj.dateSolde == operationMonth
+          );
+          // console.log(this.soldeAllAccounts);
+          filteredArray = [];
+          filteredArray = this.soldeAllAccounts
+            .filter((element) =>
+              element.soldeHistory.some(
+                (subElement: any) => subElement.soldeDate === operationMonth
+              )
+            )
+            .map((element) => {
+              let newElt = Object.assign({}, element); // copies element
+              return newElt.soldeHistory.filter(
+                (subElement: any) => subElement.soldeDate === operationMonth
+              );
+            });
+
+          filteredArray.forEach((monthOperation) => {
+            montantPerMonth = 0;
+            monthOperation.forEach((operation: any) => {
+              montantPerMonth += operation.montant;
+            });
+          });
+
+          // console.log(filteredArray);
+
+          this.monthlySoldeHistory[monthIndex].economie = montantPerMonth;
+          if (monthIndex > 0) {
+            this.monthlySoldeHistory[monthIndex].solde =
+              this.monthlySoldeHistory[monthIndex - 1].solde + montantPerMonth;
+          }
+        }
+      });
+
+      console.log(this.soldeAllAccounts);
+      console.log(this.monthlySoldeHistory);
+
+      this.displayDatas(year);
+    });
   }
 
   // Affichage du tableau filtré par année
@@ -140,6 +209,7 @@ export class RecapComponent implements OnInit {
       this.soldeAllAccounts.forEach((compte) => {
         this.initialSolde = this.initialSolde + compte.soldeInitial;
       });
+      console.log(this.soldeAllAccounts);
 
       // Initialisation du tableau de tous les soldes mensuels
       this.operationsYears.reverse().forEach((operationyear) => {
@@ -221,7 +291,7 @@ export class RecapComponent implements OnInit {
                 }
               });
               // console.log(this.monthlySoldeHistory);
-              // return this.monthlySoldeHistory;
+              return this.monthlySoldeHistory;
             });
 
           // console.log(this.monthlySoldeHistory);
@@ -235,11 +305,9 @@ export class RecapComponent implements OnInit {
     });
 
     // this.soldeHistory = this.monthlySoldeHistory;
-    console.log(this.monthlySoldeHistory);
-    // this.monthlySoldeHistory.forEach((monthData) => {
-    //   console.log(monthData);
-    // });
-    return this.monthlySoldeHistory;
+    // console.log(this.monthlySoldeHistory);
+
+    // return this.monthlySoldeHistory;
   }
 
   displayDatas(year: string) {
@@ -252,6 +320,11 @@ export class RecapComponent implements OnInit {
     this.totalCredit = 0;
     this.totalDebit = 0;
     this.totaldifference = 0;
+
+    // Récupération du solde par mois
+    let monthlyHistoryFiltered = this.monthlySoldeHistory.filter((element) => {
+      return element.dateSolde.includes(year) == true;
+    });
 
     for (let i = 0; i < 12; i++) {
       this.operationService
@@ -266,8 +339,9 @@ export class RecapComponent implements OnInit {
               ) {
                 // MAJ des données du tableau
                 this.operationPerYear[i].economie += monthData.montant;
-                this.operationPerYear[i].economie =
-                  Math.round(this.operationPerYear[i].economie * 100) / 100;
+                this.operationPerYear[i].economie = Math.round(
+                  this.operationPerYear[i].economie
+                );
 
                 // this.operationPerYear[i].solde = this.operationPerYear[
                 //   i - 1
@@ -276,20 +350,27 @@ export class RecapComponent implements OnInit {
                 // MAJ du récap en haut de page
                 if (monthData.montant < 0) {
                   this.totalDebit += monthData.montant;
-                  this.totalDebit = Math.round(this.totalDebit * 100) / 100;
+                  this.totalDebit = Math.round(this.totalDebit);
                 } else {
                   this.totalCredit += monthData.montant;
-                  this.totalCredit = Math.round(this.totalCredit * 100) / 100;
+                  this.totalCredit = Math.round(this.totalCredit);
                 }
               }
             });
           });
 
+          // console.log(this.operationPerYear);
+          // console.log(monthlyHistoryFiltered);
+
+          // this.operationPerYear[i].solde = 0;
+          this.operationPerYear[i].solde = Math.round(
+            monthlyHistoryFiltered[i].solde
+          );
+
           // MAJ de l'affichage du tableau
           this.dataSource = new MatTableDataSource(this.operationPerYear);
           this.dataSource.paginator = this.paginator;
-          this.totaldifference =
-            Math.round((this.totalCredit + this.totalDebit) * 100) / 100;
+          this.totaldifference = Math.round(this.totalCredit + this.totalDebit);
         });
     }
   }
@@ -313,6 +394,7 @@ export class RecapComponent implements OnInit {
   getCompteList() {
     let compteListObservable = this.compteService.getAllAccounts().pipe(
       tap((data) => {
+        this.compteList = [];
         data.forEach((compte) => {
           if (compte.userId == this.userId) {
             compte.soldeActuel = Math.round(compte.soldeActuel * 100) / 100;
@@ -345,13 +427,12 @@ export class RecapComponent implements OnInit {
     this.soldeAllAccounts = [];
     this.operationList = [];
     this.compteList = [];
-    let economie = 0;
-    let solde = 0;
 
     let compteListObservable = this.getCompteList();
     let operationsObservable = this.getOperations();
 
     forkJoin([compteListObservable, operationsObservable]).subscribe((data) => {
+      this.soldeAllAccounts = [];
       let operations = data[1].reverse();
       data[0].forEach((compte) => {
         // console.log(compte.typeCompte);
@@ -367,7 +448,11 @@ export class RecapComponent implements OnInit {
       });
 
       operations.forEach((operation) => {
-        let operationDate = operation.operationDate.split('T')[0];
+        // let operationDate = operation.operationDate.split('T')[0];
+        let operationDate =
+          operation.operationDate.split('-')[0] +
+          '-' +
+          operation.operationDate.split('-')[1];
         this.soldeAllAccounts.forEach((compte) => {
           if (operation.compte == compte.compteName) {
             compte.lastSolde = compte.lastSolde + operation.montant;
@@ -382,16 +467,8 @@ export class RecapComponent implements OnInit {
       this.operationService
         .uploadAccountHistory(this.soldeAllAccounts)
         .subscribe();
+      // console.log(this.soldeAllAccounts);
       return this.soldeAllAccounts;
-    });
-  }
-
-  async getSoldePerMonth() {
-    console.log('ici');
-    console.log(this.monthlySoldeHistory);
-    await this.monthlySoldeHistory.forEach((monthlydata) => {
-      console.log('ici2');
-      console.log(monthlydata);
     });
   }
 }
