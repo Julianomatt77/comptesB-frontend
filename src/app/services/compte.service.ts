@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Compte } from '../models/Compte';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -53,5 +54,20 @@ export class CompteService {
       `${environment.baseUrl}/comptes/updateSolde/${name}`,
       solde
     );
+  }
+
+  public getCompteList(compteList: any[], userId: string) {
+    let compteListObservable = this.getAllAccounts().pipe(
+      tap((data) => {
+        data.forEach((compte) => {
+          if (compte.userId == userId) {
+            compte.soldeActuel = Math.round(compte.soldeActuel * 100) / 100;
+            compteList.push(compte);
+          }
+        });
+      })
+    );
+
+    return compteListObservable;
   }
 }

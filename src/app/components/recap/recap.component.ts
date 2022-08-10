@@ -26,6 +26,7 @@ import { tap } from 'rxjs/operators';
 })
 export class RecapComponent implements OnInit {
   operationList: any[] = [];
+  operationEpargneList: any[] = [];
   operationId!: string;
   operation!: Operation;
   totalCredit = 0;
@@ -33,6 +34,7 @@ export class RecapComponent implements OnInit {
   totaldifference = 0;
   userId!: string;
   compteList: any[] = [];
+  compteEpargneList: any[] = [];
   compteId = '';
   form!: FormGroup;
   operationPerYear: Recap[] = [
@@ -65,6 +67,7 @@ export class RecapComponent implements OnInit {
   operationsYears: number[] = [];
   dateFiltered = false;
   soldeAllAccounts: any[] = [];
+  soldeAllEpargne: any[] = [];
 
   monthlySoldeHistory: SoldeHistory[] = [];
   soldeHistory: SoldeHistory[] = [];
@@ -90,36 +93,41 @@ export class RecapComponent implements OnInit {
     this.soldeAllAccounts = [];
 
     // Définition de la 1ere année affichée
-    this.getOperations().subscribe((operation) => {
-      operation.reverse();
-      this.firstOperationYear = operation[0].operationDate.split('-')[0];
-      this.displayYear = [];
+    this.operationService.getOperations(this.operationList, this.userId);
+    // this.getOperations().subscribe((operation) => {
+    this.operationService
+      .getOperations(this.operationList, this.userId)
+      .subscribe((operation) => {
+        operation.reverse();
+        this.firstOperationYear = operation[0].operationDate.split('-')[0];
+        this.displayYear = [];
 
-      for (let i = 0; i <= year - this.firstOperationYear; i++) {
-        this.displayYear.push(year - i);
-        this.operationsYears.push(year - i);
-      }
+        for (let i = 0; i <= year - this.firstOperationYear; i++) {
+          this.displayYear.push(year - i);
+          this.operationsYears.push(year - i);
+        }
 
-      this.operationsYears.unshift(new Date(Date.now()).getFullYear());
+        this.operationsYears.unshift(new Date(Date.now()).getFullYear());
 
-      //Récupération des opérations et de la liste des comptes courant (return soldeAllAccounts)
-      this.getBalancePerMonth();
+        //Récupération des opérations et de la liste des comptes courant (return soldeAllAccounts)
+        this.getBalancePerMonth();
+        this.getEpargnePerMonth();
 
-      this.initialyse(this.todayYear);
+        this.getHistory(this.todayYear);
+        this.getEpargneHistory(this.todayYear);
 
-      this.dataSource.paginator = this.paginator;
-    });
+        this.dataSource.paginator = this.paginator;
+      });
 
     this.todayMonthString = this.datePickerService.transformMonth(
       this.todayMonthString
     );
   }
 
-  initialyse(year: string) {
+  getHistory(year: string) {
     this.soldeAllAccounts = [];
     this.monthlySoldeHistory = [];
     let filteredArray = [];
-    let montantPerMonth = 0;
 
     this.operationService.getAccountHistory().subscribe((history) => {
       this.soldeAllAccounts = <any>history;
@@ -262,37 +270,42 @@ export class RecapComponent implements OnInit {
     this.displayDatas(this.todayYear);
   }
 
-  // Récupération de la liste de tous les comptes
-  getCompteList() {
-    let compteListObservable = this.compteService.getAllAccounts().pipe(
-      tap((data) => {
-        this.compteList = [];
-        data.forEach((compte) => {
-          if (compte.userId == this.userId) {
-            compte.soldeActuel = Math.round(compte.soldeActuel * 100) / 100;
-            this.compteList.push(compte);
-          }
+  fillSoldeAllAccounts(data: any[], compteType: string, soldeAllArray: any[]) {
+    data.forEach((compte) => {
+      if (compte.typeCompte == compteType) {
+        soldeAllArray.push({
+          compteName: compte.name,
+          soldeInitial: compte.soldeInitial,
+          soldeHistory: [],
+          lastSolde: compte.soldeInitial,
         });
-      })
-    );
-
-    return compteListObservable;
+      }
+    });
+    return soldeAllArray;
   }
 
-  // Récupération de la liste de toutes les opérations
-  getOperations() {
-    let operationsObservable = this.operationService.getAllOperations().pipe(
-      tap((data) => {
-        data.forEach((operation) => {
-          // console.log(operation.categorie);
-          if (operation.userId == this.userId) {
-            this.operationList.unshift(operation);
-          }
-        });
-      })
-    );
-    // console.log(operationsObservable);
-    return operationsObservable;
+  fillOperations(data: any[], soldeAllArray: any[]) {
+    let operations = data.reverse();
+    operations.forEach((operation) => {
+      let operationDate =
+        operation.operationDate.split('-')[0] +
+        '-' +
+        operation.operationDate.split('-')[1];
+
+      soldeAllArray.forEach((compte) => {
+        if (
+          operation.compte == compte.compteName &&
+          operation.categorie != 'Transfert'
+        ) {
+          compte.lastSolde = compte.lastSolde + operation.montant;
+          compte.soldeHistory.push({
+            soldeDate: operationDate,
+            montant: Math.round(operation.montant * 100) / 100,
+            solde: Math.round(compte.lastSolde * 100) / 100,
+          });
+        }
+      });
+    });
   }
 
   // Récupérer historique mensuel + sauvegarder en json
@@ -301,49 +314,65 @@ export class RecapComponent implements OnInit {
     this.operationList = [];
     this.compteList = [];
 
-    let compteListObservable = this.getCompteList();
-    let operationsObservable = this.getOperations();
+    let compteListObservable = this.compteService.getCompteList(
+      this.compteList,
+      this.userId
+    );
+    let operationsObservable = this.operationService.getOperations(
+      this.operationList,
+      this.userId
+    );
 
     forkJoin([compteListObservable, operationsObservable]).subscribe((data) => {
       this.soldeAllAccounts = [];
-      let operations = data[1].reverse();
-      data[0].forEach((compte) => {
-        // console.log(compte.typeCompte);
 
-        if (compte.typeCompte == 'Compte Courant') {
-          this.soldeAllAccounts.push({
-            compteName: compte.name,
-            soldeInitial: compte.soldeInitial,
-            soldeHistory: [],
-            lastSolde: compte.soldeInitial,
-          });
-        }
-      });
+      this.fillSoldeAllAccounts(
+        data[0],
+        'Compte Courant',
+        this.soldeAllAccounts
+      );
 
-      operations.forEach((operation) => {
-        let operationDate =
-          operation.operationDate.split('-')[0] +
-          '-' +
-          operation.operationDate.split('-')[1];
-        this.soldeAllAccounts.forEach((compte) => {
-          if (
-            operation.compte == compte.compteName &&
-            operation.categorie != 'Transfert'
-          ) {
-            compte.lastSolde = compte.lastSolde + operation.montant;
-            compte.soldeHistory.push({
-              soldeDate: operationDate,
-              montant: Math.round(operation.montant * 100) / 100,
-              solde: Math.round(compte.lastSolde * 100) / 100,
-            });
-          }
-        });
-      });
+      this.fillOperations(data[1], this.soldeAllAccounts);
+
       this.operationService
-        .uploadAccountHistory(this.soldeAllAccounts)
+        .uploadAccountHistory(this.soldeAllAccounts, 'Compte Courant')
         .subscribe();
-      console.log(this.soldeAllAccounts);
       return this.soldeAllAccounts;
     });
+  }
+
+  // Récupérer historique mensuel de l'épargne+ sauvegarder en json
+  getEpargnePerMonth() {
+    this.soldeAllEpargne = [];
+    this.operationEpargneList = [];
+    this.compteEpargneList = [];
+
+    let compteListObservable = this.compteService.getCompteList(
+      this.compteEpargneList,
+      this.userId
+    );
+    let operationsObservable = this.operationService.getOperations(
+      this.operationEpargneList,
+      this.userId
+    );
+
+    forkJoin([compteListObservable, operationsObservable]).subscribe((data) => {
+      this.soldeAllEpargne = [];
+
+      this.fillSoldeAllAccounts(data[0], 'Epargne', this.soldeAllEpargne);
+      this.fillSoldeAllAccounts(data[0], 'Bourse', this.soldeAllEpargne);
+
+      this.fillOperations(data[1], this.soldeAllEpargne);
+
+      this.operationService
+        .uploadAccountHistory(this.soldeAllEpargne, 'Epargne')
+        .subscribe();
+      return this.soldeAllEpargne;
+    });
+  }
+
+  getEpargneHistory(year: string) {
+    //TODO get Epargne History
+    //TODO display Epargne History
   }
 }

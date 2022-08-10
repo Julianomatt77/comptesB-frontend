@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Operation } from '../models/Operation';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -48,14 +49,29 @@ export class OperationService {
     );
   }
 
-  public uploadAccountHistory(soldeAllAccounts: any[]) {
+  public uploadAccountHistory(soldeAllArray: any[], type: string) {
     return this.http.post<any[]>(
       `${environment.baseUrl}/operations/uploadAccountHistory`,
-      soldeAllAccounts
+      { soldeAllArray, type }
     );
   }
 
   public getAccountHistory() {
     return this.http.get(`${environment.baseUrl}/operations/getAccountHistory`);
+  }
+
+  public getOperations(operationList: any[], userId: string) {
+    let operationsObservable = this.getAllOperations().pipe(
+      tap((data) => {
+        data.forEach((operation) => {
+          // console.log(operation.categorie);
+          if (operation.userId == userId) {
+            operationList.unshift(operation);
+          }
+        });
+      })
+    );
+    // console.log(operationsObservable);
+    return operationsObservable;
   }
 }
