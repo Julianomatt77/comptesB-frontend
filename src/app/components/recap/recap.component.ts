@@ -78,7 +78,7 @@ export class RecapComponent implements OnInit {
     private compteService: CompteService
   ) {
     this.form = this.fb.group({
-      rangeDate: this.todayYear + '-' + this.todayMonthString,
+      rangeDate: this.todayYear,
     });
 
     this.userId = this.cookieService.get('userId');
@@ -106,7 +106,6 @@ export class RecapComponent implements OnInit {
       this.getBalancePerMonth();
 
       this.initialyse(this.todayYear);
-      // this.displayDatas(this.todayYear);
 
       this.dataSource.paginator = this.paginator;
     });
@@ -148,7 +147,7 @@ export class RecapComponent implements OnInit {
           let monthIndex = this.monthlySoldeHistory.findIndex(
             (obj) => obj.dateSolde == operationMonth
           );
-          // console.log(this.soldeAllAccounts);
+
           filteredArray = [];
           filteredArray = this.soldeAllAccounts
             .filter((element) =>
@@ -170,8 +169,6 @@ export class RecapComponent implements OnInit {
             });
           });
 
-          // console.log(filteredArray);
-
           this.monthlySoldeHistory[monthIndex].economie = montantPerMonth;
           if (monthIndex > 0) {
             this.monthlySoldeHistory[monthIndex].solde =
@@ -180,134 +177,11 @@ export class RecapComponent implements OnInit {
         }
       });
 
-      console.log(this.soldeAllAccounts);
-      console.log(this.monthlySoldeHistory);
+      // console.log(this.soldeAllAccounts);
+      // console.log(this.monthlySoldeHistory);
 
       this.displayDatas(year);
     });
-  }
-
-  // Affichage du tableau filtré par année
-  async showOperationsPerMonth(year: string) {
-    // Remise à 0 du tableau
-    this.operationPerYear.forEach((data) => {
-      data.economie = 0;
-      data.solde = 0;
-    });
-
-    this.totalCredit = 0;
-    this.totalDebit = 0;
-    this.totaldifference = 0;
-
-    /* *****************************        Ajout du solde mensuel **********************/
-    await this.getBalancePerMonth(); // Enregistrement de l'historique des comptes dans un json
-
-    this.monthlySoldeHistory = [];
-
-    await this.operationService.getAccountHistory().subscribe((history) => {
-      this.soldeAllAccounts = <any>history;
-      this.soldeAllAccounts.forEach((compte) => {
-        this.initialSolde = this.initialSolde + compte.soldeInitial;
-      });
-      console.log(this.soldeAllAccounts);
-
-      // Initialisation du tableau de tous les soldes mensuels
-      this.operationsYears.reverse().forEach((operationyear) => {
-        // console.log(operationyear);
-        // console.log(this.soldeAllAccounts);
-        for (let i = 0; i < 12; i++) {
-          let month: string;
-          if (i < 9) {
-            month = 0 + (i + 1).toString();
-          } else {
-            month = (i + 1).toString();
-          }
-
-          // console.log(operationyear + '-' + month);
-          this.monthlySoldeHistory.push({
-            dateSolde: operationyear + '-' + month,
-            economie: 0,
-            solde: this.initialSolde,
-          });
-
-          // console.log(this.monthlySoldeHistory);
-
-          let monthIndex = this.monthlySoldeHistory.findIndex(
-            (obj) => obj.dateSolde == operationyear + '-' + month
-          );
-          if (monthIndex > 0) {
-            this.monthlySoldeHistory[monthIndex].solde =
-              this.monthlySoldeHistory[monthIndex - 1].solde;
-          }
-          // console.log(operationyear + '-' + month);
-          // console.log(monthIndex);
-
-          let montantTransaction = 0;
-          this.operationService
-            .getOperationsFiltered(month, operationyear.toString())
-            .subscribe((data) => {
-              data.forEach((operation) => {
-                let monthIndex = this.monthlySoldeHistory.findIndex(
-                  (obj) => obj.dateSolde == operationyear + '-' + month
-                );
-
-                // console.log(monthIndex);
-                // console.log(monthIndex - 1);
-                if (monthIndex > 0) {
-                  this.monthlySoldeHistory[monthIndex].solde =
-                    this.monthlySoldeHistory[monthIndex - 1].solde;
-                  // console.log(this.monthlySoldeHistory[monthIndex]);
-                }
-
-                if (operation.userId == this.userId) {
-                  // this.operationList.push(operation);
-
-                  // On prend en compter les opérations seulement si c'est un compte courant
-                  let compteIndex = this.soldeAllAccounts.findIndex(
-                    (obj) => obj.compteName == operation.compte
-                  );
-                  if (compteIndex != -1) {
-                    let operationDate =
-                      operation.operationDate.split('-')[0] +
-                      '-' +
-                      operation.operationDate.split('-')[1];
-                    montantTransaction += operation.montant;
-
-                    let objIndex = this.monthlySoldeHistory.findIndex(
-                      (obj) => obj.dateSolde == operationDate
-                    );
-                    // console.log(this.monthlySoldeHistory[objIndex]);
-
-                    // MAJ de la colonne economie
-                    if (objIndex != -1) {
-                      this.monthlySoldeHistory[objIndex].economie =
-                        Math.round(montantTransaction * 100) / 100;
-                      this.monthlySoldeHistory[objIndex].solde =
-                        this.monthlySoldeHistory[objIndex - 1].solde +
-                        montantTransaction;
-                    } else {
-                    }
-                  }
-                }
-              });
-              // console.log(this.monthlySoldeHistory);
-              return this.monthlySoldeHistory;
-            });
-
-          // console.log(this.monthlySoldeHistory);
-        }
-      });
-      // console.log(this.monthlySoldeHistory);
-
-      // this.monthlySoldeHistory.forEach((dataMonth) => {
-      //   console.log(dataMonth.economie);
-      // });
-    });
-
-    // this.soldeHistory = this.monthlySoldeHistory;
-    // console.log(this.monthlySoldeHistory);
-
-    // return this.monthlySoldeHistory;
   }
 
   displayDatas(year: string) {
@@ -335,17 +209,14 @@ export class RecapComponent implements OnInit {
               if (
                 compte.name == monthData.compte &&
                 compte.typeCompte == 'Compte Courant' &&
-                monthData.userId == this.userId
+                monthData.userId == this.userId &&
+                monthData.categorie != 'Transfert'
               ) {
                 // MAJ des données du tableau
                 this.operationPerYear[i].economie += monthData.montant;
                 this.operationPerYear[i].economie = Math.round(
                   this.operationPerYear[i].economie
                 );
-
-                // this.operationPerYear[i].solde = this.operationPerYear[
-                //   i - 1
-                // ].solde += monthData.montant;
 
                 // MAJ du récap en haut de page
                 if (monthData.montant < 0) {
@@ -362,7 +233,6 @@ export class RecapComponent implements OnInit {
           // console.log(this.operationPerYear);
           // console.log(monthlyHistoryFiltered);
 
-          // this.operationPerYear[i].solde = 0;
           this.operationPerYear[i].solde = Math.round(
             monthlyHistoryFiltered[i].solde
           );
@@ -381,9 +251,11 @@ export class RecapComponent implements OnInit {
     this.totalDebit = 0;
     this.todayYear = this.form.value.rangeDate;
 
-    // Si valeur du datepicker different de la date d'aujourd'hui almors un filtre est appliqué
+    // Si valeur du datepicker different de la date d'aujourd'hui alors un filtre est appliqué
     if (this.todayYear != new Date(Date.now()).getFullYear().toString()) {
       this.dateFiltered = true;
+    } else {
+      this.dateFiltered = false;
     }
 
     // this.showOperationsPerMonth(this.todayYear);
@@ -412,6 +284,7 @@ export class RecapComponent implements OnInit {
     let operationsObservable = this.operationService.getAllOperations().pipe(
       tap((data) => {
         data.forEach((operation) => {
+          // console.log(operation.categorie);
           if (operation.userId == this.userId) {
             this.operationList.unshift(operation);
           }
@@ -448,13 +321,15 @@ export class RecapComponent implements OnInit {
       });
 
       operations.forEach((operation) => {
-        // let operationDate = operation.operationDate.split('T')[0];
         let operationDate =
           operation.operationDate.split('-')[0] +
           '-' +
           operation.operationDate.split('-')[1];
         this.soldeAllAccounts.forEach((compte) => {
-          if (operation.compte == compte.compteName) {
+          if (
+            operation.compte == compte.compteName &&
+            operation.categorie != 'Transfert'
+          ) {
             compte.lastSolde = compte.lastSolde + operation.montant;
             compte.soldeHistory.push({
               soldeDate: operationDate,
@@ -467,7 +342,7 @@ export class RecapComponent implements OnInit {
       this.operationService
         .uploadAccountHistory(this.soldeAllAccounts)
         .subscribe();
-      // console.log(this.soldeAllAccounts);
+      console.log(this.soldeAllAccounts);
       return this.soldeAllAccounts;
     });
   }

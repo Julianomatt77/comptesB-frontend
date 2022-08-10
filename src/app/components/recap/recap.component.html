@@ -7,11 +7,7 @@
     <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()">
       <div class="d-flex align-items-center">
         <div class="mx-2">
-          <select
-            type="select"
-            value="{{ todayYear }}"
-            formControlName="rangeDate"
-          >
+          <select type="select" formControlName="rangeDate">
             <option value="2022" selected>2022</option>
             <option *ngFor="let year of displayYear">
               {{ year }}
@@ -25,42 +21,53 @@
     </form>
   </div>
 
-  <div class="d-flex justify-content-evenly">
-    <div>Crédit = {{ totalCredit }} €</div>
-    <div>Débit = {{ totalDebit }} €</div>
-    <div>Différence = {{ totaldifference }} €</div>
-  </div>
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="d-flex justify-content-evenly">
+        <div class="mx-2">Crédit = {{ totalCredit }} €</div>
+        <div class="mx-2">Débit = {{ totalDebit }} €</div>
+        <div class="mx-2">Différence = {{ totaldifference }} €</div>
+      </div>
 
-  <div class="d-flex justify-content-center">
-    <!-- Angular mat table -->
-    <table mat-table [dataSource]="dataSource" class="col-lg-6 col-12">
-      <ng-container matColumnDef="month">
-        <th mat-header-cell *matHeaderCellDef>Mois</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.month }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="economie">
-        <th mat-header-cell *matHeaderCellDef>Economie</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.economie + " €" }}
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="solde">
-        <th mat-header-cell *matHeaderCellDef>Solde</th>
-        <td mat-cell *matCellDef="let element">
-          {{ element.solde + " €" }}
-        </td>
-      </ng-container>
+      <div class="d-flex justify-content-center">
+        <!-- Angular mat table -->
+        <table mat-table [dataSource]="dataSource" class="col-12">
+          <ng-container matColumnDef="month">
+            <th mat-header-cell *matHeaderCellDef>Mois</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.month }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="economie">
+            <th mat-header-cell *matHeaderCellDef>Economie</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.economie + " €" }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="solde">
+            <th mat-header-cell *matHeaderCellDef>Solde</th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.solde + " €" }}
+            </td>
+          </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-      <tr mat-row *matRowDef="let myRowData; columns: columnsToDisplay"></tr>
-    </table>
-    <!-- <mat-paginator
+          <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+          <tr
+            mat-row
+            *matRowDef="let myRowData; columns: columnsToDisplay"
+          ></tr>
+        </table>
+        <!-- <mat-paginator
         [pageSizeOptions]="[12]"
         showFirstLastButtons
         aria-label="Select page of operations"
       >
       </mat-paginator> -->
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="d-flex justify-content-evenly">Graphiques TODO</div>
+    </div>
   </div>
 </section>

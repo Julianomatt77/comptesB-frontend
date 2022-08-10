@@ -36,6 +36,8 @@ export class ComptesComponent implements OnInit {
 
   compteList: any[] = [];
   compteId = '';
+  compteCourantList: any[] = [];
+  compteEpargneList: any[] = [];
 
   // datasource = [];
   // dataSource!: MatTableDataSource<any>;
@@ -90,18 +92,20 @@ export class ComptesComponent implements OnInit {
     });
   }
 
-  totalOperations(montant: number, type: boolean) {
-    if (type == false) {
-      this.totalDebit += montant;
-    } else {
-      this.totalCredit += montant;
+  totalOperations(montant: number, type: boolean, categorie: string) {
+    if (categorie != 'Transfert') {
+      if (type == false) {
+        this.totalDebit += montant;
+      } else {
+        this.totalCredit += montant;
+      }
+
+      let temp1 = Math.round(this.totalDebit * 100) / 100;
+      this.totalDebit = temp1;
+
+      let temp2 = Math.round(this.totalCredit * 100) / 100;
+      this.totalCredit = temp2;
     }
-
-    let temp1 = Math.round(this.totalDebit * 100) / 100;
-    this.totalDebit = temp1;
-
-    let temp2 = Math.round(this.totalCredit * 100) / 100;
-    this.totalCredit = temp2;
   }
 
   /* ************************* Opêrations *********** */
@@ -112,8 +116,13 @@ export class ComptesComponent implements OnInit {
     this.operationService.getAllOperations().subscribe((data) => {
       data.forEach((operation) => {
         if (operation.userId == this.userId) {
+          // console.log(operation.categorie);
           this.operationList.push(operation);
-          this.totalOperations(operation.montant, operation.type);
+          this.totalOperations(
+            operation.montant,
+            operation.type,
+            operation.categorie
+          );
         }
       });
       this.dataSource = new MatTableDataSource(this.operationList);
@@ -198,8 +207,16 @@ export class ComptesComponent implements OnInit {
           let temp = Math.round(compte.soldeActuel * 100) / 100;
           compte.soldeActuel = temp;
           this.compteList.push(compte);
+
+          if (compte.typeCompte == 'Compte Courant') {
+            this.compteCourantList.push(compte);
+          } else {
+            this.compteEpargneList.push(compte);
+          }
         }
       });
+      console.log(this.compteCourantList);
+      console.log(this.compteEpargneList);
     });
   }
 
@@ -289,7 +306,11 @@ export class ComptesComponent implements OnInit {
         data.forEach((operation) => {
           if (operation.userId == this.userId) {
             this.operationList.push(operation);
-            this.totalOperations(operation.montant, operation.type);
+            this.totalOperations(
+              operation.montant,
+              operation.type,
+              operation.categorie
+            );
           }
         });
         this.dataSource = new MatTableDataSource(this.operationList);
