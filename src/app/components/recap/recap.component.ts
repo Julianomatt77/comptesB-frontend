@@ -566,19 +566,19 @@ export class RecapComponent implements OnInit {
                     10
                 ) / 10,
             });
-            // console.log(this.soldeAllEpargnePerAccount);
           }
         });
       });
-      // console.log(this.soldeAllEpargnePerAccount);
 
-      this.displayYearlyEpargne(year.toString());
-      // return this.soldeAllEpargnePerAccount;
+      this.displayYearlyEpargne(year);
     });
   }
 
   displayYearlyEpargne(year: string) {
     this.yearlyArray = [];
+    let totalInitial = 0;
+    let totalFinal = 0;
+    let totalEvolution = 0;
 
     this.soldeAllEpargnePerAccount.forEach((compte) => {
       compte.history.forEach((history: any) => {
@@ -587,8 +587,24 @@ export class RecapComponent implements OnInit {
         }
       });
     });
-    console.log(this.yearlyArray);
+
+    this.yearlyArray.forEach((compte) => {
+      totalInitial += compte.history.soldeInitial;
+      totalFinal += compte.history.soldeFinal;
+    });
+
+    totalEvolution =
+      Math.round(((totalFinal - totalInitial) / totalInitial) * 100 * 10) / 10;
+
+    this.yearlyArray.push({
+      name: 'TOTAL',
+      history: {
+        year: year,
+        soldeInitial: totalInitial,
+        soldeFinal: totalFinal,
+        evolution: totalEvolution,
+      },
+    });
     this.dataSourceEpargneYearly = new MatTableDataSource(this.yearlyArray);
-    // console.log(yearlyArray);
   }
 }
