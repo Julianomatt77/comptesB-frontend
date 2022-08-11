@@ -18,6 +18,7 @@ import { SoldeHistory } from '../../interfaces/soldeHistory';
 import { CompteService } from 'src/app/services/compte.service';
 import { forkJoin, Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { HistoryPerAccount } from 'src/app/interfaces/historyPerAccount';
 
 @Component({
   selector: 'app-recap',
@@ -68,14 +69,22 @@ export class RecapComponent implements OnInit {
     { month: 'Novembre', economie: 0, solde: 0 },
     { month: 'Décembre', economie: 0, solde: 0 },
   ];
+  yearlyArray: any[] = [];
   displayYear: Array<number> = [];
 
   dataSource = new MatTableDataSource(this.operationPerYear);
   dataSourceEpargne = new MatTableDataSource(this.epargnePerYear);
+  dataSourceEpargneYearly = new MatTableDataSource(this.yearlyArray);
   @ViewChild(MatSort) sort!: MatSort | undefined;
   @ViewChild('table') table!: MatTable<any> | undefined;
   childRevelancy = { displayColumns: [], hideColumns: [], data: [] };
   columnsToDisplay = ['month', 'economie', 'solde'];
+  columnsToDisplayYearly = [
+    'compte',
+    'soldeInitial',
+    'soldeFinal',
+    'evolution',
+  ];
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   todayMonth = new Date(Date.now()).getMonth() + 1;
@@ -86,12 +95,17 @@ export class RecapComponent implements OnInit {
   dateFiltered = false;
   soldeAllAccounts: any[] = [];
   soldeAllEpargne: any[] = [];
+  soldeAllEpargnePerAccount: any[] = [];
 
   monthlySoldeHistory: SoldeHistory[] = [];
   monthlyEpargneHistory: SoldeHistory[] = [];
+  monthlyEpargneHistoryPerAccount: HistoryPerAccount[] = [];
   soldeHistory: SoldeHistory[] = [];
+
   initialSolde = 0;
   initialEpargneSolde = 0;
+  evolutionCompteCourant = 0;
+  evolutionEpargne = 0;
 
   constructor(
     private cookieService: CookieService,
@@ -126,6 +140,7 @@ export class RecapComponent implements OnInit {
         }
 
         this.operationsYears.unshift(new Date(Date.now()).getFullYear());
+        this.operationsYears.reverse();
 
         //Récupération des opérations et de la liste des comptes courant (return soldeAllAccounts)
         this.getBalancePerMonth();
@@ -133,6 +148,8 @@ export class RecapComponent implements OnInit {
 
         this.getHistory(this.todayYear);
         this.getEpargneHistory(this.todayYear);
+        this.getEpargneHistoryPerAccount(this.todayYear);
+        // this.displayYearlyEpargne(this.todayYear);
 
         // this.dataSource.paginator = this.paginator;
       });
@@ -154,7 +171,7 @@ export class RecapComponent implements OnInit {
         this.initialSolde = this.initialSolde + compte.soldeInitial;
       });
 
-      this.operationsYears.reverse();
+      // this.operationsYears.reverse();
 
       /*
       this.operationsYears.reverse().forEach((operationyear) => {
@@ -229,11 +246,19 @@ export class RecapComponent implements OnInit {
     this.totalCredit = 0;
     this.totalDebit = 0;
     this.totaldifference = 0;
+    this.evolutionCompteCourant = 0;
 
     // Récupération du solde par mois
     let monthlyHistoryFiltered = this.monthlySoldeHistory.filter((element) => {
       return element.dateSolde.includes(year) == true;
     });
+
+    // Calcul de l'évolution en pourcentage
+    let soldeInitial =
+      monthlyHistoryFiltered[0].solde - monthlyHistoryFiltered[0].economie;
+    let soldeFinal = monthlyHistoryFiltered[11].solde;
+    this.evolutionCompteCourant =
+      Math.round(((soldeFinal - soldeInitial) / soldeInitial) * 100 * 10) / 10;
 
     for (let i = 0; i < 12; i++) {
       this.operationService
@@ -293,6 +318,7 @@ export class RecapComponent implements OnInit {
     // this.showOperationsPerMonth(this.todayYear);
     this.displayDatas(this.todayYear);
     this.displayDatasEpargne(this.todayYear);
+    this.displayYearlyEpargne(this.todayYear);
   }
 
   fillSoldeAllAccounts(data: any[], compteType: string, soldeAllArray: any[]) {
@@ -333,7 +359,7 @@ export class RecapComponent implements OnInit {
     });
   }
 
-  // Récupérer historique mensuel + sauvegarder en json
+  // Récupérer les opérations mensuelles + sauvegarder en json
   getBalancePerMonth() {
     this.soldeAllAccounts = [];
     this.operationList = [];
@@ -366,7 +392,7 @@ export class RecapComponent implements OnInit {
     });
   }
 
-  // Récupérer historique mensuel de l'épargne+ sauvegarder en json
+  // Récupérer des opérations mensuelles de l'épargne + sauvegarder en json
   getEpargnePerMonth() {
     this.soldeAllEpargne = [];
     this.operationEpargneList = [];
@@ -392,6 +418,7 @@ export class RecapComponent implements OnInit {
       this.operationService
         .uploadAccountHistory(this.soldeAllEpargne, 'Epargne')
         .subscribe();
+      // console.log(this.soldeAllEpargne);
       return this.soldeAllEpargne;
     });
   }
@@ -414,6 +441,7 @@ export class RecapComponent implements OnInit {
         this.soldeAllEpargne
       );
 
+      // console.log(this.soldeAllEpargne);
       this.displayDatasEpargne(year);
     });
   }
@@ -428,6 +456,7 @@ export class RecapComponent implements OnInit {
     this.totalCreditEpargne = 0;
     this.totalDebitEpargne = 0;
     this.totaldifferenceEpargne = 0;
+    this.evolutionEpargne = 0;
 
     // Récupération du solde par mois
     let monthlyHistoryFiltered = this.monthlyEpargneHistory.filter(
@@ -435,6 +464,13 @@ export class RecapComponent implements OnInit {
         return element.dateSolde.includes(year) == true;
       }
     );
+
+    // Calcul de l'évolution en pourcentage
+    let soldeInitial =
+      monthlyHistoryFiltered[0].solde - monthlyHistoryFiltered[0].economie;
+    let soldeFinal = monthlyHistoryFiltered[11].solde;
+    this.evolutionEpargne =
+      Math.round(((soldeFinal - soldeInitial) / soldeInitial) * 100 * 10) / 10;
 
     for (let i = 0; i < 12; i++) {
       this.operationService
@@ -477,5 +513,82 @@ export class RecapComponent implements OnInit {
           );
         });
     }
+  }
+
+  // Historique annuel du solde des comptes épargne
+  getEpargneHistoryPerAccount(year: string) {
+    this.soldeAllEpargnePerAccount = [];
+    this.monthlyEpargneHistoryPerAccount = [];
+    let filteredEpargnePerAccount = [];
+
+    this.operationService.getEpargneHistory().subscribe((history) => {
+      this.soldeAllEpargne = <any>history;
+      this.soldeAllEpargne.forEach((compte, index) => {
+        let initialSolde = compte.soldeInitial;
+        let accountName = compte.compteName;
+
+        this.soldeAllEpargnePerAccount.push({ name: accountName, history: [] });
+
+        this.operationsYears.forEach((operationyear, indexyear) => {
+          let montant = 0;
+          filteredEpargnePerAccount = [];
+          filteredEpargnePerAccount = compte.soldeHistory.filter(
+            (element: any) => element.soldeDate.includes(operationyear)
+          );
+          filteredEpargnePerAccount.forEach((operation: any) => {
+            montant += operation.montant;
+          });
+
+          if (indexyear == 0) {
+            this.soldeAllEpargnePerAccount[index].history.push({
+              year: operationyear,
+              soldeInitial: initialSolde,
+              soldeFinal: initialSolde + montant,
+              evolution:
+                Math.round(
+                  ((initialSolde + montant - initialSolde) / initialSolde) *
+                    100 *
+                    10
+                ) / 10,
+            });
+          } else {
+            initialSolde =
+              this.soldeAllEpargnePerAccount[index].history[indexyear - 1]
+                .soldeFinal;
+            this.soldeAllEpargnePerAccount[index].history.push({
+              year: operationyear,
+              soldeInitial: initialSolde,
+              soldeFinal: initialSolde + montant,
+              evolution:
+                Math.round(
+                  ((initialSolde + montant - initialSolde) / initialSolde) *
+                    100 *
+                    10
+                ) / 10,
+            });
+            // console.log(this.soldeAllEpargnePerAccount);
+          }
+        });
+      });
+      // console.log(this.soldeAllEpargnePerAccount);
+
+      this.displayYearlyEpargne(year.toString());
+      // return this.soldeAllEpargnePerAccount;
+    });
+  }
+
+  displayYearlyEpargne(year: string) {
+    this.yearlyArray = [];
+
+    this.soldeAllEpargnePerAccount.forEach((compte) => {
+      compte.history.forEach((history: any) => {
+        if (history.year == year) {
+          this.yearlyArray.push({ name: compte.name, history: history });
+        }
+      });
+    });
+    console.log(this.yearlyArray);
+    this.dataSourceEpargneYearly = new MatTableDataSource(this.yearlyArray);
+    // console.log(yearlyArray);
   }
 }
