@@ -81,7 +81,7 @@ export class OperationService {
     return operationsObservable;
   }
 
-  public getHistory(
+  public getOperationHistory(
     operationsYears: number[],
     monthlySoldeHistory: SoldeHistory[],
     initialSolde: number,

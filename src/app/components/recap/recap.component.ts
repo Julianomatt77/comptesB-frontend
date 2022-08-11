@@ -146,10 +146,9 @@ export class RecapComponent implements OnInit {
         this.getBalancePerMonth();
         this.getEpargnePerMonth();
 
-        this.getHistory(this.todayYear);
+        this.getOperationHistory(this.todayYear);
         this.getEpargneHistory(this.todayYear);
         this.getEpargneHistoryPerAccount(this.todayYear);
-        // this.displayYearlyEpargne(this.todayYear);
 
         // this.dataSource.paginator = this.paginator;
       });
@@ -159,7 +158,7 @@ export class RecapComponent implements OnInit {
     );
   }
 
-  getHistory(year: string) {
+  getOperationHistory(year: string) {
     this.soldeAllAccounts = [];
     this.monthlySoldeHistory = [];
 
@@ -171,61 +170,7 @@ export class RecapComponent implements OnInit {
         this.initialSolde = this.initialSolde + compte.soldeInitial;
       });
 
-      // this.operationsYears.reverse();
-
-      /*
-      this.operationsYears.reverse().forEach((operationyear) => {
-        for (let i = 0; i < 12; i++) {
-          let month: string;
-          let montantPerMonth = 0;
-          if (i < 9) {
-            month = 0 + (i + 1).toString();
-          } else {
-            month = (i + 1).toString();
-          }
-          this.monthlySoldeHistory.push({
-            dateSolde: operationyear + '-' + month,
-            economie: 0,
-            solde: this.initialSolde,
-          });
-
-          let operationMonth = operationyear + '-' + month;
-
-          let monthIndex = this.monthlySoldeHistory.findIndex(
-            (obj) => obj.dateSolde == operationMonth
-          );
-
-          filteredArray = [];
-          filteredArray = this.soldeAllAccounts
-            .filter((element) =>
-              element.soldeHistory.some(
-                (subElement: any) => subElement.soldeDate === operationMonth
-              )
-            )
-            .map((element) => {
-              let newElt = Object.assign({}, element); // copies element
-              return newElt.soldeHistory.filter(
-                (subElement: any) => subElement.soldeDate === operationMonth
-              );
-            });
-
-          filteredArray.forEach((monthOperation) => {
-            montantPerMonth = 0;
-            monthOperation.forEach((operation: any) => {
-              montantPerMonth += operation.montant;
-            });
-          });
-
-          this.monthlySoldeHistory[monthIndex].economie = montantPerMonth;
-          if (monthIndex > 0) {
-            this.monthlySoldeHistory[monthIndex].solde =
-              this.monthlySoldeHistory[monthIndex - 1].solde + montantPerMonth;
-          }
-        }
-      });
-      */
-
-      this.operationService.getHistory(
+      this.operationService.getOperationHistory(
         this.operationsYears,
         this.monthlySoldeHistory,
         this.initialSolde,
@@ -423,6 +368,8 @@ export class RecapComponent implements OnInit {
     });
   }
 
+  /*  ************************   EPARGNE ****************************/
+
   getEpargneHistory(year: string) {
     this.soldeAllEpargne = [];
     this.monthlyEpargneHistory = [];
@@ -434,7 +381,7 @@ export class RecapComponent implements OnInit {
           this.initialEpargneSolde + compte.soldeInitial;
       });
 
-      this.soldeAllEpargne = this.operationService.getHistory(
+      this.soldeAllEpargne = this.operationService.getOperationHistory(
         this.operationsYears,
         this.monthlyEpargneHistory,
         this.initialEpargneSolde,
