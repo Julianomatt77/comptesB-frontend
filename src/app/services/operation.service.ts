@@ -6,12 +6,14 @@ import { tap } from 'rxjs/operators';
 import { SoldeHistory } from '../interfaces/soldeHistory';
 import { Recap } from '../interfaces/recap';
 import { MatTableDataSource } from '@angular/material/table';
+import { forkJoin } from 'rxjs';
+import { CompteService } from './compte.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class OperationService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private compteService: CompteService) {}
 
   public createOperation(operation: Operation) {
     return this.http.post<Operation>(
@@ -142,5 +144,47 @@ export class OperationService {
     });
     // console.log(soldeAllArray);
     return monthlySoldeHistory;
+  }
+
+  public fillSoldeAllAccounts(
+    data: any[],
+    compteType: string,
+    soldeAllArray: any[]
+  ) {
+    data.forEach((compte) => {
+      if (compte.typeCompte == compteType) {
+        soldeAllArray.push({
+          compteName: compte.name,
+          soldeInitial: compte.soldeInitial,
+          soldeHistory: [],
+          lastSolde: compte.soldeInitial,
+        });
+      }
+    });
+    return soldeAllArray;
+  }
+
+  public fillOperations(data: any[], soldeAllArray: any[]) {
+    let operations = data.reverse();
+    operations.forEach((operation) => {
+      let operationDate =
+        operation.operationDate.split('-')[0] +
+        '-' +
+        operation.operationDate.split('-')[1];
+
+      soldeAllArray.forEach((compte) => {
+        if (
+          operation.compte == compte.compteName &&
+          operation.categorie != 'Transfert'
+        ) {
+          compte.lastSolde = compte.lastSolde + operation.montant;
+          compte.soldeHistory.push({
+            soldeDate: operationDate,
+            montant: Math.round(operation.montant * 100) / 100,
+            solde: Math.round(compte.lastSolde * 100) / 100,
+          });
+        }
+      });
+    });
   }
 }

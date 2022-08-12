@@ -39,6 +39,11 @@ export class ComptesComponent implements OnInit {
   compteCourantList: any[] = [];
   compteEpargneList: any[] = [];
 
+  soldeAllAccounts: any[] = [];
+  soldePerAccount: any[] = [];
+  monthlysoldeHistory: any[] = [];
+  monthlyHistoryPerAccount: any[] = [];
+
   // datasource = [];
   // dataSource!: MatTableDataSource<any>;
   dataSource = new MatTableDataSource(this.operationList);
@@ -63,6 +68,9 @@ export class ComptesComponent implements OnInit {
   todayMonthString = this.todayMonth.toString();
   dateFiltered = false;
 
+  firstOperationYear = 0;
+  operationsYears: number[] = [];
+
   faPen = faPen;
   faTrashCan = faTrashCan;
 
@@ -78,10 +86,52 @@ export class ComptesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.dataSource = new MatTableDataSource(this.operationList);
-    this.showOperations();
-    this.showAccounts();
-    this.dataSource.paginator = this.paginator;
+    let year = new Date(Date.now()).getFullYear() - 1;
+    this.operationService
+      .getOperations(this.operationList, this.userId)
+      .subscribe((operation) => {
+        operation.reverse();
+        this.firstOperationYear = operation[0].operationDate.split('-')[0];
+        for (let i = 0; i <= year - this.firstOperationYear; i++) {
+          this.operationsYears.push(year - i);
+        }
+        this.operationsYears.unshift(new Date(Date.now()).getFullYear());
+        this.operationsYears.reverse();
+
+        this.dataSource = new MatTableDataSource(this.operationList);
+        if ((new Date(Date.now()).getMonth() + 1).toString().length < 2) {
+          this.todayMonthString =
+            '0' + (new Date(Date.now()).getMonth() + 1).toString();
+        }
+        this.showOperationsFiltered(this.todayMonthString, this.todayYear);
+        // this.showOperations();
+        // this.showAccounts();
+        this.dataSource.paginator = this.paginator;
+
+        this.getOperationsHistoryPerAccount();
+        this.getSoldePerAccountPerMonth(this.todayYear);
+
+        // if (this.todayMonthString.length < 2) {
+        //   this.todayMonthString = 0 + this.todayMonthString;
+        // }
+
+        // this.form = this.fb.group({
+        //   rangeDate: this.todayYear + '-' + this.todayMonthString,
+        // });
+      });
+
+    // this.dataSource = new MatTableDataSource(this.operationList);
+    // if ((new Date(Date.now()).getMonth() + 1).toString().length < 2) {
+    //   this.todayMonthString =
+    //     '0' + (new Date(Date.now()).getMonth() + 1).toString();
+    // }
+    // this.showOperationsFiltered(this.todayMonthString, this.todayYear);
+    // // this.showOperations();
+    // this.showAccounts();
+    // this.dataSource.paginator = this.paginator;
+
+    // this.getOperationsHistoryPerAccount();
+    // this.getSoldePerAccountPerMonth(this.todayMonthString, this.todayYear);
 
     if (this.todayMonthString.length < 2) {
       this.todayMonthString = 0 + this.todayMonthString;
@@ -128,6 +178,26 @@ export class ComptesComponent implements OnInit {
       this.dataSource = new MatTableDataSource(this.operationList);
       this.dataSource.paginator = this.paginator;
     });
+  }
+
+  showOperationsFiltered(month: string, year: string) {
+    this.operationService
+      .getOperationsFiltered(month, year)
+      .subscribe((data) => {
+        data.forEach((operation) => {
+          if (operation.userId == this.userId) {
+            this.operationList.push(operation);
+            this.totalOperations(
+              operation.montant,
+              operation.type,
+              operation.categorie
+            );
+          }
+        });
+        // console.log(this.operationList);
+        this.dataSource = new MatTableDataSource(this.operationList);
+        this.dataSource.paginator = this.paginator;
+      });
   }
 
   AddOperation() {
@@ -201,6 +271,7 @@ export class ComptesComponent implements OnInit {
 
   showAccounts() {
     this.compteList = [];
+    this.compteCourantList = [];
     this.compteService.getAllAccounts().subscribe((data) => {
       data.forEach((compte) => {
         if (compte.userId == this.userId) {
@@ -215,8 +286,8 @@ export class ComptesComponent implements OnInit {
           }
         }
       });
-      console.log(this.compteCourantList);
-      console.log(this.compteEpargneList);
+      // console.log(this.compteCourantList);
+      // console.log(this.compteEpargneList);
     });
   }
 
@@ -255,6 +326,124 @@ export class ComptesComponent implements OnInit {
     });
   }
 
+  getOperationsHistoryPerAccount() {
+    this.soldeAllAccounts = [];
+    this.operationList = [];
+    this.compteList = [];
+
+    let compteListObservable = this.compteService.getCompteList(
+      this.compteList,
+      this.userId
+    );
+    let operationsObservable = this.operationService.getOperations(
+      this.operationList,
+      this.userId
+    );
+
+    forkJoin([compteListObservable, operationsObservable]).subscribe((data) => {
+      this.soldeAllAccounts = [];
+
+      this.operationService.fillSoldeAllAccounts(
+        data[0],
+        'Compte Courant',
+        this.soldeAllAccounts
+      );
+
+      this.operationService.fillOperations(data[1], this.soldeAllAccounts);
+
+      this.operationService
+        .uploadAccountHistory(this.soldeAllAccounts, 'Compte Courant')
+        .subscribe();
+      console.log(this.soldeAllAccounts);
+      return this.soldeAllAccounts;
+    });
+  }
+
+  getSoldePerAccountPerMonth(year: string) {
+    this.soldePerAccount = [];
+    this.monthlyHistoryPerAccount = [];
+    let filteredmonthlyHistory = [];
+    // let initialSolde = 0;
+
+    this.operationService.getAccountHistory().subscribe((history) => {
+      this.soldeAllAccounts = <any>history;
+      this.soldeAllAccounts.forEach((compte, index) => {
+        let initialSolde = compte.soldeInitial;
+        let accountName = compte.compteName;
+
+        this.soldePerAccount.push({ name: accountName, history: [] });
+
+        this.operationsYears.forEach((operationyear, indexyear) => {
+          for (let i = 0; i < 12; i++) {
+            let montant = 0;
+            let month: string;
+            let montantperMonth = 0;
+
+            if (i < 9) {
+              month = 0 + (i + 1).toString();
+            } else {
+              month = (i + 1).toString();
+            }
+
+            filteredmonthlyHistory = [];
+            filteredmonthlyHistory = compte.soldeHistory.filter(
+              (element: any) =>
+                element.soldeDate.includes(operationyear + '-' + month)
+            );
+            filteredmonthlyHistory.forEach((operation: any) => {
+              montant += operation.montant;
+            });
+
+            if (indexyear == 0 && i == 0) {
+              this.soldePerAccount[index].history.push({
+                dateSolde: operationyear + '-' + month,
+                soldeInitial: initialSolde,
+                soldeFinal: initialSolde + montant,
+              });
+            } else {
+              initialSolde =
+                this.soldePerAccount[index].history[i - 1].soldeFinal;
+              this.soldePerAccount[index].history.push({
+                dateSolde: operationyear + '-' + month,
+                soldeInitial: initialSolde,
+                soldeFinal: initialSolde + montant,
+              });
+              //TODO
+            }
+
+            console.log(filteredmonthlyHistory);
+            console.log(this.soldePerAccount);
+
+            // TODO : Add montant per month et maj du solde
+          }
+          console.log(this.soldePerAccount);
+        });
+
+        // console.log(this.operationsYears);
+        // this.operationService.getOperationHistory(
+        //   this.operationsYears,
+        //   this.monthlyHistoryPerAccount,
+        //   initialSolde,
+        //   this.soldeAllAccounts
+        // );
+
+        // console.log(this.monthlysoldeHistory);
+
+        // this.soldePerAccount.push({ name: accountName, history: [] })
+
+        // this.operationsYears.forEach((operationyear, indexyear) =>{
+        //   let montant=0
+        //   filteredmonthlyHistory = []
+
+        // });
+      });
+      console.log(this.monthlysoldeHistory);
+      console.log(this.soldeAllAccounts);
+    });
+
+    console.log(this.soldeAllAccounts);
+  }
+
   /************** Date picker ***********/
   onSubmitChangeDate() {
     let tempMonth = '';
@@ -270,7 +459,7 @@ export class ComptesComponent implements OnInit {
       tempMonth = (new Date(Date.now()).getMonth() + 1).toString();
     }
 
-    // Si valeur du datepicker different de la date d'aujourd'hui almors un filtre est appliqué
+    // Si valeur du datepicker different de la date d'aujourd'hui alors un filtre est appliqué
     if (
       this.todayMonthString != tempMonth ||
       this.todayYear != new Date(Date.now()).getFullYear().toString()
@@ -297,24 +486,5 @@ export class ComptesComponent implements OnInit {
 
     this.showOperations();
     this.showAccounts();
-  }
-
-  showOperationsFiltered(month: string, year: string) {
-    this.operationService
-      .getOperationsFiltered(month, year)
-      .subscribe((data) => {
-        data.forEach((operation) => {
-          if (operation.userId == this.userId) {
-            this.operationList.push(operation);
-            this.totalOperations(
-              operation.montant,
-              operation.type,
-              operation.categorie
-            );
-          }
-        });
-        this.dataSource = new MatTableDataSource(this.operationList);
-        this.dataSource.paginator = this.paginator;
-      });
   }
 }
