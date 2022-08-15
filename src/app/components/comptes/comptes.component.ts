@@ -346,10 +346,11 @@ export class ComptesComponent implements OnInit {
       this.operationService.fillSoldeAllAccounts(
         data[0],
         'Compte Courant',
-        this.soldeAllAccounts
+        this.soldeAllAccounts,
+        this.userId
       );
 
-      this.operationService.fillOperations(data[1], this.soldeAllAccounts);
+      this.operationService.fillOperations(data[1], this.soldeAllAccounts, this.userId);
 
       this.operationService
         .uploadAccountHistory(this.soldeAllAccounts, 'Compte Courant')

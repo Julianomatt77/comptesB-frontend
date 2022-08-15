@@ -149,10 +149,11 @@ export class OperationService {
   public fillSoldeAllAccounts(
     data: any[],
     compteType: string,
-    soldeAllArray: any[]
+    soldeAllArray: any[],
+    userId: string
   ) {
     data.forEach((compte) => {
-      if (compte.typeCompte == compteType) {
+      if (compte.typeCompte == compteType && compte.userId == userId) {
         soldeAllArray.push({
           compteName: compte.name,
           soldeInitial: compte.soldeInitial,
@@ -164,7 +165,7 @@ export class OperationService {
     return soldeAllArray;
   }
 
-  public fillOperations(data: any[], soldeAllArray: any[]) {
+  public fillOperations(data: any[], soldeAllArray: any[], userId: string) {
     let operations = data.reverse();
     operations.forEach((operation) => {
       let operationDate =
@@ -175,7 +176,7 @@ export class OperationService {
       soldeAllArray.forEach((compte) => {
         if (
           operation.compte == compte.compteName &&
-          operation.categorie != 'Transfert'
+          operation.categorie != 'Transfert' && operation.userId == userId
         ) {
           compte.lastSolde = compte.lastSolde + operation.montant;
           compte.soldeHistory.push({

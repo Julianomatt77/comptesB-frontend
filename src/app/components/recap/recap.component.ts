@@ -200,10 +200,11 @@ export class RecapComponent implements OnInit {
       this.operationService.fillSoldeAllAccounts(
         data[0],
         'Compte Courant',
-        this.soldeAllAccounts
+        this.soldeAllAccounts,
+        this.userId
       );
 
-      this.operationService.fillOperations(data[1], this.soldeAllAccounts);
+      this.operationService.fillOperations(data[1], this.soldeAllAccounts, this.userId);
 
       this.operationService
         .uploadAccountHistory(this.soldeAllAccounts, 'Compte Courant')
@@ -231,7 +232,6 @@ export class RecapComponent implements OnInit {
         this.initialSolde,
         this.soldeAllAccounts
       );
-      console.log(this.monthlySoldeHistory);
       this.displayDatas(year);
     });
   }
@@ -258,8 +258,14 @@ export class RecapComponent implements OnInit {
     let soldeInitial =
       monthlyHistoryFiltered[0].solde - monthlyHistoryFiltered[0].economie;
     let soldeFinal = monthlyHistoryFiltered[11].solde;
-    this.evolutionCompteCourant =
+
+    if((soldeFinal - soldeInitial) == 0){
+      this.evolutionCompteCourant = 0
+    } else {
+      this.evolutionCompteCourant =
       Math.round(((soldeFinal - soldeInitial) / soldeInitial) * 100 * 10) / 10;
+    }
+
 
     for (let i = 0; i < 12; i++) {
       this.operationService
@@ -326,15 +332,16 @@ export class RecapComponent implements OnInit {
       this.operationService.fillSoldeAllAccounts(
         data[0],
         'Epargne',
-        this.soldeAllEpargne
+        this.soldeAllEpargne,this.userId
       );
       this.operationService.fillSoldeAllAccounts(
         data[0],
         'Bourse',
-        this.soldeAllEpargne
+        this.soldeAllEpargne,
+        this.userId
       );
 
-      this.operationService.fillOperations(data[1], this.soldeAllEpargne);
+      this.operationService.fillOperations(data[1], this.soldeAllEpargne, this.userId);
 
       this.operationService
         .uploadAccountHistory(this.soldeAllEpargne, 'Epargne')
@@ -392,8 +399,12 @@ export class RecapComponent implements OnInit {
     let soldeInitial =
       monthlyHistoryFiltered[0].solde - monthlyHistoryFiltered[0].economie;
     let soldeFinal = monthlyHistoryFiltered[11].solde;
-    this.evolutionEpargne =
+    if((soldeFinal - soldeInitial) == 0){
+      this.evolutionEpargne = 0
+    } else {
+      this.evolutionEpargne =
       Math.round(((soldeFinal - soldeInitial) / soldeInitial) * 100 * 10) / 10;
+    }
 
     for (let i = 0; i < 12; i++) {
       this.operationService
@@ -518,8 +529,12 @@ export class RecapComponent implements OnInit {
       totalFinal += compte.history.soldeFinal;
     });
 
-    totalEvolution =
+    if((totalFinal - totalInitial) == 0){
+      totalEvolution = 0
+    } else {
+      totalEvolution =
       Math.round(((totalFinal - totalInitial) / totalInitial) * 100 * 10) / 10;
+    }
 
     this.yearlyArray.push({
       name: 'TOTAL',
