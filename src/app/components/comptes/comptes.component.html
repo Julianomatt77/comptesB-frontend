@@ -169,10 +169,10 @@
             </tr>
           </thead>
           <tbody>
-            <ng-container *ngFor="let compte of compteList">
-              <tr *ngIf="compte.typeCompte == 'Compte Courant'">
+            <ng-container *ngFor="let compte of monthlyHistoryPerAccount">
+              <tr>
                 <td>{{ compte.name }}</td>
-                <td>{{ compte.soldeActuel + " €" }}</td>
+                <td *ngFor="let history of compte.history">{{ history.soldeFinal}} €</td>
                 <td>
                   <button (click)="openAccountDetail(compte)" class="btn">
                     <fa-icon [icon]="faPen"></fa-icon>
