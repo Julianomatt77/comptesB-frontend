@@ -17,6 +17,7 @@ import { OpCommune } from 'src/app/models/OpCommune';
 import { OpcommuneFormComponent } from '../opcommune-form/opcommune-form.component';
 import { OpcommuneuserFormComponent } from '../opcommuneuser-form/opcommuneuser-form.component';
 import { OpCommuneUser } from 'src/app/models/OpCommuneUser';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-depenses-communes',
@@ -28,10 +29,10 @@ export class DepensesCommunesComponent implements OnInit {
 
   userList: any[] = [];
   operationCommuneList: OpCommune[] = [];
-  soldePerUser: any[] = [];
+  soldePerUser: any[] = [{ name: '', montant: 0 }];
 
-  totalCredit = 0;
-  totalDebit = 0;
+  totalDifference = 0;
+  totalMoyenne = 0;
 
   userId!: string;
 
@@ -81,54 +82,31 @@ export class DepensesCommunesComponent implements OnInit {
     this.form = this.fb.group({
       rangeDate: this.todayYear + '-' + this.todayMonthString,
     });
-    this.getSoldePerUser();
-    this.showUsers();
-    this.showOperationsFiltered(this.todayMonthString, this.todayYear);
     // this.getSoldePerUser();
+    this.showUsers(this.todayMonthString, this.todayYear);
+    this.showOperationsFiltered(this.todayMonthString, this.todayYear);
+    // this.getSoldePerUser(this.todayMonthString, this.todayYear);
     // this.showOperations();
-    // this.dataSource = new MatTableDataSource(this.operationCommuneList);
-    // this.dataSource.paginator = this.paginator;
-
-    console.log(this.operationCommuneList);
-    // TODO get operationsYears
-    // this.opCommuneService
-    //   .getOperations(this.operationCommuneList, this.userId)
-    //   .subscribe((operation) => {
-    //     operation.reverse();
-    //     this.firstOperationYear = operation[0].operationDate.split('-')[0];
-    //     for (let i = 0; i <= year - this.firstOperationYear; i++) {
-    //       this.operationsYears.push(year - i);
-    //     }
-    //     this.operationsYears.unshift(new Date(Date.now()).getFullYear());
-    //     this.operationsYears.reverse();
-
-    //     this.dataSource = new MatTableDataSource(this.operationCommuneList);
-    //     if ((new Date(Date.now()).getMonth() + 1).toString().length < 2) {
-    //       this.todayMonthString =
-    //         '0' + (new Date(Date.now()).getMonth() + 1).toString();
-    //     }
-
-    //     //TODO: show operations and users
-    //     console.log(this.operationCommuneList);
-
-    //     this.dataSource.paginator = this.paginator;
-    //   });
   }
 
   /* ******************* OPERATIONS ******************/
 
   showOperations() {
-    this.operationCommuneList = [];
-    this.opCommuneService.getAllOperations().subscribe((data) => {
-      data.forEach((operation) => {
-        if (operation.userId == this.userId) {
-          this.operationCommuneList.push(operation);
-        }
-      });
-      console.log(this.operationCommuneList);
-      this.dataSource = new MatTableDataSource(this.operationCommuneList);
-      this.dataSource.paginator = this.paginator;
-    });
+    let getOperationsObservable = this.opCommuneService.getAllOperations();
+
+    return getOperationsObservable;
+
+    // this.operationCommuneList = [];
+    // this.opCommuneService.getAllOperations().subscribe((data) => {
+    //   data.forEach((operation) => {
+    //     if (operation.userId == this.userId) {
+    //       this.operationCommuneList.push(operation);
+    //     }
+    //   });
+    //   // console.log(this.operationCommuneList);
+    //   this.dataSource = new MatTableDataSource(this.operationCommuneList);
+    //   this.dataSource.paginator = this.paginator;
+    // });
   }
 
   showOperationsFiltered(month: string, year: string) {
@@ -136,17 +114,15 @@ export class DepensesCommunesComponent implements OnInit {
     this.opCommuneService
       .getOperationsFiltered(month, year)
       .subscribe((data) => {
+        // this.soldePerUser = []
         data.forEach((operation) => {
           if (operation.userId == this.userId) {
             this.operationCommuneList.push(operation);
-            // this.totalOperations(
-            //   operation.montant,
-            //   operation.type,
-            //   operation.categorie
-            // );
           }
         });
-        // console.log(this.operationCommuneList);
+        console.log(this.operationCommuneList);
+        console.log(this.userList);
+
         this.dataSource = new MatTableDataSource(this.operationCommuneList);
         this.dataSource.paginator = this.paginator;
       });
@@ -164,15 +140,12 @@ export class DepensesCommunesComponent implements OnInit {
       })
       .afterClosed()
       .subscribe(() => {
-        // this.opCommuneService.getOneUserByName()
-        this.getSoldePerUser();
-        this.showUsers();
+        // this.getSoldePerUser();
+        this.showUsers(this.todayMonthString, this.todayYear);
         // this.showOperations();
         this.showOperationsFiltered(this.todayMonthString, this.todayYear);
         // this.getSoldePerUser();
-        // this.showOperationsFiltered(this.todayMonthString, this.todayYear);
-        // this.showAccounts();
-        // this.getSoldePerAccount(this.operationList);
+
         // TODO show operations
       });
   }
@@ -189,24 +162,21 @@ export class DepensesCommunesComponent implements OnInit {
       })
       .afterClosed()
       .subscribe(() => {
-        this.getSoldePerUser();
-        this.showUsers();
+        // this.getSoldePerUser();
+        this.showUsers(this.todayMonthString, this.todayYear);
         // this.showOperations();
         this.showOperationsFiltered(this.todayMonthString, this.todayYear);
         // this.getSoldePerUser();
-        // this.showOperationsFiltered(this.todayMonthString, this.todayYear);
-        // this.showAccounts();
-        // this.getSoldePerAccount(this.operationList);
-        // TODO
       });
   }
 
   deleteOperation(operation: any) {
     this.opCommuneService.deleteOperation(operation._id).subscribe(() => {
-      this.getSoldePerUser();
-      this.showUsers();
+      // this.getSoldePerUser();
+      this.showUsers(this.todayMonthString, this.todayYear);
       // this.showOperations();
       this.showOperationsFiltered(this.todayMonthString, this.todayYear);
+      // this.getSoldePerUser(this.todayMonthString, this.todayYear);
     });
   }
 
@@ -235,11 +205,11 @@ export class DepensesCommunesComponent implements OnInit {
     }
 
     this.operationCommuneList = [];
-    this.totalCredit = 0;
-    this.totalDebit = 0;
+    // this.totalCredit = 0;
+    // this.totalDebit = 0;
 
     // TODO Show operations + show users
-    this.showUsers();
+    this.showUsers(this.todayMonthString, this.todayYear);
     this.showOperationsFiltered(this.todayMonthString, this.todayYear);
   }
 
@@ -253,22 +223,22 @@ export class DepensesCommunesComponent implements OnInit {
     this.dateFiltered = false;
 
     // TODO Show operations + show users
-    this.showUsers();
+    this.showUsers(this.todayMonthString, this.todayYear);
   }
 
   /**************** ACCOUNTS ************************* */
 
-  showUsers() {
-    this.userList = [];
-    this.opCommuneService.getAllUsers().subscribe((data) => {
-      data.forEach((user) => {
-        if (user.userId == this.userId) {
-          this.userList.push(user);
-        }
-      });
-      console.log(this.userList);
-    });
-  }
+  // showUsers() {
+  //   this.userList = [];
+  //   this.opCommuneService.getAllUsers().subscribe((data) => {
+  //     data.forEach((user) => {
+  //       if (user.userId == this.userId) {
+  //         this.userList.push(user);
+  //       }
+  //     });
+  //     console.log(this.userList);
+  //   });
+  // }
 
   AddUser() {
     this.dialog
@@ -280,69 +250,115 @@ export class DepensesCommunesComponent implements OnInit {
       })
       .afterClosed()
       .subscribe(() => {
-        this.showUsers();
+        this.showUsers(this.todayMonthString, this.todayYear);
       });
   }
 
   openUserDetail(user: any) {
-    this.dialog
-      .open(OpcommuneuserFormComponent, {
-        data: {
-          user: user,
-          addOrEdit: 'edit',
-        },
-        width: '60%',
-      })
-      .afterClosed()
-      .subscribe(() => {
-        this.showUsers();
-      });
-  }
-
-  deleteUser(user: any) {
-    this.opCommuneService.deleteUser(user._id).subscribe(() => {
-      this.showUsers();
+    console.log(user);
+    this.opCommuneService.getOneUserByName(user.name).subscribe((data) => {
+      this.dialog
+        .open(OpcommuneuserFormComponent, {
+          data: {
+            user: data,
+            addOrEdit: 'edit',
+          },
+          width: '60%',
+        })
+        .afterClosed()
+        .subscribe(() => {
+          this.showUsers(this.todayMonthString, this.todayYear);
+          // this.getSoldePerUser(this.todayMonthString, this.todayYear);
+        });
     });
   }
 
-  getSoldePerUser() {
-    this.soldePerUser = [];
+  deleteUser(user: any) {
+    this.opCommuneService.getOneUserByName(user.name).subscribe((data) => {
+      this.opCommuneService.deleteUser(data._id).subscribe(() => {
+        this.showUsers(this.todayMonthString, this.todayYear);
+      });
+    });
+  }
 
-    this.opCommuneService.getAllUsers().subscribe((data) => {
-      data.forEach((user, userIndex) => {
+  getSoldePerUser(month: string, year: string) {
+    this.soldePerUser = [];
+    this.totalDifference = 0;
+
+    this.opCommuneService.getAllUsers().subscribe((users) => {
+      this.userList = [];
+      users.forEach((user) => {
         if (user.userId == this.userId) {
+          this.userList.push(user);
+        }
+      });
+    });
+    console.log(this.userList);
+
+    this.userList.forEach((user) => {
+      let montant = 0;
+
+      for (let i = 0; i < user.history.length; i++) {
+        if (user.history[i].operationDate.includes(year + '-' + month)) {
+          montant += user.history[i].montant;
+        }
+      }
+
+      this.soldePerUser.push({ name: user.name, montant: montant });
+    });
+
+    // console.log(this.soldePerUser);
+
+    if (this.soldePerUser.length > 0) {
+      this.totalDifference =
+        (this.soldePerUser[0].montant - this.soldePerUser[1].montant) / 2;
+
+      this.totalMoyenne =
+        (this.soldePerUser[0].montant + this.soldePerUser[1].montant) / 2;
+    }
+  }
+
+  showUsers(month: string, year: string) {
+    this.userList = [];
+    let userObservable = this.opCommuneService.getAllUsers();
+    let operationsObservable = this.opCommuneService.getAllOperations();
+
+    forkJoin([userObservable, operationsObservable]).subscribe((data) => {
+      // Récupération des utilisateurs
+      data[0].forEach((user, userIndex) => {
+        if (user.userId == this.userId) {
+          this.userList.push(user);
+
           let userBDD = new OpCommuneUser('', '', []);
           this.opCommuneService.getOneUser(user._id).subscribe((data) => {
             userBDD = data;
           });
 
           let operationsHistory: any[] = [];
-          this.opCommuneService.getAllOperations().subscribe((data) => {
-            data.forEach((operation) => {
-              if (
-                operation.userId == this.userId &&
-                operation.name == user.name
-              ) {
-                // this.operationCommuneList.push(operation);
-                // console.log(operation);
-                operationsHistory.push(operation);
-              }
-            });
 
-            userBDD.history = operationsHistory;
-
-            const userdata = {
-              id: user._id,
-              user: userBDD,
-            };
-
-            this.opCommuneService.updateOneUser(userdata).subscribe();
-            // console.log(this.userList);
+          // Récupération des opérations
+          data[1].forEach((operation) => {
+            if (
+              operation.userId == this.userId &&
+              operation.name == user.name
+            ) {
+              operationsHistory.push(operation);
+            }
           });
+
+          userBDD.history = operationsHistory;
+
+          const userdata = {
+            id: user._id,
+            user: userBDD,
+          };
+          // console.log(userdata);
+
+          this.opCommuneService.updateOneUser(userdata).subscribe();
         }
       });
-      // console.log(this.userList);
-      // console.log(this.soldePerUser);
+      console.log(this.userList);
+      this.getSoldePerUser(month, year);
     });
   }
 }

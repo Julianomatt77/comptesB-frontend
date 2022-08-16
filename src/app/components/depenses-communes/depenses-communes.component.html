@@ -32,14 +32,15 @@
           Ajouter une dépense
         </button>
       </div>
-      <div class="d-flex justify-content-evenly">
+      <!-- <div class="d-flex justify-content-evenly">
         <div>Crédit = {{ totalCredit }} €</div>
         <div>Débit = {{ totalDebit }} €</div>
         <div>Différence = {{ totalCredit + totalDebit }} €</div>
-      </div>
+      </div> -->
       <div>
         <!-- Angular mat table -->
         <table
+          class="col-12"
           *ngIf="operationCommuneList != []"
           mat-table
           [dataSource]="dataSource"
@@ -101,7 +102,10 @@
       </div>
     </div>
     <div class="col-lg-4">
-      <div class="d-flex justify-content-center">
+      <div
+        *ngIf="soldePerUser.length < 2"
+        class="d-flex justify-content-center"
+      >
         <button class="" (click)="AddUser()">Ajouter un utilisateur</button>
       </div>
       <div>
@@ -115,26 +119,38 @@
             </tr>
           </thead>
           <tbody>
-            <ng-container *ngFor="let user of userList">
+            <ng-container *ngFor="let user of soldePerUser">
               <tr>
                 <td>{{ user.name }}</td>
-                <td *ngFor="let history of user.history">
-                  {{ history.soldeFinal }} €
-                </td>
+                <td>{{ user.montant }} €</td>
                 <td>
                   <button (click)="openUserDetail(user)" class="btn">
                     <fa-icon [icon]="faPen"></fa-icon>
                   </button>
                 </td>
                 <td>
-                  <button (click)="deleteUser(user)" class="btn">
+                  <!-- <button (click)="deleteUser(user)" class="btn">
                     <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
-                  </button>
+                  </button> -->
                 </td>
               </tr>
             </ng-container>
           </tbody>
         </table>
+      </div>
+
+      <div class="mt-5">
+        <div>Dépende Moyenne par personne : {{ totalMoyenne }} €</div>
+      </div>
+      <div class="mt-5" *ngIf="soldePerUser.length > 1">
+        <div *ngIf="totalDifference >= 0">
+          {{ soldePerUser[1].name }} doit {{ totalDifference }} € à
+          {{ soldePerUser[0].name }}
+        </div>
+        <div *ngIf="totalDifference <= 0">
+          {{ soldePerUser[0].name }} doit {{ -totalDifference }} € à
+          {{ soldePerUser[1].name }}
+        </div>
       </div>
     </div>
   </div>
