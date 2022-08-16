@@ -3,6 +3,9 @@
     <button [routerLink]="['/']">Accueil</button>
     <button *ngIf="isLoggedIn" [routerLink]="['/comptes']">Opérations</button>
     <button *ngIf="isLoggedIn" [routerLink]="['/recap']">Récapitulatif</button>
+    <button *ngIf="isLoggedIn" [routerLink]="['/depensesCommunes']">
+      Dépenses Communes
+    </button>
     <button *ngIf="!isLoggedIn" [routerLink]="['/login']">Connexion</button>
 
     <button *ngIf="isLoggedIn" (click)="logout()">Se déconnecter</button>

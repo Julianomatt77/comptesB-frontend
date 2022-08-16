@@ -34,7 +34,6 @@ export class CompteFormComponent implements OnInit {
     public dialogRef: MatDialogRef<CompteFormComponent>
   ) {
     this.formSubmitted = new EventEmitter<Compte>();
-    console.log(data);
     if (data.addOrEdit == 'edit') {
       this.addOrEdit = 'edit';
       this.buttonLabel = 'Mettre à jour';
@@ -45,7 +44,6 @@ export class CompteFormComponent implements OnInit {
       this.buttonLabel = 'Ajouter';
       this.compte = new Compte('', '', '', 0, 0);
     }
-    console.log(this.addOrEdit);
   }
 
   ngOnInit(): void {

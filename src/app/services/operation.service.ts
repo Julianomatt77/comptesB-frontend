@@ -176,7 +176,8 @@ export class OperationService {
       soldeAllArray.forEach((compte) => {
         if (
           operation.compte == compte.compteName &&
-          operation.categorie != 'Transfert' && operation.userId == userId
+          // operation.categorie != 'Transfert' &&
+          operation.userId == userId
         ) {
           compte.lastSolde = compte.lastSolde + operation.montant;
           compte.soldeHistory.push({
