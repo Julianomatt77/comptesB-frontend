@@ -29,6 +29,7 @@ import { RecapComponent } from './components/recap/recap.component';
 import { DepensesCommunesComponent } from './components/depenses-communes/depenses-communes.component';
 import { OpcommuneFormComponent } from './components/opcommune-form/opcommune-form.component';
 import { OpcommuneuserFormComponent } from './components/opcommuneuser-form/opcommuneuser-form.component';
+import { MaterialExampleModule } from '../material.module';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { OpcommuneuserFormComponent } from './components/opcommuneuser-form/opco
     Daterangepicker,
     FontAwesomeModule,
     FontAwesomeModule,
+    MaterialExampleModule,
     // CookieService,
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'fr-FR' }, tokenInterceptor],

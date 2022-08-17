@@ -7,7 +7,7 @@
     <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()">
       <div class="d-flex align-items-center">
         <div class="mx-2">
-          <select type="select" formControlName="rangeDate">
+          <select class="form-select" type="select" formControlName="rangeDate">
             <option value="2022" selected>2022</option>
             <option *ngFor="let year of displayYear">
               {{ year }}
@@ -45,7 +45,7 @@
         <div class="accordion-body">
           <div class="row mb-5">
             <!-- <h2 class="text-center mb-3">Comptes courants</h2> -->
-            <div class="col-lg-8">
+            <div class="col-lg-6">
               <div class="d-flex justify-content-evenly">
                 <div class="mx-2">Crédit = {{ totalCredit }} €</div>
                 <div class="mx-2">Débit = {{ totalDebit }} €</div>
@@ -92,7 +92,7 @@
               </div>
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-lg-6">
               <div class="d-flex justify-content-evenly mt-2">
                 Graphiques TODO
               </div>
@@ -124,7 +124,7 @@
         <div class="accordion-body">
           <div class="row mt-5">
             <!-- <h2 class="text-center mb-3">Epargne</h2> -->
-            <div class="col-lg-8">
+            <div class="col-lg-6">
               <!-- <div class="d-flex justify-content-evenly">
         <div class="mx-2">Crédit = {{ totalCreditEpargne }} €</div>
         <div class="mx-2">Débit = {{ totalDebitEpargne }} €</div>
@@ -167,7 +167,7 @@
               </div>
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-lg-6">
               <div class="d-flex justify-content-center">
                 <!-- Angular mat table -->
                 <table

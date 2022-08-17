@@ -1,13 +1,39 @@
 <nav class="pt-2">
   <div class="d-flex justify-content-evenly">
-    <button [routerLink]="['/']">Accueil</button>
-    <button *ngIf="isLoggedIn" [routerLink]="['/comptes']">Opérations</button>
-    <button *ngIf="isLoggedIn" [routerLink]="['/recap']">Récapitulatif</button>
-    <button *ngIf="isLoggedIn" [routerLink]="['/depensesCommunes']">
+    <button mat-raised-button color="secondary" [routerLink]="['/']">
+      Accueil
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      *ngIf="isLoggedIn"
+      [routerLink]="['/comptes']"
+    >
+      Opérations
+    </button>
+    <button
+      mat-raised-button
+      color="warn"
+      *ngIf="isLoggedIn"
+      [routerLink]="['/recap']"
+    >
+      Récapitulatif
+    </button>
+    <button
+      mat-raised-button
+      color="accent"
+      *ngIf="isLoggedIn"
+      [routerLink]="['/depensesCommunes']"
+    >
       Dépenses Communes
     </button>
-    <button *ngIf="!isLoggedIn" [routerLink]="['/login']">Connexion</button>
+    <button mat-raised-button *ngIf="!isLoggedIn" [routerLink]="['/login']">
+      Connexion
+    </button>
 
-    <button *ngIf="isLoggedIn" (click)="logout()">Se déconnecter</button>
+    <button mat-raised-button *ngIf="isLoggedIn" (click)="logout()">
+      Se déconnecter
+    </button>
   </div>
+  <!-- <mat-divider></mat-divider> -->
 </nav>
