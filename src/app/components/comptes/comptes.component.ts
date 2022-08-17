@@ -253,29 +253,49 @@ export class ComptesComponent implements OnInit {
           .getOneAccountByName(operation.compte)
           .subscribe((compte) => {
             let montantRestitue = -this.operation.montant;
-            this.compteId = compte._id;
+            if (compte) {
+              this.compteId = compte._id;
 
-            compte.soldeActuel = compte.soldeActuel + montantRestitue;
+              compte.soldeActuel = compte.soldeActuel + montantRestitue;
 
-            const compteData = {
-              id: this.compteId,
-              compte: compte,
-            };
+              const compteData = {
+                id: this.compteId,
+                compte: compte,
+              };
 
-            let updateSolde = this.compteService.updateOneAccount(compteData);
-            let deleteOperation = this.operationService.deleteOperation(
-              this.operationId
-            );
-
-            forkJoin([updateSolde, deleteOperation]).subscribe(() => {
-              this.showOperationsFiltered(
-                this.todayMonthString,
-                this.todayYear
+              let updateSolde = this.compteService.updateOneAccount(compteData);
+              let deleteOperation = this.operationService.deleteOperation(
+                this.operationId
               );
-              this.showAccounts();
-              this.getSoldePerAccount(this.allOperations);
-              this.getDepenseByCategory(this.todayMonthString, this.todayYear);
-            });
+
+              forkJoin([updateSolde, deleteOperation]).subscribe(() => {
+                this.showOperationsFiltered(
+                  this.todayMonthString,
+                  this.todayYear
+                );
+                this.showAccounts();
+                this.getSoldePerAccount(this.allOperations);
+                this.getDepenseByCategory(
+                  this.todayMonthString,
+                  this.todayYear
+                );
+              });
+            } else {
+              this.operationService
+                .deleteOperation(this.operationId)
+                .subscribe(() => {
+                  this.showOperationsFiltered(
+                    this.todayMonthString,
+                    this.todayYear
+                  );
+                  this.showAccounts();
+                  this.getSoldePerAccount(this.allOperations);
+                  this.getDepenseByCategory(
+                    this.todayMonthString,
+                    this.todayYear
+                  );
+                });
+            }
           });
       });
   }
