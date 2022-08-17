@@ -20,6 +20,20 @@
       </div>
     </form>
   </div>
+  <div class="d-flex align-items-center justify-content-center">
+    <ngx-charts-line-chart
+      (window:resize)="onResize($event)"
+      [view]="[width, 300]"
+      [legend]="false"
+      [showXAxisLabel]="showXAxisLabel"
+      [xAxis]="xAxis"
+      [yAxis]="yAxis"
+      [yAxisLabel]="yAxisLabel"
+      [timeline]="timeline"
+      [results]="multi"
+    >
+    </ngx-charts-line-chart>
+  </div>
 
   <div class="accordion" id="accordionExample">
     <!------------------- Comptes Courants --------------------->
@@ -30,7 +44,7 @@
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#collapseOne"
-          aria-expanded="true"
+          aria-expanded="false"
           aria-controls="collapseOne"
         >
           Comptes courants : Evolution = {{ evolutionCompteCourant }} %
@@ -38,7 +52,7 @@
       </h2>
       <div
         id="collapseOne"
-        class="accordion-collapse collapse show"
+        class="accordion-collapse collapse"
         aria-labelledby="headingOne"
         data-bs-parent="#accordionExample"
       >
@@ -92,11 +106,22 @@
               </div>
             </div>
 
-            <div class="col-lg-6">
+            <!-- <div class="col-lg-6">
               <div class="d-flex justify-content-evenly mt-2">
-                Graphiques TODO
+                <ngx-charts-line-chart
+                  [view]="[700, 300]"
+                  [legend]="false"
+                  [showXAxisLabel]="showXAxisLabel"
+                  [xAxis]="xAxis"
+                  [yAxis]="yAxis"
+                  [xAxisLabel]="xAxisLabel"
+                  [yAxisLabel]="yAxisLabel"
+                  [timeline]="timeline"
+                  [results]="multi"
+                >
+                </ngx-charts-line-chart>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>

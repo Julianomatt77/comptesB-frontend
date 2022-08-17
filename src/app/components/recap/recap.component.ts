@@ -107,6 +107,30 @@ export class RecapComponent implements OnInit {
   evolutionCompteCourant = 0;
   evolutionEpargne = 0;
 
+  multi: any[] = [
+    { name: 'Compte Courant', series: [] },
+    { name: 'Epargne', series: [] },
+  ];
+  width = 0;
+
+  // view = [700, 300];
+
+  // options
+  legend: boolean = true;
+  showLabels: boolean = true;
+  animations: boolean = true;
+  xAxis: boolean = true;
+  yAxis: boolean = true;
+  showYAxisLabel: boolean = true;
+  showXAxisLabel: boolean = true;
+  xAxisLabel: string = 'Year';
+  yAxisLabel: string = 'Population';
+  timeline: boolean = true;
+
+  colorScheme = {
+    domain: ['#5AA454', '#E44D25', '#CFC0BB', '#7aa3e5', '#a8385d', '#aae3f5'],
+  };
+
   constructor(
     private cookieService: CookieService,
     private fb: FormBuilder,
@@ -119,6 +143,8 @@ export class RecapComponent implements OnInit {
     });
 
     this.userId = this.cookieService.get('userId');
+    this.width = innerWidth / 1.3;
+    Object.assign(this.multi);
   }
 
   ngOnInit(): void {
@@ -149,8 +175,6 @@ export class RecapComponent implements OnInit {
         this.getOperationHistory(this.todayYear);
         this.getEpargneHistory(this.todayYear);
         this.getEpargneHistoryPerAccount(this.todayYear);
-
-        // this.dataSource.paginator = this.paginator;
       });
 
     this.todayMonthString = this.datePickerService.transformMonth(
@@ -204,7 +228,11 @@ export class RecapComponent implements OnInit {
         this.userId
       );
 
-      this.operationService.fillOperations(data[1], this.soldeAllAccounts, this.userId);
+      this.operationService.fillOperations(
+        data[1],
+        this.soldeAllAccounts,
+        this.userId
+      );
 
       this.operationService
         .uploadAccountHistory(this.soldeAllAccounts, 'Compte Courant')
@@ -259,13 +287,13 @@ export class RecapComponent implements OnInit {
       monthlyHistoryFiltered[0].solde - monthlyHistoryFiltered[0].economie;
     let soldeFinal = monthlyHistoryFiltered[11].solde;
 
-    if((soldeFinal - soldeInitial) == 0){
-      this.evolutionCompteCourant = 0
+    if (soldeFinal - soldeInitial == 0) {
+      this.evolutionCompteCourant = 0;
     } else {
       this.evolutionCompteCourant =
-      Math.round(((soldeFinal - soldeInitial) / soldeInitial) * 100 * 10) / 10;
+        Math.round(((soldeFinal - soldeInitial) / soldeInitial) * 100 * 10) /
+        10;
     }
-
 
     for (let i = 0; i < 12; i++) {
       this.operationService
@@ -301,6 +329,17 @@ export class RecapComponent implements OnInit {
             monthlyHistoryFiltered[i].solde
           );
 
+          // MAJ du graphique
+          // let tempArray: any[] = [{ name: 'Comptes Courants', series: [] }];
+          let tempArray: any[] = [{ name: 'Comptes Courants', series: [] }];
+          this.operationPerYear.forEach((data) => {
+            tempArray[0].series.push({
+              name: data.month,
+              value: data.solde,
+            });
+          });
+          this.multi = tempArray;
+
           // MAJ de l'affichage du tableau
           this.dataSource = new MatTableDataSource(this.operationPerYear);
           this.dataSource.paginator = this.paginator;
@@ -332,7 +371,8 @@ export class RecapComponent implements OnInit {
       this.operationService.fillSoldeAllAccounts(
         data[0],
         'Epargne',
-        this.soldeAllEpargne,this.userId
+        this.soldeAllEpargne,
+        this.userId
       );
       this.operationService.fillSoldeAllAccounts(
         data[0],
@@ -341,7 +381,11 @@ export class RecapComponent implements OnInit {
         this.userId
       );
 
-      this.operationService.fillOperations(data[1], this.soldeAllEpargne, this.userId);
+      this.operationService.fillOperations(
+        data[1],
+        this.soldeAllEpargne,
+        this.userId
+      );
 
       this.operationService
         .uploadAccountHistory(this.soldeAllEpargne, 'Epargne')
@@ -399,11 +443,12 @@ export class RecapComponent implements OnInit {
     let soldeInitial =
       monthlyHistoryFiltered[0].solde - monthlyHistoryFiltered[0].economie;
     let soldeFinal = monthlyHistoryFiltered[11].solde;
-    if((soldeFinal - soldeInitial) == 0){
-      this.evolutionEpargne = 0
+    if (soldeFinal - soldeInitial == 0) {
+      this.evolutionEpargne = 0;
     } else {
       this.evolutionEpargne =
-      Math.round(((soldeFinal - soldeInitial) / soldeInitial) * 100 * 10) / 10;
+        Math.round(((soldeFinal - soldeInitial) / soldeInitial) * 100 * 10) /
+        10;
     }
 
     for (let i = 0; i < 12; i++) {
@@ -529,11 +574,12 @@ export class RecapComponent implements OnInit {
       totalFinal += compte.history.soldeFinal;
     });
 
-    if((totalFinal - totalInitial) == 0){
-      totalEvolution = 0
+    if (totalFinal - totalInitial == 0) {
+      totalEvolution = 0;
     } else {
       totalEvolution =
-      Math.round(((totalFinal - totalInitial) / totalInitial) * 100 * 10) / 10;
+        Math.round(((totalFinal - totalInitial) / totalInitial) * 100 * 10) /
+        10;
     }
 
     this.yearlyArray.push({
@@ -547,5 +593,10 @@ export class RecapComponent implements OnInit {
     });
     this.evolutionEpargne = totalEvolution;
     this.dataSourceEpargneYearly = new MatTableDataSource(this.yearlyArray);
+  }
+
+  /************************* GRAPHIQUE *************** */
+  onResize(event: any): void {
+    this.width = event.target.innerWidth / 1.3;
   }
 }

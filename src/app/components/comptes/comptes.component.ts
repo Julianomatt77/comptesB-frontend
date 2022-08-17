@@ -45,6 +45,22 @@ export class ComptesComponent implements OnInit {
   monthlysoldeHistory: any[] = [];
   monthlyHistoryPerAccount: any[] = [];
 
+  spendByCategory: any[] = [];
+  categorieList: string[] = [
+    'Courses',
+    'Divers',
+    'Essence',
+    'Epargne',
+    'Prélèvement',
+    'Pub',
+    'Remboursement',
+    'Restaurant',
+    'Salaire',
+    'Transfert',
+    'Voyage',
+    'santé',
+  ];
+
   // datasource = [];
   // dataSource!: MatTableDataSource<any>;
   dataSource = new MatTableDataSource(this.operationList);
@@ -75,6 +91,8 @@ export class ComptesComponent implements OnInit {
   faPen = faPen;
   faTrashCan = faTrashCan;
 
+  width = 0;
+
   constructor(
     private fb: FormBuilder,
     private operationService: OperationService,
@@ -84,6 +102,10 @@ export class ComptesComponent implements OnInit {
   ) {
     this.formSubmitted = new EventEmitter<string>();
     this.userId = this.cookieService.get('userId');
+    // console.log(innerWidth);
+    this.width = innerWidth / 1.3;
+    // this.view = [innerWidth / 1.3, 400];
+    // console.log(this.view);
   }
 
   ngOnInit(): void {
@@ -109,6 +131,7 @@ export class ComptesComponent implements OnInit {
         this.dataSource.paginator = this.paginator;
 
         this.getSoldePerAccount(operation);
+        this.getDepenseByCategory(this.todayMonthString, this.todayYear);
       });
 
     if (this.todayMonthString.length < 2) {
@@ -139,6 +162,7 @@ export class ComptesComponent implements OnInit {
   /* ************************* Opêrations *********** */
   showOperations() {
     this.operationList = [];
+    // this.allOperations = [];
     this.totalCredit = 0;
     this.totalDebit = 0;
     this.operationService.getAllOperations().subscribe((data) => {
@@ -146,6 +170,7 @@ export class ComptesComponent implements OnInit {
         if (operation.userId == this.userId) {
           // console.log(operation.categorie);
           this.operationList.push(operation);
+          // this.allOperations.push(operation);
           this.totalOperations(
             operation.montant,
             operation.type,
@@ -193,7 +218,8 @@ export class ComptesComponent implements OnInit {
       .subscribe(() => {
         this.showOperationsFiltered(this.todayMonthString, this.todayYear);
         this.showAccounts();
-        this.getSoldePerAccount(this.operationList);
+        this.getSoldePerAccount(this.allOperations);
+        this.getDepenseByCategory(this.todayMonthString, this.todayYear);
       });
   }
 
@@ -211,7 +237,8 @@ export class ComptesComponent implements OnInit {
       .subscribe(() => {
         this.showOperationsFiltered(this.todayMonthString, this.todayYear);
         this.showAccounts();
-        this.getSoldePerAccount(this.operationList);
+        this.getSoldePerAccount(this.allOperations);
+        this.getDepenseByCategory(this.todayMonthString, this.todayYear);
       });
   }
 
@@ -246,7 +273,8 @@ export class ComptesComponent implements OnInit {
                 this.todayYear
               );
               this.showAccounts();
-              this.getSoldePerAccount(this.operationList);
+              this.getSoldePerAccount(this.allOperations);
+              this.getDepenseByCategory(this.todayMonthString, this.todayYear);
             });
           });
       });
@@ -285,7 +313,7 @@ export class ComptesComponent implements OnInit {
       .afterClosed()
       .subscribe(() => {
         this.showAccounts();
-        this.getSoldePerAccount(this.operationList);
+        this.getSoldePerAccount(this.allOperations);
       });
   }
 
@@ -303,7 +331,7 @@ export class ComptesComponent implements OnInit {
         .afterClosed()
         .subscribe(() => {
           this.showAccounts();
-          this.getSoldePerAccount(this.operationList);
+          this.getSoldePerAccount(this.allOperations);
         });
     });
   }
@@ -313,13 +341,14 @@ export class ComptesComponent implements OnInit {
       let compteIndex = data.findIndex((p) => p.name == compte.name);
       this.compteService.deleteAccount(data[compteIndex]._id).subscribe(() => {
         this.showAccounts();
-        this.getSoldePerAccount(this.operationList);
+        this.getSoldePerAccount(this.allOperations);
       });
     });
   }
 
   getSoldePerAccount(operations: any[]) {
     this.soldePerAccount = [];
+    // console.log(this.allOperations);
 
     this.compteService.getAllAccounts().subscribe((data: any[]) => {
       data.forEach((compte, index) => {
@@ -389,6 +418,7 @@ export class ComptesComponent implements OnInit {
           }
         }
       });
+      // console.log(this.soldePerAccount);
       this.getMonthlySolde(this.todayMonthString, this.todayYear);
     });
   }
@@ -440,7 +470,8 @@ export class ComptesComponent implements OnInit {
 
     this.showOperationsFiltered(this.todayMonthString, this.todayYear);
     // this.getMonthlySolde(this.todayMonthString, this.todayYear);
-    this.getSoldePerAccount(this.operationList);
+    this.getSoldePerAccount(this.allOperations);
+    this.getDepenseByCategory(this.todayMonthString, this.todayYear);
   }
 
   resetDateFilters() {
@@ -455,5 +486,56 @@ export class ComptesComponent implements OnInit {
     this.showOperations();
     this.showAccounts();
     this.getMonthlySolde('12', new Date(Date.now()).getFullYear().toString());
+    this.getDepenseByCategory(
+      '12',
+      new Date(Date.now()).getFullYear().toString()
+    );
+  }
+
+  /*********** GRAPHIQUE ************* */
+
+  getDepenseByCategory(month: string, year: string) {
+    this.spendByCategory = [];
+    let tempArray: any[] = [];
+    this.categorieList.forEach((categorie) => {
+      if (
+        categorie != 'Transfert' &&
+        categorie != 'Salaire' &&
+        categorie != 'Remboursement'
+      ) {
+        tempArray.push({ name: categorie, value: 0 });
+      }
+    });
+
+    this.operationService
+      .getOperationsFiltered(month, year)
+      .subscribe((data) => {
+        data.forEach((operation) => {
+          let montant = 0;
+          if (
+            operation.userId == this.userId &&
+            operation.categorie != 'Transfert' &&
+            operation.categorie != 'Salaire' &&
+            operation.categorie != 'Remboursement'
+          ) {
+            let index = tempArray.findIndex(
+              (x) => x.name == operation.categorie
+            );
+
+            if (operation.montant < 0) {
+              montant = -operation.montant;
+            } else {
+              montant = 0;
+            }
+            tempArray[index].value += montant;
+          }
+        });
+        this.spendByCategory = tempArray;
+      });
+  }
+
+  /* ---- Auto resize chart ---- */
+  onResize(event: any): void {
+    this.width = event.target.innerWidth / 1.3;
   }
 }

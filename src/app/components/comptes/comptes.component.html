@@ -155,4 +155,16 @@
       </div>
     </div>
   </div>
+  <div class="mt-2">
+    <h3 class="text-center">Dépense par catégorie</h3>
+    <ngx-charts-pie-chart
+      (window:resize)="onResize($event)"
+      [results]="spendByCategory"
+      [legend]="false"
+      [legendTitle]="'Dépense par catégorie'"
+      [view]="[width, 400]"
+      [labels]="true"
+    >
+    </ngx-charts-pie-chart>
+  </div>
 </section>

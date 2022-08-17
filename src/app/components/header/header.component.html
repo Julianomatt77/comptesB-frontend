@@ -1,39 +1,76 @@
-<nav class="pt-2">
-  <div class="d-flex justify-content-evenly">
-    <button mat-raised-button color="secondary" [routerLink]="['/']">
-      Accueil
-    </button>
+<nav class="navbar navbar-expand-lg navbar-light bg-light pt-2">
+  <div class="container-fluid">
     <button
-      mat-raised-button
-      color="primary"
-      *ngIf="isLoggedIn"
-      [routerLink]="['/comptes']"
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
     >
-      Opérations
+      <span class="navbar-toggler-icon"></span>
     </button>
-    <button
-      mat-raised-button
-      color="warn"
-      *ngIf="isLoggedIn"
-      [routerLink]="['/recap']"
+    <div
+      class="collapse navbar-collapse justify-content-evenly align-items-center"
+      id="navbarSupportedContent"
     >
-      Récapitulatif
-    </button>
-    <button
-      mat-raised-button
-      color="accent"
-      *ngIf="isLoggedIn"
-      [routerLink]="['/depensesCommunes']"
-    >
-      Dépenses Communes
-    </button>
-    <button mat-raised-button *ngIf="!isLoggedIn" [routerLink]="['/login']">
-      Connexion
-    </button>
+      <ul class="navbar-nav d-flex justify-content-evenly w-100">
+        <li class="nav-item mt-2">
+          <button mat-raised-button color="secondary" [routerLink]="['/']">
+            Accueil
+          </button>
+        </li>
 
-    <button mat-raised-button *ngIf="isLoggedIn" (click)="logout()">
-      Se déconnecter
-    </button>
+        <li class="nav-item mt-2">
+          <button
+            mat-raised-button
+            color="primary"
+            *ngIf="isLoggedIn"
+            [routerLink]="['/comptes']"
+          >
+            Opérations
+          </button>
+        </li>
+
+        <li class="nav-item mt-2">
+          <button
+            mat-raised-button
+            color="warn"
+            *ngIf="isLoggedIn"
+            [routerLink]="['/recap']"
+          >
+            Récapitulatif
+          </button>
+        </li>
+
+        <li class="nav-item mt-2">
+          <button
+            mat-raised-button
+            color="accent"
+            *ngIf="isLoggedIn"
+            [routerLink]="['/depensesCommunes']"
+          >
+            Dépenses Communes
+          </button>
+        </li>
+
+        <li class="nav-item mt-2">
+          <button mat-raised-button *ngIf="isLoggedIn" (click)="logout()">
+            Se déconnecter
+          </button>
+        </li>
+
+        <li class="nav-item mt-2">
+          <button
+            mat-raised-button
+            *ngIf="!isLoggedIn"
+            [routerLink]="['/login']"
+          >
+            Connexion
+          </button>
+        </li>
+      </ul>
+    </div>
   </div>
-  <!-- <mat-divider></mat-divider> -->
 </nav>

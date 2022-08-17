@@ -30,6 +30,7 @@ import { DepensesCommunesComponent } from './components/depenses-communes/depens
 import { OpcommuneFormComponent } from './components/opcommune-form/opcommune-form.component';
 import { OpcommuneuserFormComponent } from './components/opcommuneuser-form/opcommuneuser-form.component';
 import { MaterialExampleModule } from '../material.module';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 @NgModule({
   declarations: [
@@ -63,6 +64,7 @@ import { MaterialExampleModule } from '../material.module';
     FontAwesomeModule,
     FontAwesomeModule,
     MaterialExampleModule,
+    NgxChartsModule,
     // CookieService,
   ],
   providers: [{ provide: LOCALE_ID, useValue: 'fr-FR' }, tokenInterceptor],
