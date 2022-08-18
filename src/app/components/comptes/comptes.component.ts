@@ -18,6 +18,9 @@ import { MatPaginator } from '@angular/material/paginator';
 import { CookieService } from 'ngx-cookie-service';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+// import * as jsPDF from 'jspdf';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-comptes',
@@ -567,4 +570,86 @@ export class ComptesComponent implements OnInit {
       this.width = event.target.innerWidth / 1.3;
     }
   }
+
+  /*********** EXPORT TO PDF *************** */
+  htmltoPDF() {
+    // printChartis the html element which has to be converted to PDF
+    html2canvas(document.querySelector('#dataToPrint')!).then((canvas) => {
+      let fileWidth = 208;
+      let fileHeight = (canvas.height * fileWidth) / canvas.width;
+      let position = 0;
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdfFile = new jsPDF('p', 'mm', 'a4');
+
+      pdfFile.addImage(imgData, 'PNG', position, 0, fileWidth, fileHeight);
+      pdfFile.save(
+        this.todayYear + '-' + this.todayMonthString + ' operations.pdf'
+      );
+    });
+  }
+
+  export(type: string) {
+    let arrayToExport: any[] = [];
+    let filename = '';
+
+    if (type == 'operations') {
+      arrayToExport = [];
+      this.operationList.forEach((data) => {
+        arrayToExport.push({
+          Date: this.todayYear + '-' + this.todayMonthString,
+          Crédit: data.type ? data.montant : '',
+          Débit: !data.type ? -data.montant : '',
+          Catégorie: data.categorie,
+          Compte: data.compte,
+          'Description 1': data.description1,
+          'Description 2': data.description2,
+        });
+      });
+
+      filename =
+        this.todayYear + '-' + this.todayMonthString + '_operations.csv';
+    } else if (type == 'comptes') {
+      arrayToExport = [];
+      this.monthlyHistoryPerAccount.forEach((data) => {
+        arrayToExport.push({
+          Date: data.history[0].dateSolde,
+          Compte: data.name,
+          'Solde Initial': data.history[0].soldeInitial + ' €',
+          Différence: data.history[0].montant + ' €',
+          'Solde Final': data.history[0].soldeFinal + ' €',
+        });
+      });
+
+      filename = this.todayYear + '-' + this.todayMonthString + '_comptes.csv';
+    }
+
+    this.operationService.exportToCSV(arrayToExport, filename);
+  }
+
+  // exportChart(id: string) {
+  //   // let canvas = document.getElementById(id) as HTMLCanvasElement;
+  //   // const chartEl: any = document.getElementById(id);
+  //   // const chartEl: any = document.querySelector('#' + id);
+  //   // console.log(chartEl);
+  //   // const image = chartEl.toDataURL('image/png');
+
+  //   // const pdf = new jsPDF('p', 'mm', 'a4');
+  //   // pdf.addImage(image, 'PNG', 80, 30, 150, 150);
+  //   // pdf.save('chart.pdf');
+
+  //   let chart = document.querySelector('#' + id);
+  //   // chart.then;
+
+  //   html2canvas(document.querySelector('#' + id)!).then((canvas) => {
+  //     console.log(canvas);
+  //     let fileWidth = 208;
+  //     let fileHeight = (canvas.height * fileWidth) / canvas.width;
+  //     const imgData = canvas.toDataURL('image/png');
+  //     const pdfFile = new jsPDF('p', 'mm', 'a4');
+  //     let position = 0;
+  //     pdfFile.addImage(imgData, 'PNG', position, 0, fileWidth, fileHeight);
+  //     pdfFile.save('sample2.pdf');
+  //   });
+  // }
 }

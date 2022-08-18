@@ -50,6 +50,11 @@
           aria-controls="collapseOne"
         >
           Comptes courants : Evolution = {{ evolutionCompteCourant }} %
+          <div class="mx-2">
+            <button class="btn btn-secondary" (click)="export('comptes')">
+              Exporter en csv
+            </button>
+          </div>
         </button>
       </h2>
       <div
@@ -140,6 +145,11 @@
           aria-controls="collapseTwo"
         >
           Epargne : Evolution = {{ evolutionEpargne }} %
+          <div class="mx-2">
+            <button class="btn btn-secondary" (click)="export('epargne')">
+              Exporter en csv
+            </button>
+          </div>
         </button>
       </h2>
       <div
@@ -159,7 +169,7 @@
         <div class="mx-2">Evolution = {{ evolutionEpargne }} %</div>
       </div> -->
 
-              <div class="d-flex justify-content-center">
+              <div class="d-flex justify-content-center pb-5">
                 <!-- Angular mat table -->
                 <table
                   mat-table

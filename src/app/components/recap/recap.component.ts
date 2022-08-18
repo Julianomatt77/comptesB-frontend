@@ -599,4 +599,36 @@ export class RecapComponent implements OnInit {
   onResize(event: any): void {
     this.width = event.target.innerWidth / 1.3;
   }
+
+  /************** EXPORT **************** */
+  export(type: string) {
+    let arrayToExport: any[] = [];
+    let filename = '';
+    if (type == 'epargne') {
+      arrayToExport = [];
+      this.yearlyArray.forEach((data) => {
+        arrayToExport.push({
+          compte: data.name,
+          'solde initial': data.history.soldeInitial + ' €',
+          'solde Final': data.history.soldeFinal + ' €',
+          evolution: data.history.evolution + ' %',
+        });
+      });
+
+      filename = this.todayYear + '_epargne.csv';
+    } else if (type == 'comptes') {
+      arrayToExport = [];
+      this.operationPerYear.forEach((data) => {
+        arrayToExport.push({
+          Mois: data.month,
+          Economie: data.economie + ' €',
+          Solde: data.solde + ' €',
+        });
+      });
+
+      filename = this.todayYear + '_comptes.csv';
+    }
+
+    this.operationService.exportToCSV(arrayToExport, filename);
+  }
 }

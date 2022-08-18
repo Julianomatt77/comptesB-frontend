@@ -189,4 +189,46 @@ export class OperationService {
       });
     });
   }
+
+  public exportToCSV(array: any[], filename: string) {
+    var csvData = this.ConvertToCSV(array);
+    var a = document.createElement('a');
+
+    // Pour encodage avec accents
+    var BOM = '\uFEFF';
+    csvData = BOM + csvData;
+
+    a.setAttribute('style', 'display:none;');
+    document.body.appendChild(a);
+    var blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
+    var url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = filename;
+    a.click();
+  }
+
+  public ConvertToCSV(objArray: any[]) {
+    var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+    var str = '';
+    var row = '';
+
+    for (var index in objArray[0]) {
+      //Now convert each value to string and comma-separated
+      row += index + ',';
+    }
+    row = row.slice(0, -1);
+    //append Label row with line break
+    str += row + '\r\n';
+
+    for (var i = 0; i < array.length; i++) {
+      var line = '';
+      for (var index in array[i]) {
+        if (line != '') line += ',';
+
+        line += array[i][index];
+      }
+      str += line + '\r\n';
+    }
+    return str;
+  }
 }
