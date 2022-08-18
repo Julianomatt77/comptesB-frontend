@@ -20,6 +20,8 @@
       </div>
     </form>
   </div>
+
+  <!-- ------   CHART     ---------->
   <div class="d-flex align-items-center justify-content-center">
     <ngx-charts-line-chart
       (window:resize)="onResize($event)"
@@ -59,7 +61,7 @@
         <div class="accordion-body">
           <div class="row mb-5">
             <!-- <h2 class="text-center mb-3">Comptes courants</h2> -->
-            <div class="col-lg-6">
+            <div class="col-lg-12">
               <div class="d-flex justify-content-evenly">
                 <div class="mx-2">Crédit = {{ totalCredit }} €</div>
                 <div class="mx-2">Débit = {{ totalDebit }} €</div>

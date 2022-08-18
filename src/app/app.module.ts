@@ -31,6 +31,7 @@ import { OpcommuneFormComponent } from './components/opcommune-form/opcommune-fo
 import { OpcommuneuserFormComponent } from './components/opcommuneuser-form/opcommuneuser-form.component';
 import { MaterialExampleModule } from '../material.module';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { FooterComponent } from './components/footer/footer.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
     DepensesCommunesComponent,
     OpcommuneFormComponent,
     OpcommuneuserFormComponent,
+    FooterComponent,
   ],
   imports: [
     BrowserModule,

@@ -103,7 +103,12 @@ export class ComptesComponent implements OnInit {
     this.formSubmitted = new EventEmitter<string>();
     this.userId = this.cookieService.get('userId');
     // console.log(innerWidth);
-    this.width = innerWidth / 1.3;
+    if (innerWidth >= 991) {
+      this.width = innerWidth / 3.3;
+    } else {
+      this.width = innerWidth / 1.3;
+    }
+
     // this.view = [innerWidth / 1.3, 400];
     // console.log(this.view);
   }
@@ -556,6 +561,10 @@ export class ComptesComponent implements OnInit {
 
   /* ---- Auto resize chart ---- */
   onResize(event: any): void {
-    this.width = event.target.innerWidth / 1.3;
+    if (event.target.innerWidth >= 991) {
+      this.width = event.target.innerWidth / 3.3;
+    } else {
+      this.width = event.target.innerWidth / 1.3;
+    }
   }
 }
