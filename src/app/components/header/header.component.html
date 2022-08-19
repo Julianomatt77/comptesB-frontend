@@ -52,6 +52,15 @@
             Dépenses Communes
           </button>
         </li>
+        <li class="nav-item mt-2">
+          <button
+            mat-raised-button
+            *ngIf="isLoggedIn"
+            [routerLink]="['/gestionUser']"
+          >
+            Gestion du compte Utilisateur
+          </button>
+        </li>
 
         <li class="nav-item mt-2">
           <button mat-raised-button *ngIf="isLoggedIn" (click)="logout()">

@@ -19,7 +19,10 @@ export class TokenInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
     if (
-      request.url.includes('comptes') &&
+      (request.url.includes('comptes') ||
+        request.url.includes('recap') ||
+        request.url.includes('depensesCommunes') ||
+        request.url.includes('gestionUser')) &&
       this.cookieService.check('auth-user') === false
     ) {
       this.router.navigateByUrl('/login');

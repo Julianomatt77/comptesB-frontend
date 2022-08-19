@@ -15,14 +15,25 @@ export class HeaderComponent implements OnInit {
   username: string = '';
   authenticatedSubject!: Subscription;
 
+  userId!: string;
+
   constructor(
     private authService: AuthService,
     private storageService: StorageService,
     private cookieService: CookieService,
     private router: Router
-  ) {}
+  ) {
+    this.userId = this.cookieService.get('userId');
+  }
 
   ngOnInit(): void {
+    // console.log(this.userId);
+    // if (this.userId) {
+    //   this.isLoggedIn = true;
+    // }
+    // console.log(this.isLoggedIn);
+    // this.userId = this.cookieService.get('userId');
+
     this.authenticatedSubject =
       this.authService.isAuthenticatedSubject.subscribe((data) => {
         this.isLoggedIn = !!data;

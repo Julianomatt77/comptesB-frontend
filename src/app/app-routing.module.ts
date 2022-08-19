@@ -9,6 +9,7 @@ import { LoginComponent } from './components/login/login.component';
 import { RecapComponent } from './components/recap/recap.component';
 import { RegisterComponent } from './components/register/register.component';
 import { IsLoggedInGuardGuard } from './guards/is-logged-in-guard.guard';
+import { GestionUserComponent } from './components/gestion-user/gestion-user.component';
 
 const routes: Routes = [
   // { path: '', component: AppComponent },
@@ -29,6 +30,11 @@ const routes: Routes = [
     path: 'depensesCommunes',
     canActivate: [IsLoggedInGuardGuard],
     component: DepensesCommunesComponent,
+  },
+  {
+    path: 'gestionUser',
+    canActivate: [IsLoggedInGuardGuard],
+    component: GestionUserComponent,
   },
   { path: 'not-found', component: ErrorComponent },
   { path: '**', redirectTo: 'not-found' },
