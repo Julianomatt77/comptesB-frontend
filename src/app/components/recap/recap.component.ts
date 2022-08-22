@@ -19,6 +19,9 @@ import { CompteService } from 'src/app/services/compte.service';
 import { forkJoin, Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { HistoryPerAccount } from 'src/app/interfaces/historyPerAccount';
+import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
+import { Renderer2, Inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-recap',
@@ -131,13 +134,20 @@ export class RecapComponent implements OnInit {
     domain: ['#5AA454', '#E44D25', '#CFC0BB', '#7aa3e5', '#a8385d', '#aae3f5'],
   };
 
+  faArrowUp = faArrowUp;
+  faArrowDown = faArrowDown;
+
   constructor(
     private cookieService: CookieService,
     private fb: FormBuilder,
     private operationService: OperationService,
     private datePickerService: DatepickerService,
-    private compteService: CompteService
+    private compteService: CompteService,
+    @Inject(DOCUMENT) private document: Document,
+    private renderer: Renderer2
   ) {
+    this.renderer.addClass(this.document.body, 'bg-light');
+
     this.form = this.fb.group({
       rangeDate: this.todayYear,
     });
