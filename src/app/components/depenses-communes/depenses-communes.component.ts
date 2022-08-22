@@ -120,8 +120,8 @@ export class DepensesCommunesComponent implements OnInit {
             this.operationCommuneList.push(operation);
           }
         });
-        console.log(this.operationCommuneList);
-        console.log(this.userList);
+        // console.log(this.operationCommuneList);
+        // console.log(this.userList);
 
         this.dataSource = new MatTableDataSource(this.operationCommuneList);
         this.dataSource.paginator = this.paginator;
@@ -255,7 +255,7 @@ export class DepensesCommunesComponent implements OnInit {
   }
 
   openUserDetail(user: any) {
-    console.log(user);
+    // console.log(user);
     this.opCommuneService.getOneUserByName(user.name).subscribe((data) => {
       this.dialog
         .open(OpcommuneuserFormComponent, {
@@ -293,7 +293,7 @@ export class DepensesCommunesComponent implements OnInit {
         }
       });
     });
-    console.log(this.userList);
+    // console.log(this.userList);
 
     this.userList.forEach((user) => {
       let montant = 0;
@@ -310,11 +310,16 @@ export class DepensesCommunesComponent implements OnInit {
     // console.log(this.soldePerUser);
 
     if (this.soldePerUser.length > 0) {
-      this.totalDifference =
-        (this.soldePerUser[0].montant - this.soldePerUser[1].montant) / 2;
+      if (this.soldePerUser[0].montant && this.soldePerUser[1].montant) {
+        this.totalDifference =
+          (this.soldePerUser[0].montant - this.soldePerUser[1].montant) / 2;
 
-      this.totalMoyenne =
-        (this.soldePerUser[0].montant + this.soldePerUser[1].montant) / 2;
+        this.totalMoyenne =
+          (this.soldePerUser[0].montant + this.soldePerUser[1].montant) / 2;
+      } else {
+        this.totalDifference = 0;
+        this.totalMoyenne = 0;
+      }
     }
   }
 
@@ -357,7 +362,7 @@ export class DepensesCommunesComponent implements OnInit {
           this.opCommuneService.updateOneUser(userdata).subscribe();
         }
       });
-      console.log(this.userList);
+      // console.log(this.userList);
       this.getSoldePerUser(month, year);
     });
   }

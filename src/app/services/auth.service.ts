@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { environment } from 'src/environments/environment';
 import { User } from '../models/User';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 // const httpOptions = {
 //   headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -28,11 +28,17 @@ export class AuthService {
   }
 
   login(username: string, password?: string): Observable<any> {
-    this.isAuthenticatedSubject.next(true);
-    return this.http.post(environment.baseUrl + '/auth/login', {
-      username,
-      password,
-    });
+    // this.isAuthenticatedSubject.next(true);
+    return this.http
+      .post(environment.baseUrl + '/auth/login', {
+        username,
+        password,
+      })
+      .pipe(
+        tap(() => {
+          this.isAuthenticatedSubject.next(true);
+        })
+      );
   }
 
   register(username: string, email: string, password: string): Observable<any> {

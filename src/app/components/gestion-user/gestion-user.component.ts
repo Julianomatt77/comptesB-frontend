@@ -107,18 +107,15 @@ export class GestionUserComponent implements OnInit {
         'êtes vous sur de vouloir supprimer votre compte utilisateur ? Toutes vos données seront perdues'
       ) == true
     ) {
-      // TODO Suppression ne marche pas
-      console.log('compte supprimé');
-      let logout = this.authService.logout();
-      let deleteUser = this.userService.deleteUser(this.userId);
-
-      forkJoin([logout, deleteUser]).subscribe(() => {
-        alert('Votre compte a été supprimé');
+      this.userService.deleteUser(this.userId).subscribe(() => {
+        alert('Votre compte a été supprimé avec succès');
+        this.authService.logout().subscribe();
+        sessionStorage.removeItem('auth-user');
 
         // Redirection après suppression
         setTimeout(() => {
           this.router.navigateByUrl('/');
-        }, 2000);
+        }, 1000);
       });
     } else {
       console.log('suppression annulé');

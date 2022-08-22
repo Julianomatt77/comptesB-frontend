@@ -12,6 +12,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { OperationService } from 'src/app/services/operation.service';
 import { CompteService } from 'src/app/services/compte.service';
 import { forkJoin } from 'rxjs';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-operation-form',
@@ -41,6 +42,7 @@ export class OperationFormComponent implements OnInit {
     'santé',
   ];
   compteList: string[] = [];
+  userId!: string;
 
   compteId = '';
   tempMontant = 0;
@@ -55,9 +57,11 @@ export class OperationFormComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) private data: any,
     private operationService: OperationService,
     public dialogRef: MatDialogRef<OperationFormComponent>,
-    public compteService: CompteService
+    public compteService: CompteService,
+    private cookieService: CookieService
   ) {
     this.formSubmitted = new EventEmitter<Operation>();
+    this.userId = this.cookieService.get('userId');
     if (data.addOrEdit == 'edit') {
       this.addOrEdit = 'edit';
       this.buttonLabel = 'Mettre à jour';
@@ -97,7 +101,9 @@ export class OperationFormComponent implements OnInit {
 
     this.compteService.getAllAccounts().subscribe((data) => {
       data.forEach((compte) => {
-        this.compteList.push(compte.name);
+        if (compte.userId == this.userId) {
+          this.compteList.push(compte.name);
+        }
       });
     });
 

@@ -10,6 +10,7 @@ import { OpCommune } from 'src/app/models/OpCommune';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { OpCommunesService } from 'src/app/services/op-communes.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-opcommune-form',
@@ -26,6 +27,7 @@ export class OpcommuneFormComponent implements OnInit {
   operation!: OpCommune;
   addOrEdit!: string;
   buttonLabel!: string;
+  userId!: string;
 
   tempMontant = 0;
 
@@ -38,9 +40,11 @@ export class OpcommuneFormComponent implements OnInit {
     private fb: FormBuilder,
     @Inject(MAT_DIALOG_DATA) private data: any,
     public dialogRef: MatDialogRef<OpcommuneFormComponent>,
-    private opCommuneService: OpCommunesService
+    private opCommuneService: OpCommunesService,
+    private cookieService: CookieService
   ) {
     this.formSubmitted = new EventEmitter<OpCommune>();
+    this.userId = this.cookieService.get('userId');
     if (data.addOrEdit == 'edit') {
       this.addOrEdit = 'edit';
       this.buttonLabel = 'Mettre à jour';
@@ -75,7 +79,9 @@ export class OpcommuneFormComponent implements OnInit {
 
     this.opCommuneService.getAllUsers().subscribe((data) => {
       data.forEach((user) => {
-        this.userList.push(user.name);
+        if (user.userId == this.userId) {
+          this.userList.push(user.name);
+        }
       });
     });
 
