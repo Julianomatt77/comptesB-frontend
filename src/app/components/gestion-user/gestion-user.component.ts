@@ -7,6 +7,10 @@ import { UserService } from 'src/app/services/user.service';
 import { StorageService } from '../../services/storage.service';
 import { forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
+import { CompteService } from '../../services/compte.service';
+import { MatDialog } from '@angular/material/dialog';
+import { CompteFormComponent } from '../compte-form/compte-form.component';
+import { faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-gestion-user',
@@ -30,12 +34,20 @@ export class GestionUserComponent implements OnInit {
 
   user!: User;
 
+  compteList: any[] = [];
+  compteCourantList: any[] = [];
+  compteEpargneList: any[] = [];
+  faPen = faPen;
+  faTrashCan = faTrashCan;
+
   constructor(
     private cookieService: CookieService,
     private userService: UserService,
     private authService: AuthService,
     private storageService: StorageService,
-    private router: Router
+    private router: Router,
+    private compteService: CompteService,
+    public dialog: MatDialog
   ) {
     this.formSubmitted = new EventEmitter<User>();
     this.userId = this.cookieService.get('userId');
@@ -52,9 +64,14 @@ export class GestionUserComponent implements OnInit {
         email: user.email,
         // password: user.password,
       };
+
+      this.showAccounts();
+      console.log(this.compteCourantList);
+      console.log(this.compteEpargneList);
     });
   }
 
+  /* ******************  Gestion des informations du compte utilisateur *****************/
   onSubmit(): void {
     const { username, email, password } = this.form;
     let storageData = this.storageService.getUser();
@@ -120,5 +137,71 @@ export class GestionUserComponent implements OnInit {
     } else {
       console.log('suppression annulé');
     }
+  }
+
+  /*********** Gestion des comptes bancaires ********* */
+
+  showAccounts() {
+    this.compteList = [];
+    this.compteCourantList = [];
+    this.compteService.getAllAccounts().subscribe((data) => {
+      data.forEach((compte) => {
+        if (compte.userId == this.userId) {
+          let temp = Math.round(compte.soldeActuel * 100) / 100;
+          compte.soldeActuel = temp;
+          this.compteList.push(compte);
+
+          if (compte.typeCompte == 'Compte Courant') {
+            this.compteCourantList.push(compte);
+          } else {
+            this.compteEpargneList.push(compte);
+          }
+        }
+      });
+    });
+  }
+
+  AddAccount() {
+    this.dialog
+      .open(CompteFormComponent, {
+        data: {
+          addOrEdit: 'add',
+        },
+        width: '60%',
+      })
+      .afterClosed()
+      .subscribe(() => {
+        this.showAccounts();
+        // this.getSoldePerAccount(this.allOperations);
+      });
+  }
+
+  openAccountDetail(compte: any) {
+    this.compteService.getAllAccounts().subscribe((data) => {
+      let compteIndex = data.findIndex((p) => p.name == compte.name);
+      this.dialog
+        .open(CompteFormComponent, {
+          data: {
+            compte: data[compteIndex],
+            addOrEdit: 'edit',
+          },
+          width: '60%',
+        })
+        .afterClosed()
+        .subscribe(() => {
+          this.showAccounts();
+          // this.getSoldePerAccount(this.allOperations);
+        });
+    });
+  }
+
+  deleteAccount(compte: any) {
+    this.compteService.getAllAccounts().subscribe((data) => {
+      let compteIndex = data.findIndex((p) => p.name == compte.name);
+      this.compteService.deleteAccount(data[compteIndex]._id).subscribe(() => {
+        this.showAccounts();
+        // this.getSoldePerAccount(this.allOperations);
+      });
+    });
   }
 }

@@ -159,8 +159,8 @@
             <tr>
               <th scope="col">Compte</th>
               <th scope="col">Solde</th>
-              <th scope="col"></th>
-              <th scope="col"></th>
+              <!-- <th scope="col"></th>
+              <th scope="col"></th> -->
             </tr>
           </thead>
           <tbody>
@@ -170,7 +170,7 @@
                 <td *ngFor="let history of compte.history">
                   {{ history.soldeFinal }} €
                 </td>
-                <td>
+                <!-- <td>
                   <button (click)="openAccountDetail(compte)" class="btn">
                     <fa-icon [icon]="faPen"></fa-icon>
                   </button>
@@ -179,7 +179,7 @@
                   <button (click)="deleteAccount(compte)" class="btn">
                     <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
                   </button>
-                </td>
+                </td> -->
               </tr>
             </ng-container>
           </tbody>
