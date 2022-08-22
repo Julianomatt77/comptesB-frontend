@@ -4,6 +4,7 @@ import {
   ViewChild,
   Output,
   EventEmitter,
+  Host,
 } from '@angular/core';
 import { Operation } from 'src/app/models/Operation';
 import { OperationService } from 'src/app/services/operation.service';
@@ -17,10 +18,17 @@ import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { CookieService } from 'ngx-cookie-service';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowDown,
+  faArrowUp,
+  faPen,
+  faTrashCan,
+} from '@fortawesome/free-solid-svg-icons';
 // import * as jsPDF from 'jspdf';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { HostBinding, Inject, Renderer2 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-comptes',
@@ -28,6 +36,7 @@ import html2canvas from 'html2canvas';
   styleUrls: ['./comptes.component.css'],
 })
 export class ComptesComponent implements OnInit {
+  // @HostBinding('class.bg-light') someClass: Host = true;
   @Output() formSubmitted: EventEmitter<string>;
 
   operationList: any[] = [];
@@ -63,6 +72,20 @@ export class ComptesComponent implements OnInit {
     'Voyage',
     'santé',
   ];
+  categorieClass: any[] = [
+    ['Courses', 'courses'],
+    ['Divers', 'divers'],
+    ['Essence', 'essence'],
+    ['Epargne', 'epargne'],
+    ['Prélèvement', 'prelevement'],
+    ['Pub', 'pub'],
+    ['Remboursement', 'remboursement'],
+    ['Restaurant', 'restaurant'],
+    ['Salaire', 'salaire'],
+    ['Transfert', 'transfert'],
+    ['Voyage', 'voyage'],
+    ['santé', 'sante'],
+  ];
 
   // datasource = [];
   // dataSource!: MatTableDataSource<any>;
@@ -93,6 +116,8 @@ export class ComptesComponent implements OnInit {
 
   faPen = faPen;
   faTrashCan = faTrashCan;
+  faArrowUp = faArrowUp;
+  faArrowDown = faArrowDown;
 
   width = 0;
 
@@ -101,8 +126,12 @@ export class ComptesComponent implements OnInit {
     private operationService: OperationService,
     private compteService: CompteService,
     public dialog: MatDialog,
-    private cookieService: CookieService
+    private cookieService: CookieService,
+
+    @Inject(DOCUMENT) private document: Document,
+    private renderer: Renderer2
   ) {
+    this.renderer.addClass(this.document.body, 'bg-light');
     this.formSubmitted = new EventEmitter<string>();
     this.userId = this.cookieService.get('userId');
     // console.log(innerWidth);
@@ -176,9 +205,11 @@ export class ComptesComponent implements OnInit {
     this.operationService.getAllOperations().subscribe((data) => {
       data.forEach((operation) => {
         if (operation.userId == this.userId) {
-          // console.log(operation.categorie);
+          let index = this.categorieClass.findIndex(
+            (p) => p[0] == operation.categorie
+          );
+          operation.classCSS = this.categorieClass[index][1];
           this.operationList.push(operation);
-          // this.allOperations.push(operation);
           this.totalOperations(
             operation.montant,
             operation.type,
@@ -196,9 +227,14 @@ export class ComptesComponent implements OnInit {
     this.operationService
       .getOperationsFiltered(month, year)
       .subscribe((data) => {
-        data.forEach((operation) => {
+        data.forEach((operation, operationIndex) => {
           if (operation.userId == this.userId) {
+            let index = this.categorieClass.findIndex(
+              (p) => p[0] == operation.categorie
+            );
+            operation.classCSS = this.categorieClass[index][1];
             this.operationList.push(operation);
+
             this.totalOperations(
               operation.montant,
               operation.type,
@@ -206,7 +242,6 @@ export class ComptesComponent implements OnInit {
             );
           }
         });
-        // console.log(this.operationList);
         this.dataSource = new MatTableDataSource(this.operationList);
         this.dataSource.paginator = this.paginator;
       });

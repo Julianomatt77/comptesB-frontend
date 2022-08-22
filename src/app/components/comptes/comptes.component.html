@@ -1,4 +1,4 @@
-<section class="container mt-2 mb-5" id="operationsPage">
+<section class="container mt-2" id="operationsPage">
   <div class="text-center">
     <h1 class="mb-5">Récapitulatif des opérations</h1>
   </div>
@@ -71,48 +71,91 @@
         </button>
       </div> -->
       <div class="d-flex justify-content-evenly">
-        <div>Crédit = {{ totalCredit }} €</div>
-        <div>Débit = {{ totalDebit }} €</div>
-        <div>Différence = {{ totalCredit + totalDebit }} €</div>
+        <div class="text-success">
+          Crédit = <fa-icon [icon]="faArrowUp"></fa-icon> {{ totalCredit }} €
+        </div>
+        <div class="text-danger">
+          Débit = <fa-icon [icon]="faArrowDown"></fa-icon> {{ totalDebit }} €
+        </div>
+        <div *ngIf="totalCredit + totalDebit >= 0" class="text-success">
+          Différence = <fa-icon [icon]="faArrowUp"></fa-icon>
+          {{ totalCredit + totalDebit }} €
+        </div>
+        <div *ngIf="totalCredit + totalDebit < 0" class="text-danger">
+          Différence = <fa-icon [icon]="faArrowDown"></fa-icon>
+          {{ totalCredit + totalDebit }} €
+        </div>
       </div>
       <div>
         <!-- Angular mat table -->
-        <table mat-table [dataSource]="dataSource">
+        <table mat-table [dataSource]="dataSource" class="bg-light">
           <ng-container matColumnDef="operationDate">
             <th mat-header-cell *matHeaderCellDef>Date</th>
-            <td mat-cell *matCellDef="let element">
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="{{ element.classCSS }}"
+            >
               {{ element.operationDate | date: "MMMM y" }}
             </td>
           </ng-container>
           <ng-container matColumnDef="compte">
             <th mat-header-cell *matHeaderCellDef>Compte</th>
-            <td mat-cell *matCellDef="let element">{{ element.compte }}</td>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="{{ element.classCSS }}"
+            >
+              {{ element.compte }}
+            </td>
           </ng-container>
           <ng-container matColumnDef="montant">
             <th mat-header-cell *matHeaderCellDef>Montant</th>
-            <td mat-cell *matCellDef="let element">
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="{{ element.classCSS }}"
+            >
               {{ element.montant + " €" }}
             </td>
           </ng-container>
           <ng-container matColumnDef="categorie">
             <th mat-header-cell *matHeaderCellDef>Catégorie</th>
-            <td mat-cell *matCellDef="let element">{{ element.categorie }}</td>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="{{ element.classCSS }}"
+            >
+              {{ element.categorie }}
+            </td>
           </ng-container>
           <ng-container matColumnDef="description1">
             <th mat-header-cell *matHeaderCellDef>Description 1</th>
-            <td mat-cell *matCellDef="let element">
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="{{ element.classCSS }}"
+            >
               {{ element.description1 }}
             </td>
           </ng-container>
           <ng-container matColumnDef="description2">
             <th mat-header-cell *matHeaderCellDef>Description 2</th>
-            <td mat-cell *matCellDef="let element">
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="{{ element.classCSS }}"
+            >
               {{ element.description2 }}
             </td>
           </ng-container>
           <ng-container matColumnDef="edition">
             <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let element">
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="{{ element.classCSS }}"
+            >
               <button (click)="openOperationDetail(element)" class="btn">
                 <fa-icon [icon]="faPen"></fa-icon>
               </button>
@@ -120,7 +163,11 @@
           </ng-container>
           <ng-container matColumnDef="suppression">
             <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let element">
+            <td
+              mat-cell
+              *matCellDef="let element"
+              class="{{ element.classCSS }}"
+            >
               <button (click)="deleteOperation(element)" class="btn">
                 <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
               </button>
@@ -138,6 +185,7 @@
           [pageSizeOptions]="[10, 50, 100]"
           showFirstLastButtons
           aria-label="Select page of operations"
+          class="bg-light"
         >
         </mat-paginator>
       </div>

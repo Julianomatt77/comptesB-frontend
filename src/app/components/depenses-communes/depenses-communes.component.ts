@@ -18,6 +18,8 @@ import { OpcommuneFormComponent } from '../opcommune-form/opcommune-form.compone
 import { OpcommuneuserFormComponent } from '../opcommuneuser-form/opcommuneuser-form.component';
 import { OpCommuneUser } from 'src/app/models/OpCommuneUser';
 import { forkJoin } from 'rxjs';
+import { DOCUMENT } from '@angular/common';
+import { Inject, Renderer2 } from '@angular/core';
 
 @Component({
   selector: 'app-depenses-communes',
@@ -66,8 +68,11 @@ export class DepensesCommunesComponent implements OnInit {
     private fb: FormBuilder,
     public dialog: MatDialog,
     private cookieService: CookieService,
-    private opCommuneService: OpCommunesService
+    private opCommuneService: OpCommunesService,
+    @Inject(DOCUMENT) private document: Document,
+    private renderer: Renderer2
   ) {
+    this.renderer.addClass(this.document.body, 'bg-light');
     this.formSubmitted = new EventEmitter<string>();
     this.userId = this.cookieService.get('userId');
   }

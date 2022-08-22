@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light pt-2">
+<nav class="navbar navbar-expand-lg navbar-light bg-light pt-2 pb-2">
   <div class="container-fluid">
     <button
       class="navbar-toggler"
@@ -17,7 +17,9 @@
     >
       <ul class="navbar-nav d-flex justify-content-evenly w-100">
         <li class="nav-item mt-2">
-          <button mat-raised-button [routerLink]="['/']">Accueil</button>
+          <a [routerLink]="['/']">
+            <fa-icon [icon]="faHouseChimney"></fa-icon>
+          </a>
         </li>
 
         <li class="nav-item mt-2">
@@ -53,29 +55,21 @@
           </button>
         </li>
         <li class="nav-item mt-2">
-          <button
-            mat-raised-button
-            *ngIf="isLoggedIn"
-            [routerLink]="['/gestionUser']"
-          >
-            Gestion du compte Utilisateur
-          </button>
+          <a *ngIf="isLoggedIn" [routerLink]="['/gestionUser']">
+            <fa-icon [icon]="faUserPen"></fa-icon>
+          </a>
         </li>
 
         <li class="nav-item mt-2">
-          <button mat-raised-button *ngIf="isLoggedIn" (click)="logout()">
-            Se déconnecter
-          </button>
+          <a *ngIf="isLoggedIn" href="" (click)="logout()">
+            <fa-icon [icon]="faUserSlash" class="text-danger"></fa-icon>
+          </a>
         </li>
 
         <li class="nav-item mt-2">
-          <button
-            mat-raised-button
-            *ngIf="!isLoggedIn"
-            [routerLink]="['/login']"
-          >
-            Connexion
-          </button>
+          <a *ngIf="!isLoggedIn" [routerLink]="['/login']">
+            <fa-icon [icon]="faUser"></fa-icon>
+          </a>
         </li>
       </ul>
     </div>

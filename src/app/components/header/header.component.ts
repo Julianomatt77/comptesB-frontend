@@ -4,6 +4,12 @@ import { StorageService } from '../../services/storage.service';
 import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import {
+  faHouseChimney,
+  faUser,
+  faUserPen,
+  faUserSlash,
+} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-header',
@@ -16,6 +22,11 @@ export class HeaderComponent implements OnInit {
   authenticatedSubject!: Subscription;
 
   userId!: string;
+
+  faUser = faUser;
+  faUserPen = faUserPen;
+  faUserSlash = faUserSlash;
+  faHouseChimney = faHouseChimney;
 
   constructor(
     private authService: AuthService,

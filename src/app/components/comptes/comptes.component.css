@@ -19,3 +19,40 @@ table {
 .demo-row-is-clicked {
   font-weight: bold;
 }
+
+.courses {
+  background-color: rgb(34, 123, 206);
+}
+.divers {
+  background-color: orange;
+}
+.essence {
+  background-color: rgb(212, 71, 212);
+}
+.epargne {
+  background-color: salmon;
+}
+.prelevement {
+  background-color: pink;
+}
+.pub {
+  background-color: yellow;
+}
+.remboursement {
+  background-color: green;
+}
+.restaurant {
+  background-color: rgba(255, 255, 0, 0.801);
+}
+.salaire {
+  background-color: rgb(53, 207, 53);
+}
+.transfert {
+  background-color: grey;
+}
+.voyage {
+  background-color: aqua;
+}
+.sante {
+  background-color: aquamarine;
+}
