@@ -1,10 +1,94 @@
 <footer class="mt-5 pb-1">
+  <div
+    *ngIf="!consent"
+    class="cookiebanner border bg-dark"
+    style="
+      position: fixed;
+      left: 0px;
+      right: 0px;
+      min-height: 21px;
+      height: 50px;
+      color: rgb(221, 221, 221);
+      line-height: 21px;
+      padding: 5px 16px;
+      font-family: arial, sans-serif;
+      font-size: 14px;
+      text-align: center;
+      bottom: 50px;
+      opacity: 1;
+    "
+  >
+    <div
+      class="cookiebanner-close"
+      style="float: right; padding-left: 5px; cursor: pointer"
+      (click)="userConsent()"
+    >
+      ✖
+    </div>
+    <span
+      >Ce site utilise des cookies. En continuant de naviguer, vous acceptez
+      leur utilisation.
+      <a
+        href="http://aboutcookies.org"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="
+          text-decoration: none;
+          color: rgb(170, 170, 170);
+          font-weight: normal;
+        "
+        >En savoir plus</a
+      ></span
+    >
+  </div>
   <div class="text-center fixed-bottom pt-3 bg-light">
     <p>
       Site designed by
       <a href="https://www.martin-julien-dev.fr/"> Julien MARTIN</a> , copyright
       2022, tous droits réservés.
-      <a href="mailto:ju.martin@outlook.com">Contact</a>
+      <a href="mailto:ju.martin@outlook.com" class="mx-5">Contact</a>
+      <a href="javascript:;" [routerLink]="['/cgu']" class="mx-5">CGU</a>
     </p>
+  </div>
+  <div
+    class="cookiebanner border bg-dark"
+    style="
+      position: fixed;
+      left: 0px;
+      right: 0px;
+      height: 50px;
+      min-height: 21px;
+      z-index: 255 !important;
+      color: rgb(221, 221, 221);
+      line-height: 21px;
+      padding: 5px 16px;
+      font-family: arial, sans-serif;
+      font-size: 14px;
+      text-align: center;
+      bottom: 0px;
+      opacity: 1;
+    "
+  >
+    <div
+      class="cookiebanner-close"
+      style="float: right; padding-left: 5px; cursor: pointer"
+    >
+      ✖
+    </div>
+    <span
+      >Ce site utilise des cookies. En continuant de naviguer, vous acceptez
+      leur utilisation.
+      <a
+        href="http://aboutcookies.org"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="
+          text-decoration: none;
+          color: rgb(170, 170, 170);
+          font-weight: normal;
+        "
+        >En savoir plus</a
+      ></span
+    >
   </div>
 </footer>

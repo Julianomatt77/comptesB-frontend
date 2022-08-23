@@ -10,11 +10,13 @@ import { RecapComponent } from './components/recap/recap.component';
 import { RegisterComponent } from './components/register/register.component';
 import { IsLoggedInGuardGuard } from './guards/is-logged-in-guard.guard';
 import { GestionUserComponent } from './components/gestion-user/gestion-user.component';
+import { CguComponent } from './components/cgu/cgu.component';
 
 const routes: Routes = [
   // { path: '', component: AppComponent },
   { path: '', component: DefaultComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'cgu', component: CguComponent },
   { path: 'register', component: RegisterComponent },
   {
     path: 'comptes',

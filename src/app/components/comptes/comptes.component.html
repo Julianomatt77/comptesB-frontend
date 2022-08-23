@@ -177,16 +177,6 @@
       </div>
     </div>
     <div class="col-lg-4">
-      <!-- <div class="d-flex justify-content-center">
-        <button
-          mat-raised-button
-          color="primary"
-          class=""
-          (click)="AddAccount()"
-        >
-          Ajouter un compte
-        </button>
-      </div> -->
       <div class="d-flex justify-content-evenly">
         <div>
           <a href="javascript:;" (click)="AddAccount()" class="">
@@ -213,8 +203,6 @@
             <tr>
               <th scope="col">Compte</th>
               <th scope="col">Solde</th>
-              <!-- <th scope="col"></th>
-              <th scope="col"></th> -->
             </tr>
           </thead>
           <tbody>
@@ -224,16 +212,6 @@
                 <td *ngFor="let history of compte.history">
                   {{ history.soldeFinal }} €
                 </td>
-                <!-- <td>
-                  <button (click)="openAccountDetail(compte)" class="btn">
-                    <fa-icon [icon]="faPen"></fa-icon>
-                  </button>
-                </td>
-                <td>
-                  <button (click)="deleteAccount(compte)" class="btn">
-                    <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
-                  </button>
-                </td> -->
               </tr>
             </ng-container>
           </tbody>

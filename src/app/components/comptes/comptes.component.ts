@@ -230,10 +230,13 @@ export class ComptesComponent implements OnInit {
 
   showOperationsFiltered(month: string, year: string) {
     this.operationList = [];
+    this.totalCredit = 0;
+    this.totalDebit = 0;
+
     this.operationService
       .getOperationsFiltered(month, year)
       .subscribe((data) => {
-        data.forEach((operation, operationIndex) => {
+        data.forEach((operation) => {
           if (operation.userId == this.userId) {
             let index = this.categorieClass.findIndex(
               (p) => p[0] == operation.categorie
@@ -266,9 +269,11 @@ export class ComptesComponent implements OnInit {
       .afterClosed()
       .subscribe(() => {
         this.showOperationsFiltered(this.todayMonthString, this.todayYear);
-        this.showAccounts();
+
         this.getSoldePerAccount(this.allOperations);
         this.getDepenseByCategory(this.todayMonthString, this.todayYear);
+        // this.showAccounts();
+        // this.getMonthlySolde(this.todayMonthString, this.todayYear);
       });
   }
 
@@ -284,10 +289,10 @@ export class ComptesComponent implements OnInit {
       })
       .afterClosed()
       .subscribe(() => {
-        this.showOperationsFiltered(this.todayMonthString, this.todayYear);
-        this.showAccounts();
         this.getSoldePerAccount(this.allOperations);
         this.getDepenseByCategory(this.todayMonthString, this.todayYear);
+        this.showOperationsFiltered(this.todayMonthString, this.todayYear);
+        // this.showAccounts();
       });
   }
 
@@ -322,12 +327,13 @@ export class ComptesComponent implements OnInit {
                   this.todayMonthString,
                   this.todayYear
                 );
-                this.showAccounts();
                 this.getSoldePerAccount(this.allOperations);
                 this.getDepenseByCategory(
                   this.todayMonthString,
                   this.todayYear
                 );
+                this.getMonthlySolde(this.todayMonthString, this.todayYear);
+                // this.showAccounts();
               });
             } else {
               this.operationService
@@ -337,6 +343,8 @@ export class ComptesComponent implements OnInit {
                     this.todayMonthString,
                     this.todayYear
                   );
+                  console.log(this.totalDebit);
+                  console.log(this.totalCredit);
                   this.showAccounts();
                   this.getSoldePerAccount(this.allOperations);
                   this.getDepenseByCategory(
@@ -507,6 +515,7 @@ export class ComptesComponent implements OnInit {
         history: filteredmonthlyHistory,
       });
     });
+    return this.monthlyHistoryPerAccount;
   }
 
   /************** Date picker ***********/

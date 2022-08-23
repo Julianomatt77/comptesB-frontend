@@ -33,6 +33,7 @@ import { MaterialExampleModule } from '../material.module';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { FooterComponent } from './components/footer/footer.component';
 import { GestionUserComponent } from './components/gestion-user/gestion-user.component';
+import { CguComponent } from './components/cgu/cgu.component';
 
 @NgModule({
   declarations: [
@@ -52,6 +53,7 @@ import { GestionUserComponent } from './components/gestion-user/gestion-user.com
     OpcommuneuserFormComponent,
     FooterComponent,
     GestionUserComponent,
+    CguComponent,
   ],
   imports: [
     BrowserModule,
