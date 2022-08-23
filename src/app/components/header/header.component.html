@@ -18,7 +18,7 @@
       <ul class="navbar-nav d-flex justify-content-evenly w-100">
         <li class="nav-item mt-2">
           <a [routerLink]="['/']">
-            <fa-icon [icon]="faHouseChimney"></fa-icon>
+            <fa-icon [icon]="faHouseChimney" style="font-size: 30px"></fa-icon>
           </a>
         </li>
 
@@ -56,19 +56,23 @@
         </li>
         <li class="nav-item mt-2">
           <a *ngIf="isLoggedIn" [routerLink]="['/gestionUser']">
-            <fa-icon [icon]="faUserPen"></fa-icon>
+            <fa-icon [icon]="faUserPen" style="font-size: 30px"></fa-icon>
           </a>
         </li>
 
         <li class="nav-item mt-2">
           <a *ngIf="isLoggedIn" href="" (click)="logout()">
-            <fa-icon [icon]="faUserSlash" class="text-danger"></fa-icon>
+            <fa-icon
+              [icon]="faUserSlash"
+              class="text-danger"
+              style="font-size: 30px"
+            ></fa-icon>
           </a>
         </li>
 
         <li class="nav-item mt-2">
           <a *ngIf="!isLoggedIn" [routerLink]="['/login']">
-            <fa-icon [icon]="faUser"></fa-icon>
+            <fa-icon [icon]="faUser" style="font-size: 30px"></fa-icon>
           </a>
         </li>
       </ul>
