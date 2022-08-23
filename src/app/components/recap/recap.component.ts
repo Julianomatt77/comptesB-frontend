@@ -19,7 +19,12 @@ import { CompteService } from 'src/app/services/compte.service';
 import { forkJoin, Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { HistoryPerAccount } from 'src/app/interfaces/historyPerAccount';
-import { faArrowDown, faArrowUp } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowDown,
+  faArrowUp,
+  faDownload,
+  faFilter,
+} from '@fortawesome/free-solid-svg-icons';
 import { Renderer2, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 
@@ -136,6 +141,8 @@ export class RecapComponent implements OnInit {
 
   faArrowUp = faArrowUp;
   faArrowDown = faArrowDown;
+  faDownload = faDownload;
+  faFilter = faFilter;
 
   constructor(
     private cookieService: CookieService,

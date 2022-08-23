@@ -56,3 +56,6 @@ table {
 .sante {
   background-color: aquamarine;
 }
+#filterButton {
+  border: none !important;
+}

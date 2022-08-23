@@ -106,14 +106,22 @@
     <h2 class="text-center mt-3">Gestion des comptes bancaires</h2>
     <div>
       <div class="d-flex justify-content-center mb-2">
-        <button
+        <!-- <button
           mat-raised-button
           color="primary"
           class=""
           (click)="AddAccount()"
         >
           Ajouter un compte
-        </button>
+        </button> -->
+
+        <a href="javascript:;" (click)="AddAccount()" class="">
+          <fa-icon
+            [icon]="faPlus"
+            class="text-primary"
+            style="font-size: 40px"
+          ></fa-icon>
+        </a>
       </div>
       <div class="row">
         <div *ngFor="let compte of compteCourantList" class="col-md-3 mt-2">

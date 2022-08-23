@@ -21,7 +21,10 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import {
   faArrowDown,
   faArrowUp,
+  faDownload,
+  faFilter,
   faPen,
+  faPlusCircle,
   faTrashCan,
 } from '@fortawesome/free-solid-svg-icons';
 // import * as jsPDF from 'jspdf';
@@ -118,6 +121,9 @@ export class ComptesComponent implements OnInit {
   faTrashCan = faTrashCan;
   faArrowUp = faArrowUp;
   faArrowDown = faArrowDown;
+  faDownload = faDownload;
+  faPlus = faPlusCircle;
+  faFilter = faFilter;
 
   width = 0;
 

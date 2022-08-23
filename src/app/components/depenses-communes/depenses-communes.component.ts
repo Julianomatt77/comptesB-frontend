@@ -9,7 +9,12 @@ import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import {
+  faFilter,
+  faPen,
+  faPlusCircle,
+  faTrashCan,
+} from '@fortawesome/free-solid-svg-icons';
 import { MatDialog } from '@angular/material/dialog';
 import { CookieService } from 'ngx-cookie-service';
 import { OpCommunesService } from 'src/app/services/op-communes.service';
@@ -63,6 +68,8 @@ export class DepensesCommunesComponent implements OnInit {
 
   faPen = faPen;
   faTrashCan = faTrashCan;
+  faFilter = faFilter;
+  faPlus = faPlusCircle;
 
   constructor(
     private fb: FormBuilder,

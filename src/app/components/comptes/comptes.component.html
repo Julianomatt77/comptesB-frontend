@@ -3,7 +3,7 @@
     <h1 class="mb-5">Récapitulatif des opérations</h1>
   </div>
 
-  <div class="d-flex align-items-center mb-2">
+  <div class="d-flex align-items-center mb-2 justify-content-center">
     <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()">
       <div class="d-flex align-items-center">
         <mat-form-field class="mx-2">
@@ -15,7 +15,14 @@
           />
         </mat-form-field>
         <div class="mx-2">
-          <button type="submit" class="btn btn-success">Filtrer</button>
+          <!-- <button type="submit" class="btn btn-success">Filtrer</button> -->
+          <button id="filterButton" type="submit" class="bg-light">
+            <fa-icon
+              [icon]="faFilter"
+              class="text-primary"
+              style="font-size: 20px"
+            ></fa-icon>
+          </button>
         </div>
       </div>
     </form>
@@ -24,53 +31,21 @@
         Toutes opérations
       </button>
     </div>
-    <div class="mx-2">
-      <button class="btn btn-secondary" (click)="htmltoPDF()">
-        Exporter en pdf
-      </button>
-    </div>
-    <div class="mx-2">
-      <button class="btn btn-secondary" (click)="export('operations')">
-        Exporter opérations en csv
-      </button>
-    </div>
-    <div class="mx-2">
-      <button class="btn btn-secondary" (click)="export('comptes')">
-        Exporter comptes en csv
-      </button>
-    </div>
-  </div>
-  <div class="d-flex justify-content-evenly">
-    <div>
-      <button
-        mat-raised-button
-        color="primary"
-        class="mb-2"
-        (click)="AddOperation()"
-      >
-        Ajouter une dépense
-      </button>
-    </div>
-    <div>
-      <button mat-raised-button color="primary" class="" (click)="AddAccount()">
-        Ajouter un compte
-      </button>
-    </div>
   </div>
 
   <div class="row mt-2 pb-5" id="dataToPrint">
     <div class="col-lg-8">
-      <!-- <div class="d-flex justify-content-center">
-        <button
-          mat-raised-button
-          color="primary"
-          class="mb-2"
-          (click)="AddOperation()"
-        >
-          Ajouter une dépense
-        </button>
-      </div> -->
       <div class="d-flex justify-content-evenly">
+        <div>
+          <a href="javascript:;" (click)="AddOperation()" class="">
+            <fa-icon
+              [icon]="faPlus"
+              class="text-primary"
+              style="font-size: 20px"
+            ></fa-icon>
+          </a>
+        </div>
+
         <div class="text-success">
           Crédit = <fa-icon [icon]="faArrowUp"></fa-icon>
           {{ totalCredit | number: "2.0-2":"fr" }} €
@@ -86,6 +61,15 @@
         <div *ngIf="totalCredit + totalDebit < 0" class="text-danger">
           Différence = <fa-icon [icon]="faArrowDown"></fa-icon>
           {{ totalCredit + totalDebit | number: "2.0-2":"fr" }} €
+        </div>
+        <div>
+          <a href="javascript:;" (click)="export('operations')" class="">
+            <fa-icon
+              [icon]="faDownload"
+              class="text-primary"
+              style="font-size: 20px"
+            ></fa-icon>
+          </a>
         </div>
       </div>
       <div>
@@ -203,6 +187,26 @@
           Ajouter un compte
         </button>
       </div> -->
+      <div class="d-flex justify-content-evenly">
+        <div>
+          <a href="javascript:;" (click)="AddAccount()" class="">
+            <fa-icon
+              [icon]="faPlus"
+              class="text-primary"
+              style="font-size: 20px"
+            ></fa-icon>
+          </a>
+        </div>
+        <div>
+          <a href="javascript:;" (click)="export('comptes')" class="mx-5">
+            <fa-icon
+              [icon]="faDownload"
+              class="text-primary"
+              style="font-size: 20px"
+            ></fa-icon>
+          </a>
+        </div>
+      </div>
       <div>
         <table class="table">
           <thead>

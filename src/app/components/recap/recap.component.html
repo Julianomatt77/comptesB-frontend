@@ -7,7 +7,11 @@
     <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()">
       <div class="d-flex align-items-center">
         <div class="mx-2">
-          <select class="form-select" type="select" formControlName="rangeDate">
+          <select
+            class="form-select bg-light"
+            type="select"
+            formControlName="rangeDate"
+          >
             <option value="2022" selected>2022</option>
             <option *ngFor="let year of displayYear">
               {{ year }}
@@ -15,7 +19,13 @@
           </select>
         </div>
         <div class="mx-2">
-          <button type="submit" class="btn btn-success">Afficher</button>
+          <button id="filterButton" type="submit" class="bg-light">
+            <fa-icon
+              [icon]="faFilter"
+              class="text-primary"
+              style="font-size: 20px"
+            ></fa-icon>
+          </button>
         </div>
       </div>
     </form>
@@ -52,9 +62,17 @@
           Comptes courants : Evolution =
           {{ evolutionCompteCourant | number: "2.0-2":"fr" }} %
           <div class="mx-2">
-            <button class="btn btn-secondary" (click)="export('comptes')">
+            <!-- <button class="btn btn-secondary" (click)="export('comptes')">
               Exporter en csv
-            </button>
+            </button> -->
+
+            <a href="/recap" (click)="export('comptes')" class="mx-5">
+              <fa-icon
+                [icon]="faDownload"
+                class="text-primary"
+                style="font-size: 20px"
+              ></fa-icon>
+            </a>
           </div>
         </button>
       </h2>
@@ -172,9 +190,17 @@
         >
           Epargne : Evolution = {{ evolutionEpargne | number: "2.0-2":"fr" }} %
           <div class="mx-2">
-            <button class="btn btn-secondary" (click)="export('epargne')">
+            <!-- <button class="btn btn-secondary" (click)="export('epargne')">
               Exporter en csv
-            </button>
+            </button> -->
+
+            <a href="/recap" (click)="export('epargne')" class="mx-5">
+              <fa-icon
+                [icon]="faDownload"
+                class="text-primary"
+                style="font-size: 20px"
+              ></fa-icon>
+            </a>
           </div>
         </button>
       </h2>

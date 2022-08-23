@@ -10,7 +10,11 @@ import { Router } from '@angular/router';
 import { CompteService } from '../../services/compte.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CompteFormComponent } from '../compte-form/compte-form.component';
-import { faPen, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import {
+  faPen,
+  faPlusCircle,
+  faTrashCan,
+} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-gestion-user',
@@ -39,6 +43,7 @@ export class GestionUserComponent implements OnInit {
   compteEpargneList: any[] = [];
   faPen = faPen;
   faTrashCan = faTrashCan;
+  faPlus = faPlusCircle;
 
   constructor(
     private cookieService: CookieService,
