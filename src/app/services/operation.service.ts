@@ -132,17 +132,19 @@ export class OperationService {
           monthOperation.forEach((operation: any) => {
             montantPerMonth += operation.montant;
           });
+
+          monthlySoldeHistory[monthIndex].economie += montantPerMonth;
         });
 
-        monthlySoldeHistory[monthIndex].economie = montantPerMonth;
         if (monthIndex > 0) {
           monthlySoldeHistory[monthIndex].solde =
-            monthlySoldeHistory[monthIndex - 1].solde + montantPerMonth;
+            monthlySoldeHistory[monthIndex - 1].solde +
+            monthlySoldeHistory[monthIndex].economie;
         }
-        // console.log(monthlySoldeHistory);
       }
     });
     // console.log(soldeAllArray);
+    // console.log(monthlySoldeHistory);
     return monthlySoldeHistory;
   }
 

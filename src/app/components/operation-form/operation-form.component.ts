@@ -113,6 +113,9 @@ export class OperationFormComponent implements OnInit {
   private initForm(): void {
     if (this.addOrEdit == 'edit') {
       this.operationService.getOneOperation(this.id).subscribe((data) => {
+        if (data.montant < 0) {
+          data.montant = -data.montant;
+        }
         this.operation = data;
         this.operation.operationDate = new Date(this.operation.operationDate);
       });

@@ -72,18 +72,20 @@
       </div> -->
       <div class="d-flex justify-content-evenly">
         <div class="text-success">
-          Crédit = <fa-icon [icon]="faArrowUp"></fa-icon> {{ totalCredit }} €
+          Crédit = <fa-icon [icon]="faArrowUp"></fa-icon>
+          {{ totalCredit | number: "2.0-2":"fr" }} €
         </div>
         <div class="text-danger">
-          Débit = <fa-icon [icon]="faArrowDown"></fa-icon> {{ totalDebit }} €
+          Débit = <fa-icon [icon]="faArrowDown"></fa-icon>
+          {{ totalDebit | number: "2.0-2":"fr" }} €
         </div>
         <div *ngIf="totalCredit + totalDebit >= 0" class="text-success">
           Différence = <fa-icon [icon]="faArrowUp"></fa-icon>
-          {{ totalCredit + totalDebit }} €
+          {{ totalCredit + totalDebit | number: "2.0-2":"fr" }} €
         </div>
         <div *ngIf="totalCredit + totalDebit < 0" class="text-danger">
           Différence = <fa-icon [icon]="faArrowDown"></fa-icon>
-          {{ totalCredit + totalDebit }} €
+          {{ totalCredit + totalDebit | number: "2.0-2":"fr" }} €
         </div>
       </div>
       <div>
@@ -116,7 +118,7 @@
               *matCellDef="let element"
               class="{{ element.classCSS }}"
             >
-              {{ element.montant + " €" }}
+              {{ element.montant | number: "2.0-2":"fr" }} €
             </td>
           </ng-container>
           <ng-container matColumnDef="categorie">
