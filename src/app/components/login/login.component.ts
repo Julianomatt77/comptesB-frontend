@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, Renderer2 } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
 import { Router } from '@angular/router';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -24,8 +25,12 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private storageService: StorageService,
     private cookieService: CookieService,
-    private router: Router
-  ) {}
+    private router: Router,
+    @Inject(DOCUMENT) private document: Document,
+    private renderer: Renderer2
+  ) {
+    this.renderer.addClass(this.document.body, 'bg-light');
+  }
 
   ngOnInit(): void {
     if (this.storageService.isLoggedIn()) {

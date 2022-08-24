@@ -140,15 +140,11 @@ export class ComptesComponent implements OnInit {
     this.renderer.addClass(this.document.body, 'bg-light');
     this.formSubmitted = new EventEmitter<string>();
     this.userId = this.cookieService.get('userId');
-    // console.log(innerWidth);
     if (innerWidth >= 991) {
       this.width = innerWidth / 3.3;
     } else {
       this.width = innerWidth / 1.3;
     }
-
-    // this.view = [innerWidth / 1.3, 400];
-    // console.log(this.view);
   }
 
   ngOnInit(): void {
@@ -260,20 +256,19 @@ export class ComptesComponent implements OnInit {
     this.dialog
       .open(OperationFormComponent, {
         data: {
-          // operation: operation,
           addOrEdit: 'add',
-          // id: operation._id,
         },
         width: '60%',
       })
       .afterClosed()
       .subscribe(() => {
         this.showOperationsFiltered(this.todayMonthString, this.todayYear);
-
-        this.getSoldePerAccount(this.allOperations);
-        this.getDepenseByCategory(this.todayMonthString, this.todayYear);
-        // this.showAccounts();
-        // this.getMonthlySolde(this.todayMonthString, this.todayYear);
+        this.operationService
+          .getOperations(this.allOperations, this.userId)
+          .subscribe((operations) => {
+            this.getSoldePerAccount(operations);
+            this.getDepenseByCategory(this.todayMonthString, this.todayYear);
+          });
       });
   }
 
@@ -283,15 +278,18 @@ export class ComptesComponent implements OnInit {
         data: {
           operation: operation,
           addOrEdit: 'edit',
-          // id: operation._id,
         },
         width: '60%',
       })
       .afterClosed()
       .subscribe(() => {
-        this.getSoldePerAccount(this.allOperations);
-        this.getDepenseByCategory(this.todayMonthString, this.todayYear);
         this.showOperationsFiltered(this.todayMonthString, this.todayYear);
+        this.operationService
+          .getOperations(this.allOperations, this.userId)
+          .subscribe((operations) => {
+            this.getSoldePerAccount(operations);
+            this.getDepenseByCategory(this.todayMonthString, this.todayYear);
+          });
         // this.showAccounts();
       });
   }
@@ -327,13 +325,15 @@ export class ComptesComponent implements OnInit {
                   this.todayMonthString,
                   this.todayYear
                 );
-                this.getSoldePerAccount(this.allOperations);
-                this.getDepenseByCategory(
-                  this.todayMonthString,
-                  this.todayYear
-                );
-                this.getMonthlySolde(this.todayMonthString, this.todayYear);
-                // this.showAccounts();
+                this.operationService
+                  .getOperations(this.allOperations, this.userId)
+                  .subscribe((operations) => {
+                    this.getSoldePerAccount(operations);
+                    this.getDepenseByCategory(
+                      this.todayMonthString,
+                      this.todayYear
+                    );
+                  });
               });
             } else {
               this.operationService
@@ -343,14 +343,15 @@ export class ComptesComponent implements OnInit {
                     this.todayMonthString,
                     this.todayYear
                   );
-                  console.log(this.totalDebit);
-                  console.log(this.totalCredit);
-                  this.showAccounts();
-                  this.getSoldePerAccount(this.allOperations);
-                  this.getDepenseByCategory(
-                    this.todayMonthString,
-                    this.todayYear
-                  );
+                  this.operationService
+                    .getOperations(this.allOperations, this.userId)
+                    .subscribe((operations) => {
+                      this.getSoldePerAccount(operations);
+                      this.getDepenseByCategory(
+                        this.todayMonthString,
+                        this.todayYear
+                      );
+                    });
                 });
             }
           });
@@ -495,7 +496,7 @@ export class ComptesComponent implements OnInit {
           }
         }
       });
-      // console.log(this.soldePerAccount);
+      console.log(this.soldePerAccount);
       this.getMonthlySolde(this.todayMonthString, this.todayYear);
     });
   }

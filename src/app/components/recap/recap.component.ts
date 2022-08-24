@@ -277,6 +277,7 @@ export class RecapComponent implements OnInit {
         this.initialSolde,
         this.soldeAllAccounts
       );
+      console.log(this.soldeAllAccounts);
       this.displayDatas(year);
     });
   }
