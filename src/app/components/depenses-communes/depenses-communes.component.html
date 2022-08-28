@@ -135,15 +135,15 @@
       </div>
 
       <div class="mt-5">
-        <div>Dépense Moyenne par personne : {{ totalMoyenne }} €</div>
+        <div>Dépense Moyenne par personne : {{ totalMoyenne | number: "2.0-2":"fr"}} €</div>
       </div>
       <div class="mt-5" *ngIf="soldePerUser.length > 1">
         <div *ngIf="totalDifference >= 0">
-          {{ soldePerUser[1].name }} doit {{ totalDifference }} € à
+          {{ soldePerUser[1].name }} doit {{ totalDifference | number: "2.0-2":"fr"}} € à
           {{ soldePerUser[0].name }}
         </div>
         <div *ngIf="totalDifference <= 0">
-          {{ soldePerUser[0].name }} doit {{ -totalDifference }} € à
+          {{ soldePerUser[0].name }} doit {{ -totalDifference | number: "2.0-2":"fr"}} € à
           {{ soldePerUser[1].name }}
         </div>
       </div>

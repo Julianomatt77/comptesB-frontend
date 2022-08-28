@@ -14,7 +14,7 @@ import { OperationFormComponent } from './components/operation-form/operation-fo
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
 import { CompteFormComponent } from './components/compte-form/compte-form.component';
-import { registerLocaleData } from '@angular/common';
+import { HashLocationStrategy, LocationStrategy, registerLocaleData } from '@angular/common';
 import * as fr from '@angular/common/locales/fr';
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -73,7 +73,9 @@ import { CguComponent } from './components/cgu/cgu.component';
     NgxChartsModule,
     // CookieService,
   ],
-  providers: [{ provide: LOCALE_ID, useValue: 'fr-FR' }, tokenInterceptor],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'fr-FR' }, tokenInterceptor,
+    {provide : LocationStrategy , useClass: HashLocationStrategy}],
   bootstrap: [AppComponent],
 })
 export class AppModule {
