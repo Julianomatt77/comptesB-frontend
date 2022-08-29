@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
+import { HostBinding, Inject, Renderer2 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-footer',
@@ -9,7 +11,12 @@ import { CookieService } from 'ngx-cookie-service';
 export class FooterComponent implements OnInit {
   consent: boolean = false;
 
-  constructor(private cookieService: CookieService) {
+  constructor(
+    private cookieService: CookieService,
+    @Inject(DOCUMENT) private document: Document,
+    private renderer: Renderer2
+  ) {
+    this.renderer.addClass(this.document.body, 'bg-light');
     let cookieConsent = this.cookieService.get('cookieConsent');
 
     if (cookieConsent) {

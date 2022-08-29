@@ -117,7 +117,7 @@
             <ng-container *ngFor="let user of soldePerUser">
               <tr>
                 <td>{{ user.name }}</td>
-                <td>{{ user.montant }} €</td>
+                <td>{{ user.montant | number: "1.0-2":"fr" }} €</td>
                 <td>
                   <button (click)="openUserDetail(user)" class="btn">
                     <fa-icon [icon]="faPen"></fa-icon>
@@ -135,15 +135,20 @@
       </div>
 
       <div class="mt-5">
-        <div>Dépense Moyenne par personne : {{ totalMoyenne | number: "2.0-2":"fr"}} €</div>
+        <div>
+          Dépense Moyenne par personne :
+          {{ totalMoyenne | number: "1.0-2":"fr" }} €
+        </div>
       </div>
       <div class="mt-5" *ngIf="soldePerUser.length > 1">
         <div *ngIf="totalDifference >= 0">
-          {{ soldePerUser[1].name }} doit {{ totalDifference | number: "2.0-2":"fr"}} € à
+          {{ soldePerUser[1].name }} doit
+          {{ totalDifference | number: "1.0-2":"fr" }} € à
           {{ soldePerUser[0].name }}
         </div>
         <div *ngIf="totalDifference <= 0">
-          {{ soldePerUser[0].name }} doit {{ -totalDifference | number: "2.0-2":"fr"}} € à
+          {{ soldePerUser[0].name }} doit
+          {{ -totalDifference | number: "1.0-2":"fr" }} € à
           {{ soldePerUser[1].name }}
         </div>
       </div>
