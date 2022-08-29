@@ -43,6 +43,8 @@ export class DepensesCommunesComponent implements OnInit {
 
   userId!: string;
 
+  width = 0;
+
   dataSource = new MatTableDataSource(this.operationCommuneList);
   @ViewChild(MatSort) sort!: MatSort | undefined;
   @ViewChild('table') table!: MatTable<any> | undefined;
@@ -82,6 +84,16 @@ export class DepensesCommunesComponent implements OnInit {
     this.renderer.addClass(this.document.body, 'bg-light');
     this.formSubmitted = new EventEmitter<string>();
     this.userId = this.cookieService.get('userId');
+    this.width = innerWidth;
+    if (this.width <= 768) {
+      this.columnsToDisplay = [
+        'operationDate',
+        'name',
+        'montant',
+        'edition',
+        'suppression',
+      ];
+    }
   }
 
   ngOnInit(): void {
@@ -377,5 +389,27 @@ export class DepensesCommunesComponent implements OnInit {
       // console.log(this.userList);
       this.getSoldePerUser(month, year);
     });
+  }
+
+  onResize(event: any): void {
+    this.width = event.target.innerWidth;
+    if (this.width >= 768) {
+      this.columnsToDisplay = [
+        'operationDate',
+        'name',
+        'montant',
+        'description',
+        'edition',
+        'suppression',
+      ];
+    } else {
+      this.columnsToDisplay = [
+        'operationDate',
+        'name',
+        'montant',
+        'edition',
+        'suppression',
+      ];
+    }
   }
 }
