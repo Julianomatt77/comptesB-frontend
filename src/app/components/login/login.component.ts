@@ -40,7 +40,10 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
-    const { username, password } = this.form;
+    // console.log(this.form);
+    const username = this.form.username.toLowerCase();
+    const password = this.form.password;
+    // const { username, password } = this.form;
 
     this.authService.login(username, password).subscribe({
       next: (data) => {

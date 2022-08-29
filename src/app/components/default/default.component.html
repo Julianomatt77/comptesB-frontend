@@ -13,7 +13,7 @@
       </p>
     </div>
 
-    <div class="mt-3">
+    <div *ngIf="!isLoggedIn" class="mt-3">
       <button class="btn btn-lg btn-primary" [routerLink]="['/register']">
         Inscrivez-vous !
       </button>

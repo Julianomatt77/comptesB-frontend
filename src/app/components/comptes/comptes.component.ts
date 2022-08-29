@@ -496,7 +496,7 @@ export class ComptesComponent implements OnInit {
           }
         }
       });
-      console.log(this.soldePerAccount);
+      // console.log(this.soldePerAccount);
       this.getMonthlySolde(this.todayMonthString, this.todayYear);
     });
   }

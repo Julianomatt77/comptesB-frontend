@@ -22,7 +22,10 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {}
 
   onSubmit(): void {
-    const { username, email, password } = this.form;
+    const username = this.form.username.toLowerCase();
+    const email = this.form.email.toLowerCase();
+    const password = this.form.password;
+    // const { username, email, password } = this.form;
 
     this.authService.register(username, email, password).subscribe({
       next: (data) => {

@@ -71,8 +71,8 @@ export class GestionUserComponent implements OnInit {
       };
 
       this.showAccounts();
-      console.log(this.compteCourantList);
-      console.log(this.compteEpargneList);
+      // console.log(this.compteCourantList);
+      // console.log(this.compteEpargneList);
     });
   }
 
