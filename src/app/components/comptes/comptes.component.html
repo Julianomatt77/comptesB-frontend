@@ -1,9 +1,14 @@
 <section class="container mt-2" id="operationsPage">
   <div class="text-center">
-    <h1 class="mb-5">Récapitulatif des opérations</h1>
+    <h1 class="mb-2">Récapitulatif des opérations</h1>
   </div>
 
   <div class="d-flex align-items-center mb-2 justify-content-center">
+    <div class="mx-2">
+      <button class="btn btn-primary" (click)="resetDateFilters()">
+        Toutes opérations
+      </button>
+    </div>
     <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()">
       <div class="d-flex align-items-center">
         <mat-form-field class="mx-2">
@@ -26,43 +31,44 @@
         </div>
       </div>
     </form>
-    <div class="mx-2">
-      <button class="btn btn-primary" (click)="resetDateFilters()">
-        Toutes opérations
-      </button>
-    </div>
   </div>
 
   <div class="row mt-2 pb-5" id="dataToPrint">
     <div class="col-lg-8">
-      <div class="d-flex justify-content-evenly">
-        <div>
+      <div class="row">
+        <!-- <div>
           <a href="javascript:;" (click)="AddOperation()" class="">
             <fa-icon
               [icon]="faPlus"
               class="text-primary"
-              style="font-size: 20px"
+              style="font-size: 50px"
             ></fa-icon>
           </a>
-        </div>
+        </div> -->
 
-        <div class="text-success">
+        <div class="text-success col-lg-3 col-6">
           Crédit = <fa-icon [icon]="faArrowUp"></fa-icon>
-          {{ totalCredit | number: "2.0-2":"fr" }} €
+          {{ totalCredit | number: "1.0-2":"fr" }} €
         </div>
-        <div class="text-danger">
+        <div class="text-danger col-lg-3 col-6">
           Débit = <fa-icon [icon]="faArrowDown"></fa-icon>
-          {{ totalDebit | number: "2.0-2":"fr" }} €
+          {{ totalDebit | number: "1.0-2":"fr" }} €
         </div>
-        <div *ngIf="totalCredit + totalDebit >= 0" class="text-success">
+        <div
+          *ngIf="totalCredit + totalDebit >= 0"
+          class="text-success col-lg-3 col-6"
+        >
           Différence = <fa-icon [icon]="faArrowUp"></fa-icon>
           {{ totalCredit + totalDebit | number: "1.0-2":"fr" }} €
         </div>
-        <div *ngIf="totalCredit + totalDebit < 0" class="text-danger">
+        <div
+          *ngIf="totalCredit + totalDebit < 0"
+          class="text-danger col-lg-3 col-6"
+        >
           Différence = <fa-icon [icon]="faArrowDown"></fa-icon>
           {{ totalCredit + totalDebit | number: "1.0-2":"fr" }} €
         </div>
-        <div>
+        <div class="col-lg-2 col-5">
           <a href="javascript:;" (click)="export('operations')" class="">
             <fa-icon
               [icon]="faDownload"
@@ -72,9 +78,64 @@
           </a>
         </div>
       </div>
+      <div class="d-flex justify-content-center">
+        <a href="javascript:;" (click)="AddOperation()" class="">
+          <fa-icon
+            [icon]="faPlus"
+            class="text-primary"
+            style="font-size: 50px"
+          ></fa-icon>
+        </a>
+      </div>
       <div>
-        <!-- Angular mat table -->
-        <table mat-table [dataSource]="dataSource" class="bg-light">
+        <!-- Affichage des opérations -->
+        <div class="row d-flex justify-content-evenly">
+          <div
+            class="card my-2 mx-1 col-lg-5 px-0"
+            *ngFor="let card of obs | async"
+          >
+            <h5 class="card-header {{ card.classCSS }} text-center">
+              {{ card.description1 }}
+            </h5>
+            <div class="card-body">
+              <h4 class="card-title text-center">{{ card.categorie }}</h4>
+
+              <div
+                *ngIf="card.montant >= 0"
+                class="text-success d-flex justify-content-center"
+              >
+                <fa-icon [icon]="faArrowUp" class="mx-2"></fa-icon>
+                {{ card.montant | number: "1.0-2":"fr" }} €
+              </div>
+              <div
+                *ngIf="card.montant < 0"
+                class="text-danger d-flex justify-content-center"
+              >
+                <fa-icon [icon]="faArrowDown" class="mx-2"></fa-icon>
+                {{ card.montant | number: "1.0-2":"fr" }} €
+              </div>
+
+              <div class="d-flex justify-content-evenly">
+                <div>{{ card.operationDate | date: "MMMM y" }}</div>
+                <div>{{ card.compte }}</div>
+              </div>
+              <div class="d-flex justify-content-evenly">
+                <div>
+                  <button (click)="openOperationDetail(card)" class="btn">
+                    <fa-icon [icon]="faPen"></fa-icon>
+                  </button>
+                </div>
+                <div>
+                  <button (click)="deleteOperation(card)" class="btn">
+                    <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- <table mat-table [dataSource]="dataSource" class="bg-light">
           <ng-container matColumnDef="operationDate">
             <th mat-header-cell *matHeaderCellDef>Date</th>
             <td
@@ -165,10 +226,10 @@
             mat-row
             *matRowDef="let myRowData; columns: columnsToDisplay"
           ></tr>
-        </table>
+        </table> -->
 
         <mat-paginator
-          [pageSizeOptions]="[10, 50, 100]"
+          [pageSizeOptions]="[6, 12, 50]"
           showFirstLastButtons
           aria-label="Select page of operations"
           class="bg-light"

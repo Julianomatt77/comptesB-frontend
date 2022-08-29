@@ -12,7 +12,7 @@ import { OperationFormComponent } from '../operation-form/operation-form.compone
 import { MatDialog } from '@angular/material/dialog';
 import { CompteFormComponent } from '../compte-form/compte-form.component';
 import { CompteService } from 'src/app/services/compte.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
@@ -30,15 +30,21 @@ import {
 // import * as jsPDF from 'jspdf';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { HostBinding, Inject, Renderer2 } from '@angular/core';
+import {
+  HostBinding,
+  Inject,
+  Renderer2,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { DOCUMENT } from '@angular/common';
+import { OnDestroy } from '@angular/core';
 
 @Component({
   selector: 'app-comptes',
   templateUrl: './comptes.component.html',
   styleUrls: ['./comptes.component.css'],
 })
-export class ComptesComponent implements OnInit {
+export class ComptesComponent implements OnInit, OnDestroy {
   // @HostBinding('class.bg-light') someClass: Host = true;
   @Output() formSubmitted: EventEmitter<string>;
 
@@ -92,6 +98,11 @@ export class ComptesComponent implements OnInit {
 
   // datasource = [];
   // dataSource!: MatTableDataSource<any>;
+  obs!: Observable<any>;
+  // dataSource: MatTableDataSource<Operation> = new MatTableDataSource<Operation>(
+  //   this.operationList
+  // );
+
   dataSource = new MatTableDataSource(this.operationList);
   @ViewChild(MatSort) sort!: MatSort | undefined;
   @ViewChild('table') table!: MatTable<any> | undefined;
@@ -133,6 +144,7 @@ export class ComptesComponent implements OnInit {
     private compteService: CompteService,
     public dialog: MatDialog,
     private cookieService: CookieService,
+    private changeDetectorRef: ChangeDetectorRef,
 
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2
@@ -149,6 +161,14 @@ export class ComptesComponent implements OnInit {
 
   ngOnInit(): void {
     let year = new Date(Date.now()).getFullYear() - 1;
+    // this.changeDetectorRef.detectChanges();
+    // // this.dataSource.paginator = this.paginator;
+    // this.obs = this.dataSource.connect();
+
+    // this.changeDetectorRef.detectChanges();
+    // this.dataSource.paginator = this.paginator;
+    // this.obs = this.dataSource.connect();
+
     this.operationService
       .getOperations(this.allOperations, this.userId)
       .subscribe((operation) => {
@@ -167,7 +187,11 @@ export class ComptesComponent implements OnInit {
         }
         this.showOperationsFiltered(this.todayMonthString, this.todayYear);
         this.showAccounts();
+        // this.dataSource.paginator = this.paginator;
+
+        this.changeDetectorRef.detectChanges();
         this.dataSource.paginator = this.paginator;
+        this.obs = this.dataSource.connect();
 
         this.getSoldePerAccount(operation);
         this.getDepenseByCategory(this.todayMonthString, this.todayYear);
@@ -220,7 +244,10 @@ export class ComptesComponent implements OnInit {
         }
       });
       this.dataSource = new MatTableDataSource(this.operationList);
+      this.changeDetectorRef.detectChanges();
       this.dataSource.paginator = this.paginator;
+      this.obs = this.dataSource.connect();
+      // this.dataSource.paginator = this.paginator;
     });
   }
 
@@ -248,7 +275,10 @@ export class ComptesComponent implements OnInit {
           }
         });
         this.dataSource = new MatTableDataSource(this.operationList);
+        // this.dataSource.paginator = this.paginator;
+        this.changeDetectorRef.detectChanges();
         this.dataSource.paginator = this.paginator;
+        this.obs = this.dataSource.connect();
       });
   }
 
@@ -263,6 +293,9 @@ export class ComptesComponent implements OnInit {
       .afterClosed()
       .subscribe(() => {
         this.showOperationsFiltered(this.todayMonthString, this.todayYear);
+        this.changeDetectorRef.detectChanges();
+        this.dataSource.paginator = this.paginator;
+        this.obs = this.dataSource.connect();
         this.operationService
           .getOperations(this.allOperations, this.userId)
           .subscribe((operations) => {
@@ -703,4 +736,10 @@ export class ComptesComponent implements OnInit {
   //     pdfFile.save('sample2.pdf');
   //   });
   // }
+
+  ngOnDestroy() {
+    if (this.dataSource) {
+      this.dataSource.disconnect();
+    }
+  }
 }

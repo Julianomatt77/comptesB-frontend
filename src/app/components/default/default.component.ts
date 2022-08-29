@@ -31,4 +31,8 @@ export class DefaultComponent implements OnInit {
       this.isLoggedIn = true;
     }
   }
+
+  ngOnDestroy(): void {
+    this.authenticatedSubject.unsubscribe();
+  }
 }
