@@ -271,7 +271,7 @@
               <tr>
                 <td>{{ compte.name }}</td>
                 <td *ngFor="let history of compte.history">
-                  {{ history.soldeFinal }} €
+                  {{ history.soldeFinal | number: "1.0-2":"fr" }} €
                 </td>
               </tr>
             </ng-container>
