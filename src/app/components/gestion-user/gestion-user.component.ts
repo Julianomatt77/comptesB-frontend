@@ -60,6 +60,8 @@ export class GestionUserComponent implements OnInit {
 
   ngOnInit(): void {
     this.isSuccessful = false;
+    this.compteList = [];
+    this.compteCourantList = [];
     this.userService.getOneUser(this.userId).subscribe((user) => {
       this.user = user;
       // console.log(this.user);
