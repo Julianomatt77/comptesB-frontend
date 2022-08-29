@@ -151,6 +151,7 @@ export class GestionUserComponent implements OnInit {
   showAccounts() {
     this.compteList = [];
     this.compteCourantList = [];
+    this.compteEpargneList = [];
     this.compteService.getAllAccounts().subscribe((data) => {
       data.forEach((compte) => {
         if (compte.userId == this.userId) {
