@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  baseUrl: 'https://jm-comptesb.herokuapp.com/api',
+  // baseUrl: 'https://jm-comptesb.herokuapp.com/api',
+  baseUrl: 'http://localhost:3000/api',
 };
 
 /*

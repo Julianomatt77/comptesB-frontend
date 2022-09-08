@@ -1,11 +1,6 @@
 <div class="container d-flex justify-content-center mt-5">
   <div class="col-md-6">
     <div class="card-container">
-      <!-- <img
-        id="profile-img"
-        src="//ssl.gstatic.com/accounts/ui/avatar_2x.png"
-        class="profile-img-card"
-      /> -->
       <form
         *ngIf="!isSuccessful"
         name="form"
@@ -55,7 +50,7 @@
               Une adresse e-mail est obligatoire
             </div>
             <div *ngIf="email.errors['email']">
-              L'adress e-mail doit être valide
+              L'adresse e-mail doit être valide
             </div>
           </div>
         </div>
@@ -90,7 +85,7 @@
       </form>
 
       <div class="alert alert-success" *ngIf="isSuccessful">
-        Compte crée, vous allez être redirigés vers la page de connexion
+        Compte crée, vous allez être redirigé vers la page de connexion.
       </div>
     </div>
   </div>
