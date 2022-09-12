@@ -236,18 +236,36 @@ export class ComptesComponent implements OnInit, OnDestroy {
           );
           operation.classCSS = this.categorieClass[index][1];
           this.operationList.push(operation);
-          this.totalOperations(
-            operation.montant,
-            operation.type,
-            operation.categorie
-          );
+
+          // Ajouter l'opération dans le calcul du récap seulement pour les comptes courants
+          this.compteService.getAllAccounts().subscribe((compteList) => {
+            compteList.forEach((compte) => {
+              if (compte.userId == this.userId) {
+                if (
+                  compte.typeCompte == 'Compte Courant' &&
+                  compte.name == operation.compte
+                ) {
+                  this.totalOperations(
+                    operation.montant,
+                    operation.type,
+                    operation.categorie
+                  );
+                }
+              }
+            });
+          });
+
+          // this.totalOperations(
+          //   operation.montant,
+          //   operation.type,
+          //   operation.categorie
+          // );
         }
       });
       this.dataSource = new MatTableDataSource(this.operationList);
       this.changeDetectorRef.detectChanges();
       this.dataSource.paginator = this.paginator;
       this.obs = this.dataSource.connect();
-      // this.dataSource.paginator = this.paginator;
     });
   }
 
@@ -267,11 +285,29 @@ export class ComptesComponent implements OnInit, OnDestroy {
             operation.classCSS = this.categorieClass[index][1];
             this.operationList.push(operation);
 
-            this.totalOperations(
-              operation.montant,
-              operation.type,
-              operation.categorie
-            );
+            // Ajouter l'opération dans le calcul du récap seulement pour les comptes courants
+            this.compteService.getAllAccounts().subscribe((compteList) => {
+              compteList.forEach((compte) => {
+                if (compte.userId == this.userId) {
+                  if (
+                    compte.typeCompte == 'Compte Courant' &&
+                    compte.name == operation.compte
+                  ) {
+                    this.totalOperations(
+                      operation.montant,
+                      operation.type,
+                      operation.categorie
+                    );
+                  }
+                }
+              });
+            });
+
+            // this.totalOperations(
+            //   operation.montant,
+            //   operation.type,
+            //   operation.categorie
+            // );
           }
         });
         this.dataSource = new MatTableDataSource(this.operationList);
