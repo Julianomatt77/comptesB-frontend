@@ -187,11 +187,11 @@ export class RecapComponent implements OnInit {
 
         //Récupération des opérations et de la liste des comptes courant (return soldeAllAccounts)
         this.getBalancePerMonth();
-        this.getEpargnePerMonth();
+        this.getEpargnePerMonth(this.todayYear);
 
         this.getOperationHistory(this.todayYear);
-        this.getEpargneHistory(this.todayYear);
-        this.getEpargneHistoryPerAccount(this.todayYear);
+        // this.getEpargneHistory(this.todayYear);
+        // this.getEpargneHistoryPerAccount(this.todayYear);
       });
 
     this.todayMonthString = this.datePickerService.transformMonth(
@@ -368,51 +368,87 @@ export class RecapComponent implements OnInit {
 
   /*  ************************   EPARGNE ****************************/
 
-  // Récupérer des opérations mensuelles de l'épargne + sauvegarder en json
-  getEpargnePerMonth() {
+  // Récupérer des opérations mensuelles de l'épargne
+  getEpargnePerMonth(year: string) {
     this.soldeAllEpargne = [];
     this.operationEpargneList = [];
     this.compteEpargneList = [];
 
-    let compteListObservable = this.compteService.getCompteList(
-      this.compteEpargneList,
-      this.userId
-    );
-    let operationsObservable = this.operationService.getOperations(
-      this.operationEpargneList,
-      this.userId
-    );
+    let compteListObservable = this.compteService.getAllAccounts();
+    let operationsObservable = this.operationService.getAllOperations();
 
     forkJoin([compteListObservable, operationsObservable]).subscribe((data) => {
       this.soldeAllEpargne = [];
 
+      // récupération des comptes épargne de l'utilisateur
+      data[0].forEach((compte) => {
+        if (
+          compte.userId == this.userId &&
+          (compte.typeCompte == 'Epargne' || compte.typeCompte == 'Bourse')
+        ) {
+          this.compteEpargneList.push(compte);
+        }
+      });
+
+      //Récupération des opérations d'épargne de l'utilisateur
+      data[1].forEach((operation) => {
+        let IsEpargneOperation = this.compteEpargneList.findIndex(
+          (el) => el.name == operation.compte
+        );
+        if (operation.userId == this.userId && IsEpargneOperation != -1) {
+          this.operationEpargneList.push(operation);
+        }
+      });
+      // console.log(this.operationEpargneList);
+
+      // Ajout des comptes épargne dans un tableau soldeAllEpargne
       this.operationService.fillSoldeAllAccounts(
-        data[0],
+        this.compteEpargneList,
         'Epargne',
         this.soldeAllEpargne,
         this.userId
       );
       this.operationService.fillSoldeAllAccounts(
-        data[0],
+        this.compteEpargneList,
         'Bourse',
         this.soldeAllEpargne,
         this.userId
       );
 
+      // Ajout des opérations d'épargne pour chaque compte dans le tableau soldeAllEpargne
       this.operationService.fillOperations(
-        data[1],
+        this.operationEpargneList,
         this.soldeAllEpargne,
         this.userId
       );
 
-      this.operationService
-        .uploadAccountHistory(this.soldeAllEpargne, 'Epargne')
-        .subscribe();
-      // console.log(this.soldeAllEpargne);
-      return this.soldeAllEpargne;
+      // HISTORIQUE de l'epargne
+
+      // Calcul du solde initial de tous les comptes
+      this.initialEpargneSolde = 0;
+      this.soldeAllEpargne.forEach((compte) => {
+        this.initialEpargneSolde =
+          this.initialEpargneSolde + compte.soldeInitial;
+      });
+
+      // Détail des économies et du solde pour chaque mois
+      this.monthlyEpargneHistory = [];
+      this.monthlyEpargneHistory = this.operationService.getOperationHistory(
+        this.operationsYears,
+        this.monthlyEpargneHistory,
+        this.initialEpargneSolde,
+        this.soldeAllEpargne
+      );
+
+      // Affichage du tableau de l'année en cours grâce aux données de monthlyEpargneHistory
+      this.displayDatasEpargne(year);
+
+      // Calcule de l'évolution annuel de chaque compte
+      this.getEpargneHistoryPerAccount(this.soldeAllEpargne, year);
     });
   }
 
+  /*
   // Récupération de l'historique mensuel
   getEpargneHistory(year: string) {
     this.soldeAllEpargne = [];
@@ -436,6 +472,7 @@ export class RecapComponent implements OnInit {
       this.displayDatasEpargne(year);
     });
   }
+  */
 
   // Affichage de l'évolution mensuelle
   displayDatasEpargne(year: string) {
@@ -513,60 +550,58 @@ export class RecapComponent implements OnInit {
   }
 
   // Récupération de l'historique annuel du solde des comptes épargne
-  getEpargneHistoryPerAccount(year: string) {
+  getEpargneHistoryPerAccount(soldeAllEpargne: any[], year: string) {
     this.soldeAllEpargnePerAccount = [];
     this.monthlyEpargneHistoryPerAccount = [];
     let filteredEpargnePerAccount = [];
 
-    this.operationService.getEpargneHistory().subscribe((history) => {
-      this.soldeAllEpargne = <any>history;
-      this.soldeAllEpargne.forEach((compte, index) => {
-        let initialSolde = compte.soldeInitial;
-        let accountName = compte.compteName;
+    soldeAllEpargne.forEach((compte, index) => {
+      let initialSolde = compte.soldeInitial;
+      let accountName = compte.compteName;
 
-        this.soldeAllEpargnePerAccount.push({ name: accountName, history: [] });
+      this.soldeAllEpargnePerAccount.push({ name: accountName, history: [] });
 
-        this.operationsYears.forEach((operationyear, indexyear) => {
-          let montant = 0;
-          filteredEpargnePerAccount = [];
-          filteredEpargnePerAccount = compte.soldeHistory.filter(
-            (element: any) => element.soldeDate.includes(operationyear)
-          );
-          filteredEpargnePerAccount.forEach((operation: any) => {
-            montant += operation.montant;
-          });
-
-          if (indexyear == 0) {
-            this.soldeAllEpargnePerAccount[index].history.push({
-              year: operationyear,
-              soldeInitial: initialSolde,
-              soldeFinal: initialSolde + montant,
-              evolution:
-                Math.round(
-                  ((initialSolde + montant - initialSolde) / initialSolde) *
-                    100 *
-                    10
-                ) / 10,
-            });
-          } else {
-            initialSolde =
-              this.soldeAllEpargnePerAccount[index].history[indexyear - 1]
-                .soldeFinal;
-            this.soldeAllEpargnePerAccount[index].history.push({
-              year: operationyear,
-              soldeInitial: initialSolde,
-              soldeFinal: initialSolde + montant,
-              evolution:
-                Math.round(
-                  ((initialSolde + montant - initialSolde) / initialSolde) *
-                    100 *
-                    10
-                ) / 10,
-            });
-          }
+      this.operationsYears.forEach((operationyear, indexyear) => {
+        let montant = 0;
+        filteredEpargnePerAccount = [];
+        filteredEpargnePerAccount = compte.soldeHistory.filter((element: any) =>
+          element.soldeDate.includes(operationyear)
+        );
+        filteredEpargnePerAccount.forEach((operation: any) => {
+          montant += operation.montant;
         });
+
+        if (indexyear == 0) {
+          this.soldeAllEpargnePerAccount[index].history.push({
+            year: operationyear,
+            soldeInitial: initialSolde,
+            soldeFinal: initialSolde + montant,
+            evolution:
+              Math.round(
+                ((initialSolde + montant - initialSolde) / initialSolde) *
+                  100 *
+                  10
+              ) / 10,
+          });
+        } else {
+          initialSolde =
+            this.soldeAllEpargnePerAccount[index].history[indexyear - 1]
+              .soldeFinal;
+          this.soldeAllEpargnePerAccount[index].history.push({
+            year: operationyear,
+            soldeInitial: initialSolde,
+            soldeFinal: initialSolde + montant,
+            evolution:
+              Math.round(
+                ((initialSolde + montant - initialSolde) / initialSolde) *
+                  100 *
+                  10
+              ) / 10,
+          });
+        }
       });
 
+      console.log(this.soldeAllEpargnePerAccount);
       this.displayYearlyEpargne(year);
     });
   }
