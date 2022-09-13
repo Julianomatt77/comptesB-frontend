@@ -11,7 +11,6 @@ export class CompteService {
   constructor(private http: HttpClient) {}
 
   public createAccount(compte: Compte) {
-    console.log(compte);
     return this.http.post<Compte>(
       `${environment.baseUrl}/comptes/createAccount`,
       compte
