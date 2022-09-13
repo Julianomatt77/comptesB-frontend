@@ -50,32 +50,32 @@ export class RecapComponent implements OnInit {
   compteId = '';
   form!: FormGroup;
   operationPerYear: Recap[] = [
-    { month: 'Janvier', economie: 0, solde: 0 },
-    { month: 'Février', economie: 0, solde: 0 },
-    { month: 'Mars', economie: 0, solde: 0 },
-    { month: 'Avril', economie: 0, solde: 0 },
-    { month: 'Mai', economie: 0, solde: 0 },
-    { month: 'Juin', economie: 0, solde: 0 },
-    { month: 'Juillet', economie: 0, solde: 0 },
-    { month: 'Août', economie: 0, solde: 0 },
-    { month: 'Septembre', economie: 0, solde: 0 },
-    { month: 'Octobre', economie: 0, solde: 0 },
-    { month: 'Novembre', economie: 0, solde: 0 },
-    { month: 'Décembre', economie: 0, solde: 0 },
+    { month: 'Janvier', investi: 0, economie: 0, solde: 0 },
+    { month: 'Février', investi: 0, economie: 0, solde: 0 },
+    { month: 'Mars', investi: 0, economie: 0, solde: 0 },
+    { month: 'Avril', investi: 0, economie: 0, solde: 0 },
+    { month: 'Mai', investi: 0, economie: 0, solde: 0 },
+    { month: 'Juin', investi: 0, economie: 0, solde: 0 },
+    { month: 'Juillet', investi: 0, economie: 0, solde: 0 },
+    { month: 'Août', investi: 0, economie: 0, solde: 0 },
+    { month: 'Septembre', investi: 0, economie: 0, solde: 0 },
+    { month: 'Octobre', investi: 0, economie: 0, solde: 0 },
+    { month: 'Novembre', investi: 0, economie: 0, solde: 0 },
+    { month: 'Décembre', investi: 0, economie: 0, solde: 0 },
   ];
   epargnePerYear: Recap[] = [
-    { month: 'Janvier', economie: 0, solde: 0 },
-    { month: 'Février', economie: 0, solde: 0 },
-    { month: 'Mars', economie: 0, solde: 0 },
-    { month: 'Avril', economie: 0, solde: 0 },
-    { month: 'Mai', economie: 0, solde: 0 },
-    { month: 'Juin', economie: 0, solde: 0 },
-    { month: 'Juillet', economie: 0, solde: 0 },
-    { month: 'Août', economie: 0, solde: 0 },
-    { month: 'Septembre', economie: 0, solde: 0 },
-    { month: 'Octobre', economie: 0, solde: 0 },
-    { month: 'Novembre', economie: 0, solde: 0 },
-    { month: 'Décembre', economie: 0, solde: 0 },
+    { month: 'Janvier', investi: 0, economie: 0, solde: 0 },
+    { month: 'Février', investi: 0, economie: 0, solde: 0 },
+    { month: 'Mars', investi: 0, economie: 0, solde: 0 },
+    { month: 'Avril', investi: 0, economie: 0, solde: 0 },
+    { month: 'Mai', investi: 0, economie: 0, solde: 0 },
+    { month: 'Juin', investi: 0, economie: 0, solde: 0 },
+    { month: 'Juillet', investi: 0, economie: 0, solde: 0 },
+    { month: 'Août', investi: 0, economie: 0, solde: 0 },
+    { month: 'Septembre', investi: 0, economie: 0, solde: 0 },
+    { month: 'Octobre', investi: 0, economie: 0, solde: 0 },
+    { month: 'Novembre', investi: 0, economie: 0, solde: 0 },
+    { month: 'Décembre', investi: 0, economie: 0, solde: 0 },
   ];
   yearlyArray: any[] = [];
   displayYear: Array<number> = [];
@@ -87,6 +87,7 @@ export class RecapComponent implements OnInit {
   @ViewChild('table') table!: MatTable<any> | undefined;
   childRevelancy = { displayColumns: [], hideColumns: [], data: [] };
   columnsToDisplay = ['month', 'economie', 'solde'];
+  columnsToDisplayEpargne = ['month', 'investi', 'economie', 'solde'];
   columnsToDisplayYearly = [
     'compte',
     'soldeInitial',
@@ -440,6 +441,7 @@ export class RecapComponent implements OnInit {
         this.soldeAllEpargne
       );
 
+      // console.log(this.monthlyEpargneHistory);
       // Affichage du tableau de l'année en cours grâce aux données de monthlyEpargneHistory
       this.displayDatasEpargne(year);
 
@@ -502,9 +504,10 @@ export class RecapComponent implements OnInit {
       this.evolutionEpargne = 0;
     } else {
       this.evolutionEpargne =
-        Math.round(((soldeFinal - soldeInitial) / soldeInitial) * 100 * 10) /
-        10;
+        ((soldeFinal - soldeInitial) / soldeInitial) * 100;
     }
+
+    // this.dataSourceEpargne = new MatTableDataSource(this.epargnePerYear);
 
     for (let i = 0; i < 12; i++) {
       this.operationService
@@ -523,22 +526,13 @@ export class RecapComponent implements OnInit {
                 this.epargnePerYear[i].economie = Math.round(
                   this.epargnePerYear[i].economie
                 );
-
-                // MAJ du récap en haut de page
-                if (monthData.montant < 0) {
-                  this.totalDebitEpargne += monthData.montant;
-                  this.totalDebitEpargne = Math.round(this.totalDebitEpargne);
-                } else {
-                  this.totalCreditEpargne += monthData.montant;
-                  this.totalCreditEpargne = Math.round(this.totalCreditEpargne);
-                }
               }
             });
           });
 
-          this.epargnePerYear[i].solde = Math.round(
-            monthlyHistoryFiltered[i].solde
-          );
+          this.epargnePerYear[i].solde = monthlyHistoryFiltered[i].solde;
+          this.epargnePerYear[i].investi =
+            monthlyHistoryFiltered[i].montantInvesti;
 
           // MAJ de l'affichage du tableau
           this.dataSourceEpargne = new MatTableDataSource(this.epargnePerYear);
@@ -563,45 +557,36 @@ export class RecapComponent implements OnInit {
 
       this.operationsYears.forEach((operationyear, indexyear) => {
         let montant = 0;
+        let montantInvesti = 0;
         filteredEpargnePerAccount = [];
         filteredEpargnePerAccount = compte.soldeHistory.filter((element: any) =>
           element.soldeDate.includes(operationyear)
         );
         filteredEpargnePerAccount.forEach((operation: any) => {
-          montant += operation.montant;
+          montant += operation.montant - operation.montantInvesti;
+          montantInvesti += operation.montantInvesti;
         });
 
-        if (indexyear == 0) {
-          this.soldeAllEpargnePerAccount[index].history.push({
-            year: operationyear,
-            soldeInitial: initialSolde,
-            soldeFinal: initialSolde + montant,
-            evolution:
-              Math.round(
-                ((initialSolde + montant - initialSolde) / initialSolde) *
-                  100 *
-                  10
-              ) / 10,
-          });
-        } else {
+        if (indexyear != 0) {
           initialSolde =
             this.soldeAllEpargnePerAccount[index].history[indexyear - 1]
               .soldeFinal;
-          this.soldeAllEpargnePerAccount[index].history.push({
-            year: operationyear,
-            soldeInitial: initialSolde,
-            soldeFinal: initialSolde + montant,
-            evolution:
-              Math.round(
-                ((initialSolde + montant - initialSolde) / initialSolde) *
-                  100 *
-                  10
-              ) / 10,
-          });
         }
+
+        let soldeFinal = initialSolde + montant + montantInvesti;
+        let totalInvesti = initialSolde + montantInvesti;
+
+        this.soldeAllEpargnePerAccount[index].history.push({
+          year: operationyear,
+          soldeInitial: initialSolde,
+          montantInvesti: montantInvesti,
+          montantOperations: montant,
+          totalInvesti: totalInvesti,
+          soldeFinal: soldeFinal,
+          evolution: ((soldeFinal - totalInvesti) / totalInvesti) * 100,
+        });
       });
 
-      console.log(this.soldeAllEpargnePerAccount);
       this.displayYearlyEpargne(year);
     });
   }
@@ -623,27 +608,26 @@ export class RecapComponent implements OnInit {
     });
 
     this.yearlyArray.forEach((compte) => {
-      totalInitial += compte.history.soldeInitial;
+      totalInitial += compte.history.totalInvesti;
       totalFinal += compte.history.soldeFinal;
     });
 
     if (totalFinal - totalInitial == 0) {
       totalEvolution = 0;
     } else {
-      totalEvolution =
-        Math.round(((totalFinal - totalInitial) / totalInitial) * 100 * 10) /
-        10;
+      totalEvolution = ((totalFinal - totalInitial) / totalInitial) * 100;
     }
 
     this.yearlyArray.push({
       name: 'TOTAL',
       history: {
         year: year,
-        soldeInitial: totalInitial,
+        totalInvesti: totalInitial,
         soldeFinal: totalFinal,
         evolution: totalEvolution,
       },
     });
+
     this.evolutionEpargne = totalEvolution;
     this.dataSourceEpargneYearly = new MatTableDataSource(this.yearlyArray);
   }

@@ -96,19 +96,23 @@ export class OperationService {
       for (let i = 0; i < 12; i++) {
         let month: string;
         let montantPerMonth = 0;
+        let montantInvestiPerMonth = 0;
         if (i < 9) {
           month = 0 + (i + 1).toString();
         } else {
           month = (i + 1).toString();
         }
+
+        // Initialisation du tableau monthlySoldeHistory
         monthlySoldeHistory.push({
           dateSolde: operationyear + '-' + month,
+          montantInvesti: 0,
           economie: 0,
           solde: initialSolde,
         });
+        // console.log(monthlySoldeHistory);
 
         let operationMonth = operationyear + '-' + month;
-
         let monthIndex = monthlySoldeHistory.findIndex(
           (obj) => obj.dateSolde == operationMonth
         );
@@ -127,14 +131,22 @@ export class OperationService {
             );
           });
 
+        // console.log(filteredArray2);
+
         filteredArray2.forEach((monthOperation) => {
           montantPerMonth = 0;
+          montantInvestiPerMonth = 0;
           monthOperation.forEach((operation: any) => {
             montantPerMonth += operation.montant;
+            montantInvestiPerMonth += operation.montantInvesti;
           });
 
           monthlySoldeHistory[monthIndex].economie += montantPerMonth;
+          monthlySoldeHistory[monthIndex].montantInvesti +=
+            montantInvestiPerMonth;
         });
+
+        // console.log(monthlySoldeHistory);
 
         if (monthIndex > 0) {
           monthlySoldeHistory[monthIndex].solde =
@@ -178,14 +190,26 @@ export class OperationService {
       soldeAllArray.forEach((compte) => {
         if (
           operation.compte == compte.compteName &&
-          // operation.categorie != 'Transfert' &&
           operation.userId == userId
         ) {
+          // console.log(compte);
+          // console.log(operation);
+          let montantInvesti = 0;
+          if (operation.montant > 0 && operation.categorie == 'Transfert') {
+            montantInvesti = operation.montant;
+          }
+          // if (operation.montant > 0 && operation.categorie == 'Transfert') {
+          //   montantInvesti = compte.lastSolde + operation.montant;
+          // } else {
+          //   montantInvesti = compte.lastSolde;
+          // }
+
           compte.lastSolde = compte.lastSolde + operation.montant;
           compte.soldeHistory.push({
             soldeDate: operationDate,
-            montant: Math.round(operation.montant * 100) / 100,
-            solde: Math.round(compte.lastSolde * 100) / 100,
+            montantInvesti: montantInvesti,
+            montant: operation.montant,
+            solde: compte.lastSolde,
           });
         }
       });

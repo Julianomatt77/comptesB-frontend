@@ -212,15 +212,7 @@
       >
         <div class="accordion-body">
           <div class="row mt-5">
-            <!-- <h2 class="text-center mb-3">Epargne</h2> -->
             <div class="col-lg-6">
-              <!-- <div class="d-flex justify-content-evenly">
-        <div class="mx-2">Crédit = {{ totalCreditEpargne }} €</div>
-        <div class="mx-2">Débit = {{ totalDebitEpargne }} €</div>
-        <div class="mx-2">Différence = {{ totaldifferenceEpargne }} €</div>
-        <div class="mx-2">Evolution = {{ evolutionEpargne }} %</div>
-      </div> -->
-
               <div class="d-flex justify-content-center pb-5">
                 <!-- Angular mat table -->
                 <table
@@ -234,8 +226,20 @@
                       {{ element.month }}
                     </td>
                   </ng-container>
+                  <ng-container matColumnDef="investi">
+                    <th mat-header-cell *matHeaderCellDef>Investissement</th>
+                    <td
+                      [ngClass]="
+                        element.investi >= 0 ? 'text-success' : 'text-danger'
+                      "
+                      mat-cell
+                      *matCellDef="let element"
+                    >
+                      {{ element.investi | number: "1.0-2":"fr" }} €
+                    </td>
+                  </ng-container>
                   <ng-container matColumnDef="economie">
-                    <th mat-header-cell *matHeaderCellDef>Economie</th>
+                    <th mat-header-cell *matHeaderCellDef>Opérations</th>
                     <td
                       [ngClass]="
                         element.economie >= 0 ? 'text-success' : 'text-danger'
@@ -253,10 +257,13 @@
                     </td>
                   </ng-container>
 
-                  <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+                  <tr
+                    mat-header-row
+                    *matHeaderRowDef="columnsToDisplayEpargne"
+                  ></tr>
                   <tr
                     mat-row
-                    *matRowDef="let myRowData; columns: columnsToDisplay"
+                    *matRowDef="let myRowData; columns: columnsToDisplayEpargne"
                   ></tr>
                 </table>
               </div>
@@ -277,24 +284,21 @@
                     </td>
                   </ng-container>
                   <ng-container matColumnDef="soldeInitial">
-                    <th mat-header-cell *matHeaderCellDef>Solde Initial</th>
+                    <th mat-header-cell *matHeaderCellDef>Total Investi</th>
                     <td mat-cell *matCellDef="let element">
-                      {{
-                        element.history.soldeInitial | number: "1.0-2":"fr"
-                      }}
-                      €
+                      {{ element.history.totalInvesti | number: "1.0-2":"fr" }}€
                     </td>
                   </ng-container>
                   <ng-container matColumnDef="soldeFinal">
-                    <th mat-header-cell *matHeaderCellDef>Solde Final</th>
+                    <th mat-header-cell *matHeaderCellDef>Somme Final</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ element.history.soldeFinal | number: "1.0-2":"fr" }} €
+                      {{ element.history.soldeFinal | number: "1.0-2":"fr" }}€
                     </td>
                   </ng-container>
                   <ng-container matColumnDef="evolution">
                     <th mat-header-cell *matHeaderCellDef>Evolution</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ element.history.evolution | number: "1.0-2":"fr" }} %
+                      {{ element.history.evolution | number: "1.0-2":"fr" }}%
                     </td>
                   </ng-container>
 
