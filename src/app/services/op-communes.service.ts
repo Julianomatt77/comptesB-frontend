@@ -51,6 +51,7 @@ export class OpCommunesService {
   }
 
   public getOperations(operationList: any[], userId: string) {
+    operationList = [];
     let operationsObservable = this.getAllOperations().pipe(
       tap((data) => {
         data.forEach((operation) => {
@@ -60,6 +61,8 @@ export class OpCommunesService {
         });
       })
     );
+    // console.log(operationsObservable);
+    // console.log(operationList);
     return operationsObservable;
   }
 
