@@ -60,7 +60,7 @@
           aria-controls="collapseOne"
         >
           Comptes courants : Evolution =
-          {{ evolutionCompteCourant | number: "1.0-2":"fr" }} %
+          {{ evolutionCompteCourant | number: "1.0-0":"fr" }} %
           <div class="mx-2">
             <!-- <button class="btn btn-secondary" (click)="export('comptes')">
               Exporter en csv
@@ -87,14 +87,14 @@
             <!-- <h2 class="text-center mb-3">Comptes courants</h2> -->
             <div class="col-lg-12">
               <div class="d-flex justify-content-evenly">
-                <div class="mx-2 text-success">
+                <!-- <div class="mx-2 text-success">
                   Crédit = <fa-icon [icon]="faArrowUp"></fa-icon>
                   {{ totalCredit }} €
                 </div>
                 <div class="mx-2 text-danger">
                   Débit = <fa-icon [icon]="faArrowDown"></fa-icon>
                   {{ totalDebit }} €
-                </div>
+                </div> -->
                 <div *ngIf="totaldifference >= 0" class="mx-2 text-success">
                   Différence = <fa-icon [icon]="faArrowUp"></fa-icon>
                   {{ totaldifference }} €
@@ -103,9 +103,6 @@
                   Différence = <fa-icon [icon]="faArrowDown"></fa-icon>
                   {{ totaldifference }} €
                 </div>
-                <!-- <div class="mx-2">
-                  Evolution = {{ evolutionCompteCourant }} %
-                </div> -->
               </div>
 
               <div class="d-flex justify-content-center">
@@ -188,12 +185,8 @@
           aria-expanded="false"
           aria-controls="collapseTwo"
         >
-          Epargne : Evolution = {{ evolutionEpargne | number: "1.0-2":"fr" }} %
+          Epargne : Evolution = {{ evolutionEpargne | number: "1.0-0":"fr" }} %
           <div class="mx-2">
-            <!-- <button class="btn btn-secondary" (click)="export('epargne')">
-              Exporter en csv
-            </button> -->
-
             <a href="/recap" (click)="export('epargne')" class="mx-5">
               <fa-icon
                 [icon]="faDownload"
@@ -298,7 +291,7 @@
                   <ng-container matColumnDef="evolution">
                     <th mat-header-cell *matHeaderCellDef>Evolution</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ element.history.evolution | number: "1.0-2":"fr" }}%
+                      {{ element.history.evolution | number: "1.0-0":"fr" }}%
                     </td>
                   </ng-container>
 

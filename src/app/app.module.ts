@@ -34,6 +34,7 @@ import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { FooterComponent } from './components/footer/footer.component';
 import { GestionUserComponent } from './components/gestion-user/gestion-user.component';
 import { CguComponent } from './components/cgu/cgu.component';
+import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { CguComponent } from './components/cgu/cgu.component';
     FooterComponent,
     GestionUserComponent,
     CguComponent,
+    ConfirmationDialogComponent,
   ],
   imports: [
     BrowserModule,

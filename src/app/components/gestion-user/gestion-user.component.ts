@@ -8,8 +8,9 @@ import { StorageService } from '../../services/storage.service';
 import { forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
 import { CompteService } from '../../services/compte.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CompteFormComponent } from '../compte-form/compte-form.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import {
   faPen,
   faPlusCircle,
@@ -45,6 +46,8 @@ export class GestionUserComponent implements OnInit {
   faTrashCan = faTrashCan;
   faPlus = faPlusCircle;
 
+  dialogRef!: MatDialogRef<ConfirmationDialogComponent>;
+
   constructor(
     private cookieService: CookieService,
     private userService: UserService,
@@ -64,17 +67,13 @@ export class GestionUserComponent implements OnInit {
     this.compteCourantList = [];
     this.userService.getOneUser(this.userId).subscribe((user) => {
       this.user = user;
-      // console.log(this.user);
 
       this.form = {
         username: user.username,
         email: user.email,
-        // password: user.password,
       };
 
       this.showAccounts();
-      // console.log(this.compteCourantList);
-      // console.log(this.compteEpargneList);
     });
   }
 
@@ -125,25 +124,34 @@ export class GestionUserComponent implements OnInit {
     window.location.reload();
   }
 
-  deleteUser() {
-    if (
-      confirm(
-        'êtes vous sur de vouloir supprimer votre compte utilisateur ? Toutes vos données seront perdues'
-      ) == true
-    ) {
-      this.userService.deleteUser(this.userId).subscribe(() => {
-        alert('Votre compte a été supprimé avec succès');
-        this.authService.logout().subscribe();
-        sessionStorage.removeItem('auth-user');
+  openConfirmation() {
+    this.dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      // width: '250px',
+      disableClose: false,
+    });
+    this.dialogRef.componentInstance.confirmMessage =
+      'Etes vous sur de vouloir supprimer votre compte utilisateur ? Toutes vos données seront perdues';
 
-        // Redirection après suppression
-        setTimeout(() => {
-          this.router.navigateByUrl('/');
-        }, 1000);
-      });
-    } else {
-      console.log('suppression annulé');
-    }
+    this.dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // do confirmation actions
+        this.deleteUser();
+      }
+      // this.dialogRef = null;
+    });
+  }
+
+  deleteUser() {
+    this.userService.deleteUser(this.userId).subscribe(() => {
+      alert('Votre compte a été supprimé avec succès');
+      this.authService.logout().subscribe();
+      sessionStorage.removeItem('auth-user');
+
+      // Redirection après suppression
+      setTimeout(() => {
+        this.router.navigateByUrl('/');
+      }, 1000);
+    });
   }
 
   /*********** Gestion des comptes bancaires ********* */

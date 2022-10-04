@@ -80,7 +80,7 @@
           <ng-container matColumnDef="suppression">
             <th mat-header-cell *matHeaderCellDef></th>
             <td mat-cell *matCellDef="let element">
-              <button (click)="deleteOperation(element)" class="btn">
+              <button (click)="openConfirmation(element)" class="btn">
                 <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
               </button>
             </td>

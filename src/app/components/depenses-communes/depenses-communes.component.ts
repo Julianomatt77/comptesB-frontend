@@ -15,7 +15,7 @@ import {
   faPlusCircle,
   faTrashCan,
 } from '@fortawesome/free-solid-svg-icons';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CookieService } from 'ngx-cookie-service';
 import { OpCommunesService } from 'src/app/services/op-communes.service';
 import { OpCommune } from 'src/app/models/OpCommune';
@@ -26,6 +26,7 @@ import { forkJoin } from 'rxjs';
 import { DOCUMENT } from '@angular/common';
 import { Inject, Renderer2 } from '@angular/core';
 import { ThisReceiver } from '@angular/compiler';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-depenses-communes',
@@ -73,6 +74,8 @@ export class DepensesCommunesComponent implements OnInit {
   faTrashCan = faTrashCan;
   faFilter = faFilter;
   faPlus = faPlusCircle;
+
+  dialogRef!: MatDialogRef<ConfirmationDialogComponent>;
 
   constructor(
     private fb: FormBuilder,
@@ -191,6 +194,23 @@ export class DepensesCommunesComponent implements OnInit {
         this.getSoldePerUser(this.todayMonthString, this.todayYear);
         // this.getSoldePerUser();
       });
+  }
+
+  openConfirmation(operation: any) {
+    this.dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      // width: '250px',
+      disableClose: false,
+    });
+    this.dialogRef.componentInstance.confirmMessage =
+      'Etes vous sûr de vouloir supprimer cette opération ?';
+
+    this.dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // do confirmation actions
+        this.deleteOperation(operation);
+      }
+      // this.dialogRef = null;
+    });
   }
 
   deleteOperation(operation: any) {
