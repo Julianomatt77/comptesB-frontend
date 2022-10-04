@@ -67,9 +67,6 @@
         [ngClass]="{ 'is-invalid': f.submitted && password.errors }"
       />
       <div class="invalid-feedback" *ngIf="password.errors && f.submitted">
-        <!-- <div *ngIf="password.errors['required']">
-          Le mot de passe est obligatoire
-        </div> -->
         <div *ngIf="password.errors['minlength']">
           Le mot de passe doit avoir au moins 6 caractères
         </div>
@@ -90,7 +87,7 @@
   </form>
 
   <div class="d-flex justify-content-center" *ngIf="!isSuccessful">
-    <button class="btn btn-danger mt-2" (click)="deleteUser()">
+    <button class="btn btn-danger mt-2" (click)="openConfirmation()">
       Supprimer mon compte utilisateur
     </button>
   </div>
@@ -106,15 +103,6 @@
     <h2 class="text-center mt-3">Gestion des comptes bancaires</h2>
     <div>
       <div class="d-flex justify-content-center mb-2">
-        <!-- <button
-          mat-raised-button
-          color="primary"
-          class=""
-          (click)="AddAccount()"
-        >
-          Ajouter un compte
-        </button> -->
-
         <a href="javascript:;" (click)="AddAccount()" class="">
           <fa-icon
             [icon]="faPlus"

@@ -9,7 +9,8 @@ import {
 import { Operation } from 'src/app/models/Operation';
 import { OperationService } from 'src/app/services/operation.service';
 import { OperationFormComponent } from '../operation-form/operation-form.component';
-import { MatDialog } from '@angular/material/dialog';
+// import { ConfirmationDialogComponent } from '../operation-form/operation-form.component';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CompteFormComponent } from '../compte-form/compte-form.component';
 import { CompteService } from 'src/app/services/compte.service';
 import { forkJoin, Observable } from 'rxjs';
@@ -38,6 +39,7 @@ import {
 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { OnDestroy } from '@angular/core';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-comptes',
@@ -138,6 +140,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
   width = 0;
 
+  dialogRef!: MatDialogRef<ConfirmationDialogComponent>;
+
   constructor(
     private fb: FormBuilder,
     private operationService: OperationService,
@@ -236,18 +240,36 @@ export class ComptesComponent implements OnInit, OnDestroy {
           );
           operation.classCSS = this.categorieClass[index][1];
           this.operationList.push(operation);
-          this.totalOperations(
-            operation.montant,
-            operation.type,
-            operation.categorie
-          );
+
+          // Ajouter l'opération dans le calcul du récap seulement pour les comptes courants
+          this.compteService.getAllAccounts().subscribe((compteList) => {
+            compteList.forEach((compte) => {
+              if (compte.userId == this.userId) {
+                if (
+                  compte.typeCompte == 'Compte Courant' &&
+                  compte.name == operation.compte
+                ) {
+                  this.totalOperations(
+                    operation.montant,
+                    operation.type,
+                    operation.categorie
+                  );
+                }
+              }
+            });
+          });
+
+          // this.totalOperations(
+          //   operation.montant,
+          //   operation.type,
+          //   operation.categorie
+          // );
         }
       });
       this.dataSource = new MatTableDataSource(this.operationList);
       this.changeDetectorRef.detectChanges();
       this.dataSource.paginator = this.paginator;
       this.obs = this.dataSource.connect();
-      // this.dataSource.paginator = this.paginator;
     });
   }
 
@@ -267,11 +289,29 @@ export class ComptesComponent implements OnInit, OnDestroy {
             operation.classCSS = this.categorieClass[index][1];
             this.operationList.push(operation);
 
-            this.totalOperations(
-              operation.montant,
-              operation.type,
-              operation.categorie
-            );
+            // Ajouter l'opération dans le calcul du récap seulement pour les comptes courants
+            this.compteService.getAllAccounts().subscribe((compteList) => {
+              compteList.forEach((compte) => {
+                if (compte.userId == this.userId) {
+                  if (
+                    compte.typeCompte == 'Compte Courant' &&
+                    compte.name == operation.compte
+                  ) {
+                    this.totalOperations(
+                      operation.montant,
+                      operation.type,
+                      operation.categorie
+                    );
+                  }
+                }
+              });
+            });
+
+            // this.totalOperations(
+            //   operation.montant,
+            //   operation.type,
+            //   operation.categorie
+            // );
           }
         });
         this.dataSource = new MatTableDataSource(this.operationList);
@@ -325,6 +365,23 @@ export class ComptesComponent implements OnInit, OnDestroy {
           });
         // this.showAccounts();
       });
+  }
+
+  openConfirmation(operation: any) {
+    this.dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      // width: '250px',
+      disableClose: false,
+    });
+    this.dialogRef.componentInstance.confirmMessage =
+      'Etes vous sûr de vouloir supprimer cette opération ?';
+
+    this.dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // do confirmation actions
+        this.deleteOperation(operation);
+      }
+      // this.dialogRef = null;
+    });
   }
 
   deleteOperation(operation: any) {

@@ -6,6 +6,10 @@ footer {
   font-size: 10px !important;
 }
 
+.cookiebanner {
+  z-index: 1050;
+}
+
 @media screen and (max-width: 768px) {
   footer {
     /* font-size: 10px !important; */

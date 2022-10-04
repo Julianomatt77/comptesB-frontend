@@ -3,6 +3,7 @@ import { DOCUMENT } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
+import { CompteService } from 'src/app/services/compte.service';
 
 @Component({
   selector: 'app-default',
@@ -17,7 +18,8 @@ export class DefaultComponent implements OnInit {
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
     private authService: AuthService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private compteService: CompteService
   ) {
     this.renderer.addClass(this.document.body, 'bg-light');
   }
@@ -30,6 +32,7 @@ export class DefaultComponent implements OnInit {
     if (this.storageService.isLoggedIn()) {
       this.isLoggedIn = true;
     }
+    this.compteService.getAllAccounts();
   }
 
   ngOnDestroy(): void {
