@@ -95,10 +95,10 @@
             *ngFor="let card of obs | async"
           >
             <h5 class="card-header {{ card.classCSS }} text-center">
-              {{ card.description1 }}
+              {{ card.categorie }}
             </h5>
             <div class="card-body">
-              <h4 class="card-title text-center">{{ card.categorie }}</h4>
+              <h4 class="card-title text-center">{{ card.description1 }}</h4>
 
               <div
                 *ngIf="card.montant >= 0"
@@ -116,7 +116,7 @@
               </div>
 
               <div class="d-flex justify-content-evenly">
-                <div>{{ card.operationDate | date: "MMMM y" }}</div>
+                <div>{{ card.operationDate | date: "d MMMM y" }}</div>
                 <div>{{ card.compte }}</div>
               </div>
               <div class="d-flex justify-content-evenly">

@@ -89,7 +89,7 @@ export class OperationFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      montant: 0,
+      montant: [0, [Validators.required]],
       type: false,
       categorie: ['', [Validators.required]],
       compte: ['', [Validators.required]],

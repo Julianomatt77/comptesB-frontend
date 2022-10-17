@@ -69,7 +69,7 @@ export class OpcommuneFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      montant: 0,
+      montant: [0, [Validators.required]],
       // type: false,
       name: ['', [Validators.required]],
       description: ['', [Validators.required]],

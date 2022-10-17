@@ -97,11 +97,11 @@
                 </div> -->
                 <div *ngIf="totaldifference >= 0" class="mx-2 text-success">
                   Différence = <fa-icon [icon]="faArrowUp"></fa-icon>
-                  {{ totaldifference }} €
+                  {{ totaldifference | number: "1.0-20":"fr" }} €
                 </div>
                 <div *ngIf="totaldifference < 0" class="mx-2 text-danger">
                   Différence = <fa-icon [icon]="faArrowDown"></fa-icon>
-                  {{ totaldifference }} €
+                  {{ totaldifference | number: "1.0-0":"fr" }} €
                 </div>
               </div>
 
@@ -204,7 +204,7 @@
         data-bs-parent="#accordionExample"
       >
         <div class="accordion-body">
-          <div class="row mt-5">
+          <div class="row">
             <div class="col-lg-6">
               <div class="d-flex justify-content-center pb-5">
                 <!-- Angular mat table -->

@@ -5,6 +5,8 @@
       id="montant"
       class="form-control"
       formControlName="montant"
+      type="number"
+      placeholder="0"
       [(ngModel)]="operation.montant"
     />
   </div>
@@ -15,7 +17,7 @@
       type="date"
       class="form-control"
       formControlName="operationDate"
-      [ngModel]="operation.operationDate"
+      [ngModel]="operation.operationDate | date: 'yyyy-MM-dd'"
       (change)="changeFn($event)"
     />
   </div>
@@ -55,7 +57,7 @@
     />
   </div>
 
-  <div class="row col-4 mx-auto my-4">
+  <div class="row col-md-4 mx-auto my-4">
     <button type="submit" class="btn btn-dark btn-lg" [disabled]="form.invalid">
       {{ buttonLabel }}
     </button>
