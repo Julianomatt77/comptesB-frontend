@@ -110,11 +110,8 @@ export class DepensesCommunesComponent implements OnInit {
     this.form = this.fb.group({
       rangeDate: this.todayYear + '-' + this.todayMonthString,
     });
-    // this.getSoldePerUser();
-    this.showUsers(this.todayMonthString, this.todayYear);
+    // this.updateUsers(this.todayMonthString, this.todayYear);
     this.showOperationsFiltered(this.todayMonthString, this.todayYear);
-    // this.getSoldePerUser(this.todayMonthString, this.todayYear);
-    // this.showOperations();
   }
 
   /* ******************* OPERATIONS ******************/
@@ -138,24 +135,36 @@ export class DepensesCommunesComponent implements OnInit {
   }
 
   showOperationsFiltered(month: string, year: string) {
+    this.userList = [];
     this.operationCommuneList = [];
-    this.opCommuneService
-      .getOperationsFiltered(month, year)
-      .subscribe((data) => {
-        // this.soldePerUser = []
-        data.forEach((operation) => {
-          if (operation.userId == this.userId) {
-            this.operationCommuneList.push(operation);
-          }
-        });
-        // console.log(this.operationCommuneList);
-        // console.log(this.userList);
 
-        this.dataSource = new MatTableDataSource(this.operationCommuneList);
-        this.dataSource.paginator = this.paginator;
-
-        this.getSoldePerAccount(this.operationCommuneList);
+    let userObservable = this.opCommuneService.getAllUsers();
+    let operationsObservable = this.opCommuneService.getOperationsFiltered(
+      month,
+      year
+    );
+    forkJoin([userObservable, operationsObservable]).subscribe((data) => {
+      // Get user list
+      data[0].forEach((user) => {
+        if (user.userId == this.userId) {
+          this.userList.push(user);
+        }
       });
+
+      // get operations
+      data[1].forEach((operation) => {
+        if (operation.userId == this.userId) {
+          this.operationCommuneList.push(operation);
+        }
+      });
+
+      /// update table
+      this.dataSource = new MatTableDataSource(this.operationCommuneList);
+      this.dataSource.paginator = this.paginator;
+
+      // update recap
+      this.getSoldePerAccount(this.operationCommuneList);
+    });
   }
 
   AddOperation() {
@@ -170,7 +179,7 @@ export class DepensesCommunesComponent implements OnInit {
       })
       .afterClosed()
       .subscribe(() => {
-        this.showUsers(this.todayMonthString, this.todayYear);
+        this.updateUsers(this.todayMonthString, this.todayYear);
         this.showOperationsFiltered(this.todayMonthString, this.todayYear);
       });
   }
@@ -187,12 +196,8 @@ export class DepensesCommunesComponent implements OnInit {
       })
       .afterClosed()
       .subscribe(() => {
-        // this.getSoldePerUser();
-        this.showUsers(this.todayMonthString, this.todayYear);
-        // this.showOperations();
+        this.updateUsers(this.todayMonthString, this.todayYear);
         this.showOperationsFiltered(this.todayMonthString, this.todayYear);
-        this.getSoldePerUser(this.todayMonthString, this.todayYear);
-        // this.getSoldePerUser();
       });
   }
 
@@ -215,11 +220,8 @@ export class DepensesCommunesComponent implements OnInit {
 
   deleteOperation(operation: any) {
     this.opCommuneService.deleteOperation(operation._id).subscribe(() => {
-      // this.getSoldePerUser();
-      this.showUsers(this.todayMonthString, this.todayYear);
-      // this.showOperations();
+      this.updateUsers(this.todayMonthString, this.todayYear);
       this.showOperationsFiltered(this.todayMonthString, this.todayYear);
-      // this.getSoldePerUser(this.todayMonthString, this.todayYear);
     });
   }
 
@@ -252,10 +254,11 @@ export class DepensesCommunesComponent implements OnInit {
     // this.totalDebit = 0;
 
     // TODO Show operations + show users
-    this.showUsers(this.todayMonthString, this.todayYear);
+    this.updateUsers(this.todayMonthString, this.todayYear);
     this.showOperationsFiltered(this.todayMonthString, this.todayYear);
   }
 
+  /*
   resetDateFilters() {
     this.todayMonth = new Date(Date.now()).getMonth() + 1;
     this.todayYear = new Date(Date.now()).getFullYear().toString();
@@ -266,8 +269,9 @@ export class DepensesCommunesComponent implements OnInit {
     this.dateFiltered = false;
 
     // TODO Show operations + show users
-    this.showUsers(this.todayMonthString, this.todayYear);
+    this.updateUsers(this.todayMonthString, this.todayYear);
   }
+  */
 
   /**************** ACCOUNTS ************************* */
 
@@ -281,7 +285,7 @@ export class DepensesCommunesComponent implements OnInit {
       })
       .afterClosed()
       .subscribe(() => {
-        this.showUsers(this.todayMonthString, this.todayYear);
+        this.updateUsers(this.todayMonthString, this.todayYear);
       });
   }
 
@@ -298,7 +302,7 @@ export class DepensesCommunesComponent implements OnInit {
         })
         .afterClosed()
         .subscribe(() => {
-          this.showUsers(this.todayMonthString, this.todayYear);
+          this.updateUsers(this.todayMonthString, this.todayYear);
           // this.getSoldePerUser(this.todayMonthString, this.todayYear);
         });
     });
@@ -307,7 +311,7 @@ export class DepensesCommunesComponent implements OnInit {
   deleteUser(user: any) {
     this.opCommuneService.getOneUserByName(user.name).subscribe((data) => {
       this.opCommuneService.deleteUser(data._id).subscribe(() => {
-        this.showUsers(this.todayMonthString, this.todayYear);
+        this.updateUsers(this.todayMonthString, this.todayYear);
       });
     });
   }
@@ -317,6 +321,7 @@ export class DepensesCommunesComponent implements OnInit {
     this.totalDifference = 0;
 
     this.soldePerUser = [];
+
     this.userList.forEach((user) => {
       let montant = 0;
       let name = user.name;
@@ -341,56 +346,9 @@ export class DepensesCommunesComponent implements OnInit {
         this.totalMoyenne = 0;
       }
     }
-    // console.log(this.soldePerUser);
   }
 
-  getSoldePerUser(month: string, year: string) {
-    this.soldePerUser = [];
-    this.totalDifference = 0;
-
-    // Récupération des utilisateurs
-    this.opCommuneService.getAllUsers().subscribe((users) => {
-      this.userList = [];
-      users.forEach((user) => {
-        if (user.userId == this.userId) {
-          this.userList.push(user);
-        }
-      });
-    });
-    // console.log(this.userList);
-
-    // Récupération des opérations du mois sélectionné par utilisateur
-    this.userList.forEach((user) => {
-      let montant = 0;
-
-      for (let i = 0; i < user.history.length; i++) {
-        if (user.history[i].operationDate.includes(year + '-' + month)) {
-          montant += user.history[i].montant;
-        }
-      }
-
-      // this.soldePerUser.push({ name: user.name, montant: montant });
-    });
-
-    // console.log(this.soldePerUser);
-
-    //Affichage du récap de ce que doit chaque utilisateur
-    if (this.soldePerUser.length > 0) {
-      if (this.soldePerUser[0].montant && this.soldePerUser[1].montant) {
-        this.totalDifference =
-          (this.soldePerUser[0].montant - this.soldePerUser[1].montant) / 2;
-
-        this.totalMoyenne =
-          (this.soldePerUser[0].montant + this.soldePerUser[1].montant) / 2;
-      } else {
-        this.totalDifference = 0;
-        this.totalMoyenne = 0;
-      }
-    }
-  }
-
-  showUsers(month: string, year: string) {
-    this.userList = [];
+  updateUsers(month: string, year: string) {
     let userObservable = this.opCommuneService.getAllUsers();
     let operationsObservable = this.opCommuneService.getAllOperations();
 
@@ -398,8 +356,6 @@ export class DepensesCommunesComponent implements OnInit {
       // Récupération des utilisateurs
       data[0].forEach((user, userIndex) => {
         if (user.userId == this.userId) {
-          this.userList.push(user);
-
           let userBDD = new OpCommuneUser('', '', []);
           this.opCommuneService.getOneUser(user._id).subscribe((data) => {
             userBDD = data;
@@ -423,14 +379,10 @@ export class DepensesCommunesComponent implements OnInit {
             id: user._id,
             user: userBDD,
           };
-          // console.log(userdata);
 
           this.opCommuneService.updateOneUser(userdata).subscribe();
-          // this.getSoldePerUser(month, year);
         }
       });
-      // console.log(this.userList);
-      // this.getSoldePerUser(month, year);
     });
   }
 
