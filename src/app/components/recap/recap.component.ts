@@ -590,9 +590,9 @@ export class RecapComponent implements OnInit {
       this.yearlyArray.forEach((data) => {
         arrayToExport.push({
           compte: data.name,
-          'solde initial': data.history.soldeInitial + ' €',
-          'solde Final': data.history.soldeFinal + ' €',
-          evolution: data.history.evolution + ' %',
+          'solde initial': data.history.soldeInitial,
+          'solde Final': data.history.soldeFinal,
+          evolution: data.history.evolution,
         });
       });
 
@@ -602,8 +602,8 @@ export class RecapComponent implements OnInit {
       this.operationPerYear.forEach((data) => {
         arrayToExport.push({
           Mois: data.month,
-          Economie: data.economie + ' €',
-          Solde: data.solde + ' €',
+          Economie: data.economie,
+          Solde: data.solde,
         });
       });
 
