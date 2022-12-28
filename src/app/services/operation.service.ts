@@ -167,7 +167,8 @@ export class OperationService {
     userId: string
   ) {
     data.forEach((compte) => {
-      if (compte.typeCompte == compteType && compte.userId == userId) {
+      if (compte.typeCompte == compteType && compte.userId == userId &&
+        compte.name !== ("Compte joint" || "Compte Joint")) {
         soldeAllArray.push({
           compteName: compte.name,
           soldeInitial: compte.soldeInitial,
