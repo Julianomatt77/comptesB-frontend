@@ -41,7 +41,7 @@ export class OperationFormComponent implements OnInit {
     'Voyage',
     'santé',
   ];
-  compteList: string[] = [];
+  compteList: any[] = [];
   userId!: string;
 
   compteId = '';
@@ -102,7 +102,8 @@ export class OperationFormComponent implements OnInit {
     this.compteService.getAllAccounts().subscribe((data) => {
       data.forEach((compte) => {
         if (compte.userId == this.userId) {
-          this.compteList.push(compte.name);
+          // this.compteList.push(compte.name);
+          this.compteList.push([compte.name, compte._id]);
         }
       });
     });
@@ -134,9 +135,12 @@ export class OperationFormComponent implements OnInit {
 
   onSubmitOperationForm(): void {
     if (this.addOrEdit == 'edit') {
+      // console.log(this.operation.compte) //compte id
       this.compteService
-        .getOneAccountByName(this.operation.compte)
+        // .getOneAccountByName(this.operation.compte)
+        .getOneAccount(this.operation.compte)
         .subscribe((compte) => {
+          // console.log(compte);
           this.operation.montant = this.isCredit(
             this.operation.type,
             this.operation.montant
@@ -166,8 +170,9 @@ export class OperationFormComponent implements OnInit {
           });
         });
     } else {
+      // console.log(this.operation.compte)
       this.compteService
-        .getOneAccountByName(this.operation.compte)
+        .getOneAccount(this.operation.compte)
         .subscribe((compte) => {
           this.operation.montant = this.isCredit(
             this.operation.type,

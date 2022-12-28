@@ -279,19 +279,19 @@
                   <ng-container matColumnDef="soldeInitial">
                     <th mat-header-cell *matHeaderCellDef>Total Investi</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ element.history.totalInvesti | number: "1.0-0":"fr" }}€
+                      {{ element.history.totalInvesti | number: "1.0-2":"fr" }}€
                     </td>
                   </ng-container>
                   <ng-container matColumnDef="soldeFinal">
                     <th mat-header-cell *matHeaderCellDef>Somme Final</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ element.history.soldeFinal | number: "1.0-0":"fr" }}€
+                      {{ element.history.soldeFinal | number: "1.0-2":"fr" }}€
                     </td>
                   </ng-container>
                   <ng-container matColumnDef="evolution">
                     <th mat-header-cell *matHeaderCellDef>Evolution</th>
                     <td mat-cell *matCellDef="let element">
-                      {{ element.history.evolution | number: "1.0-0":"fr" }}%
+                      {{ element.history.evolution | number: "1.0-2":"fr" }}%
                     </td>
                   </ng-container>
 

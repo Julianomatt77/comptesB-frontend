@@ -234,7 +234,8 @@ export class RecapComponent implements OnInit {
       data[0].forEach((compte) => {
         if (
           compte.userId == this.userId &&
-          compte.typeCompte == 'Compte Courant'
+          compte.typeCompte == 'Compte Courant' &&
+          compte.name !== ("Compte joint" || "Compte Joint")
         ) {
           this.compteList.push(compte);
         }

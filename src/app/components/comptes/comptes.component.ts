@@ -9,6 +9,7 @@ import {
 import { Operation } from 'src/app/models/Operation';
 import { OperationService } from 'src/app/services/operation.service';
 import { OperationFormComponent } from '../operation-form/operation-form.component';
+
 // import { ConfirmationDialogComponent } from '../operation-form/operation-form.component';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CompteFormComponent } from '../compte-form/compte-form.component';
@@ -235,27 +236,18 @@ export class ComptesComponent implements OnInit, OnDestroy {
     this.operationService.getAllOperations().subscribe((data) => {
       data.forEach((operation) => {
         if (operation.userId == this.userId) {
+
+          // Ajout d'une class CSS par type d'opération
           let index = this.categorieClass.findIndex(
             (p) => p[0] == operation.categorie
           );
           operation.classCSS = this.categorieClass[index][1];
           this.operationList.push(operation);
 
-          // Ajouter l'opération dans le calcul du récap seulement pour les comptes courants
+          // Ajouter l'opération dans le calcul du récap seulement pour les comptes courants et sans prendre en compte le compte joint
           this.compteService.getAllAccounts().subscribe((compteList) => {
             compteList.forEach((compte) => {
-              if (compte.userId == this.userId) {
-                if (
-                  compte.typeCompte == 'Compte Courant' &&
-                  compte.name == operation.compte
-                ) {
-                  this.totalOperations(
-                    operation.montant,
-                    operation.type,
-                    operation.categorie
-                  );
-                }
-              }
+              this.calculRecapCompte(compte,operation);
             });
           });
 
@@ -283,27 +275,24 @@ export class ComptesComponent implements OnInit, OnDestroy {
       .subscribe((data) => {
         data.forEach((operation) => {
           if (operation.userId == this.userId) {
+
+            //Récupérer le nom du compte Bancaire lié à l'opération à partir de l'id
+              this.compteService
+                .getOneAccount(operation.compte).subscribe((compte) => {
+                operation.compte = compte.name
+              })
+
+            // Ajout d'une class CSS par type d'opération
             let index = this.categorieClass.findIndex(
               (p) => p[0] == operation.categorie
             );
             operation.classCSS = this.categorieClass[index][1];
             this.operationList.push(operation);
 
-            // Ajouter l'opération dans le calcul du récap seulement pour les comptes courants
+            // Ajouter l'opération dans le calcul du récap seulement pour les comptes courants et sans prendre en compte le compte joint
             this.compteService.getAllAccounts().subscribe((compteList) => {
               compteList.forEach((compte) => {
-                if (compte.userId == this.userId) {
-                  if (
-                    compte.typeCompte == 'Compte Courant' &&
-                    compte.name == operation.compte
-                  ) {
-                    this.totalOperations(
-                      operation.montant,
-                      operation.type,
-                      operation.categorie
-                    );
-                  }
-                }
+                this.calculRecapCompte(compte,operation);
               });
             });
 
@@ -321,6 +310,21 @@ export class ComptesComponent implements OnInit, OnDestroy {
         this.obs = this.dataSource.connect();
       });
   }
+
+  calculRecapCompte(compte: any, operation: any){
+    if (compte.userId == this.userId &&
+        compte.typeCompte == 'Compte Courant' &&
+        compte.name == operation.compte &&
+        compte.name !== ("Compte joint" || "Compte Joint"))
+    {
+      this.totalOperations(
+        operation.montant,
+        operation.type,
+        operation.categorie
+      );
+    }
+  }
+
 
   AddOperation() {
     this.dialog
@@ -392,7 +396,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
       .subscribe((data) => {
         this.operation = data;
         this.compteService
-          .getOneAccountByName(operation.compte)
+          .getOneAccountByName(operation.compte, this.userId)
           .subscribe((compte) => {
             let montantRestitue = -this.operation.montant;
             if (compte) {
@@ -526,6 +530,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
         ) {
           let initialSolde = compte.soldeInitial;
           let accountName = compte.name;
+          let accountId = compte._id;
 
           this.soldePerAccount.push({ name: accountName, history: [] });
 
@@ -548,8 +553,9 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
               operations.forEach((operation) => {
                 if (
-                  operation.compte == accountName &&
+                  ((operation.compte == accountName) || (operation.compte == accountId)) &&
                   operation.operationDate.includes(operationyear + '-' + month)
+                  && operation.userId === this.userId
                 ) {
                   montant += operation.montant;
                 }

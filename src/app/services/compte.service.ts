@@ -28,14 +28,13 @@ export class CompteService {
       `${environment.baseUrl}/comptes/getOneAccount/${id}`
     );
   }
-  public getOneAccountByName(name: string) {
+  public getOneAccountByName(name: string, userId:string) {
     return this.http.get<Compte>(
       `${environment.baseUrl}/comptes/getOneAccountByName/${name}`
     );
   }
 
   public updateOneAccount(value: { id: string; compte: Compte }) {
-    // console.log(value);
     return this.http.post<Compte>(
       `${environment.baseUrl}/comptes/updateOneAccount/${value.id}`,
       value

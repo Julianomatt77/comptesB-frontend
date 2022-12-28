@@ -194,7 +194,7 @@ export class GestionUserComponent implements OnInit {
 
   openAccountDetail(compte: any) {
     this.compteService.getAllAccounts().subscribe((data) => {
-      let compteIndex = data.findIndex((p) => p.name == compte.name);
+      let compteIndex = data.findIndex((p) => p._id == compte._id);
       this.dialog
         .open(CompteFormComponent, {
           data: {
@@ -213,7 +213,7 @@ export class GestionUserComponent implements OnInit {
 
   deleteAccount(compte: any) {
     this.compteService.getAllAccounts().subscribe((data) => {
-      let compteIndex = data.findIndex((p) => p.name == compte.name);
+      let compteIndex = data.findIndex((p) => p._id == compte._id);
       this.compteService.deleteAccount(data[compteIndex]._id).subscribe(() => {
         this.showAccounts();
         // this.getSoldePerAccount(this.allOperations);
