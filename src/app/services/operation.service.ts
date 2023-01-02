@@ -167,9 +167,9 @@ export class OperationService {
     userId: string
   ) {
     data.forEach((compte) => {
-      if (compte.typeCompte == compteType && compte.userId == userId &&
-        compte.name !== ("Compte joint" || "Compte Joint")) {
+      if (compte.typeCompte == compteType && compte.userId == userId) {
         soldeAllArray.push({
+          compteId: compte._id,
           compteName: compte.name,
           soldeInitial: compte.soldeInitial,
           soldeHistory: [],
@@ -190,20 +190,13 @@ export class OperationService {
 
       soldeAllArray.forEach((compte) => {
         if (
-          operation.compte == compte.compteName &&
+          ((operation.compte == compte.compteName) || (operation.compte == compte.compteId)) &&
           operation.userId == userId
         ) {
-          // console.log(compte);
-          // console.log(operation);
           let montantInvesti = 0;
           if (operation.montant > 0 && operation.categorie == 'Transfert') {
             montantInvesti = operation.montant;
           }
-          // if (operation.montant > 0 && operation.categorie == 'Transfert') {
-          //   montantInvesti = compte.lastSolde + operation.montant;
-          // } else {
-          //   montantInvesti = compte.lastSolde;
-          // }
 
           compte.lastSolde = compte.lastSolde + operation.montant;
           compte.soldeHistory.push({

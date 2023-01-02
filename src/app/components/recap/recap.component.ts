@@ -98,6 +98,7 @@ export class RecapComponent implements OnInit {
 
   todayMonth = new Date(Date.now()).getMonth() + 1;
   todayYear = new Date(Date.now()).getFullYear().toString();
+  filteredYear = this.todayYear;
   todayMonthString = this.todayMonth.toString();
   firstOperationYear = 0;
   operationsYears: number[] = [];
@@ -200,20 +201,20 @@ export class RecapComponent implements OnInit {
   onSubmitChangeDate() {
     this.totalCredit = 0;
     this.totalDebit = 0;
-    this.todayYear = this.form.value.rangeDate;
+    this.filteredYear = this.form.value.rangeDate;
 
     // Si valeur du datepicker different de la date d'aujourd'hui alors un filtre est appliqué
-    if (this.todayYear != new Date(Date.now()).getFullYear().toString()) {
+    if (this.filteredYear != new Date(Date.now()).getFullYear().toString()) {
       this.dateFiltered = true;
     } else {
       this.dateFiltered = false;
     }
 
     // this.showOperationsPerMonth(this.todayYear);
-    this.getBalancePerMonth(this.todayYear);
+    this.getBalancePerMonth(this.filteredYear);
     // this.displayDatas(this.todayYear);
-    this.displayDatasEpargne(this.todayYear);
-    this.displayYearlyEpargne(this.todayYear);
+    this.displayDatasEpargne(this.filteredYear);
+    this.displayYearlyEpargne(this.filteredYear);
   }
 
   /*  ************************   COMPTE COURANT ****************************/
@@ -243,10 +244,14 @@ export class RecapComponent implements OnInit {
 
       //Récupération des opérations de l'utilisateur
       data[1].forEach((operation) => {
-        let IsCompteOperation = this.compteList.findIndex(
+        let matchCompteId = this.compteList.findIndex(
+          (el) => el._id == operation.compte
+        );
+        let matchCompteName = this.compteList.findIndex(
           (el) => el.name == operation.compte
         );
-        if (operation.userId == this.userId && IsCompteOperation != -1) {
+        if (operation.userId == this.userId &&
+          ((matchCompteName != -1) || (matchCompteId != -1))) {
           this.operationList.push(operation);
         }
       });
@@ -365,10 +370,14 @@ export class RecapComponent implements OnInit {
 
       //Récupération des opérations d'épargne de l'utilisateur
       data[1].forEach((operation) => {
-        let IsEpargneOperation = this.compteEpargneList.findIndex(
+        let matchCompteId = this.compteEpargneList.findIndex(
+          (el) => el._id == operation.compte
+        );
+        let matchCompteName = this.compteEpargneList.findIndex(
           (el) => el.name == operation.compte
         );
-        if (operation.userId == this.userId && IsEpargneOperation != -1) {
+        if (operation.userId == this.userId &&
+          ((matchCompteName != -1) || (matchCompteId != -1))) {
           this.operationEpargneList.push(operation);
         }
       });
@@ -458,15 +467,20 @@ export class RecapComponent implements OnInit {
       this.operationService
         .getOperationsFiltered((i + 1).toString(), year)
         .subscribe((data) => {
+          console.log(data);
           this.compteEpargneList.forEach((compte) => {
+            // console.log(compte);
             data.forEach((monthData) => {
+              console.log(compte);
+              // console.log(monthData);
               if (
-                compte.name == monthData.compte &&
+                ((compte.name == monthData.compte)  || (compte._id == monthData.compte)) &&
                 compte.typeCompte != 'Compte Courant' &&
                 monthData.userId == this.userId &&
                 monthData.categorie != 'Transfert'
               ) {
                 // MAJ des données du tableau
+                console.log(monthData);
                 this.epargnePerYear[i].economie += monthData.montant;
                 this.epargnePerYear[i].economie = Math.round(
                   this.epargnePerYear[i].economie
