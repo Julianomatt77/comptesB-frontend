@@ -12,7 +12,7 @@
             type="select"
             formControlName="rangeDate"
           >
-            <option value="2022" selected>2022</option>
+            <option value="{{ todayYear }}" selected>{{ todayYear }}</option>
             <option *ngFor="let year of displayYear">
               {{ year }}
             </option>

@@ -15,12 +15,12 @@ export class AppComponent {
     private metaService: Meta,
     @Inject(DOCUMENT) private document: Document
   ) {
-    this.titleService.setTitle('JM-comptesB');
+    this.titleService.setTitle('Compty');
 
     this.metaService.addTags([
       {
         name: 'title',
-        content: 'JM-comptesB',
+        content: 'Compty',
       },
       {
         name: 'author',
@@ -36,7 +36,7 @@ export class AppComponent {
       },
       {
         property: 'og:title',
-        content: 'JM-comptesB',
+        content: 'Compty',
       },
       {
         property: 'og:type',
