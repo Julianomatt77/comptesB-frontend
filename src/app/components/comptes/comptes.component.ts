@@ -126,7 +126,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
   todayMonth = new Date(Date.now()).getMonth() + 1;
   todayYear = new Date(Date.now()).getFullYear().toString();
   todayMonthString = this.todayMonth.toString();
-  dateFiltered = false;
+  dateFiltered = true;
 
   firstOperationYear = 0;
   operationsYears: number[] = [];
@@ -228,14 +228,28 @@ export class ComptesComponent implements OnInit, OnDestroy {
   }
 
   /* ************************* Opêrations *********** */
-  showOperations() {
+
+  showOperationsFiltered(month: string, year: string) {
     this.operationList = [];
-    // this.allOperations = [];
     this.totalCredit = 0;
     this.totalDebit = 0;
-    this.operationService.getAllOperations().subscribe((data) => {
+    let service = null;
+
+    if (this.dateFiltered) {
+      service = this.operationService.getOperationsFiltered(month, year);
+    } else {
+      service = this.operationService.getAllOperations();
+    }
+
+    service.subscribe((data) => {
       data.forEach((operation) => {
         if (operation.userId == this.userId) {
+          //Récupérer le nom du compte Bancaire lié à l'opération à partir de l'id
+          this.compteService
+            .getOneAccount(operation.compte)
+            .subscribe((compte) => {
+              operation.compte = compte.name;
+            });
 
           // Ajout d'une class CSS par type d'opération
           let index = this.categorieClass.findIndex(
@@ -247,7 +261,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
           // Ajouter l'opération dans le calcul du récap seulement pour les comptes courants et sans prendre en compte le compte joint
           this.compteService.getAllAccounts().subscribe((compteList) => {
             compteList.forEach((compte) => {
-              this.calculRecapCompte(compte,operation);
+              this.calculRecapCompte(compte, operation);
             });
           });
 
@@ -259,64 +273,20 @@ export class ComptesComponent implements OnInit, OnDestroy {
         }
       });
       this.dataSource = new MatTableDataSource(this.operationList);
+      // this.dataSource.paginator = this.paginator;
       this.changeDetectorRef.detectChanges();
       this.dataSource.paginator = this.paginator;
       this.obs = this.dataSource.connect();
     });
   }
 
-  showOperationsFiltered(month: string, year: string) {
-    this.operationList = [];
-    this.totalCredit = 0;
-    this.totalDebit = 0;
-
-    this.operationService
-      .getOperationsFiltered(month, year)
-      .subscribe((data) => {
-        data.forEach((operation) => {
-          if (operation.userId == this.userId) {
-
-            //Récupérer le nom du compte Bancaire lié à l'opération à partir de l'id
-              this.compteService
-                .getOneAccount(operation.compte).subscribe((compte) => {
-                operation.compte = compte.name
-              })
-
-            // Ajout d'une class CSS par type d'opération
-            let index = this.categorieClass.findIndex(
-              (p) => p[0] == operation.categorie
-            );
-            operation.classCSS = this.categorieClass[index][1];
-            this.operationList.push(operation);
-
-            // Ajouter l'opération dans le calcul du récap seulement pour les comptes courants et sans prendre en compte le compte joint
-            this.compteService.getAllAccounts().subscribe((compteList) => {
-              compteList.forEach((compte) => {
-                this.calculRecapCompte(compte,operation);
-              });
-            });
-
-            // this.totalOperations(
-            //   operation.montant,
-            //   operation.type,
-            //   operation.categorie
-            // );
-          }
-        });
-        this.dataSource = new MatTableDataSource(this.operationList);
-        // this.dataSource.paginator = this.paginator;
-        this.changeDetectorRef.detectChanges();
-        this.dataSource.paginator = this.paginator;
-        this.obs = this.dataSource.connect();
-      });
-  }
-
-  calculRecapCompte(compte: any, operation: any){
-    if (compte.userId == this.userId &&
-        compte.typeCompte == 'Compte Courant' &&
-        compte.name == operation.compte &&
-        compte.name !== ("Compte joint" || "Compte Joint"))
-    {
+  calculRecapCompte(compte: any, operation: any) {
+    if (
+      compte.userId == this.userId &&
+      compte.typeCompte == 'Compte Courant' &&
+      compte.name == operation.compte &&
+      compte.name !== ('Compte joint' || 'Compte Joint')
+    ) {
       this.totalOperations(
         operation.montant,
         operation.type,
@@ -324,7 +294,6 @@ export class ComptesComponent implements OnInit, OnDestroy {
       );
     }
   }
-
 
   AddOperation() {
     this.dialog
@@ -553,9 +522,12 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
               operations.forEach((operation) => {
                 if (
-                  ((operation.compte == accountName) || (operation.compte == accountId)) &&
-                  operation.operationDate.includes(operationyear + '-' + month)
-                  && operation.userId === this.userId
+                  (operation.compte == accountName ||
+                    operation.compte == accountId) &&
+                  operation.operationDate.includes(
+                    operationyear + '-' + month
+                  ) &&
+                  operation.userId === this.userId
                 ) {
                   montant += operation.montant;
                 }
@@ -658,7 +630,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
     }
     this.dateFiltered = false;
 
-    this.showOperations();
+    this.showOperationsFiltered(this.todayMonthString, this.todayYear);
     this.showAccounts();
     this.getMonthlySolde('12', new Date(Date.now()).getFullYear().toString());
     this.getDepenseByCategory(
