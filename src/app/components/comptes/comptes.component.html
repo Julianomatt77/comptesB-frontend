@@ -171,6 +171,8 @@
             <tr>
               <th scope="col">Compte</th>
               <th scope="col">Solde</th>
+              <th scope="col">Crédit</th>
+              <th scope="col">Débit</th>
             </tr>
           </thead>
           <tbody>
@@ -180,6 +182,8 @@
                 <td *ngFor="let history of compte.history">
                   {{ history.soldeFinal | number: "1.0-2":"fr" }}€
                 </td>
+                <td class="text-success">{{compte.history[0].totalCredit | number: "1.0-2":"fr" }}€</td>
+                <td class="text-danger">{{compte.history[0].totalDebit| number: "1.0-2":"fr" }}€</td>
               </tr>
             </ng-container>
           </tbody>
