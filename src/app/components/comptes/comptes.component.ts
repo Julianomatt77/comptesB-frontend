@@ -273,6 +273,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
         }
       });
       this.dataSource = new MatTableDataSource(this.operationList);
+      // console.log(this.monthlyHistoryPerAccount);
       // this.dataSource.paginator = this.paginator;
       this.changeDetectorRef.detectChanges();
       this.dataSource.paginator = this.paginator;
@@ -513,6 +514,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
             for (let i = 0; i < 12; i++) {
               let montant = 0;
               let month: string;
+              let totalDebit = 0;
+              let totalCredit = 0;
 
               if (i < 9) {
                 month = 0 + (i + 1).toString();
@@ -529,6 +532,15 @@ export class ComptesComponent implements OnInit, OnDestroy {
                   ) &&
                   operation.userId === this.userId
                 ) {
+                  if (operation.type){
+                    totalCredit += operation.montant
+                    let temp = Math.round(totalCredit * 100) / 100;
+                    totalCredit = temp;
+                  } else {
+                    totalDebit += (-operation.montant)
+                    let temp = Math.round(totalDebit * 100) / 100;
+                    totalDebit = temp;
+                  }
                   montant += operation.montant;
                 }
               });
@@ -542,6 +554,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
                 soldeInitial: initialSolde,
                 montant: montant,
                 soldeFinal: initialSolde,
+                totalCredit: totalCredit,
+                totalDebit: totalDebit
               });
             }
           });
