@@ -4,6 +4,8 @@ export class Operation {
   private _type: boolean;
   private _categorie: string;
   private _compte: string;
+  private _compteName: string;
+  private _compteType: string;
   private _description1: string;
   private _description2: string;
   private _operationDate: Date;
@@ -15,6 +17,8 @@ export class Operation {
     type: boolean,
     categorie: string,
     compte: string,
+    compteName: string,
+    compteType: string,
     description1: string,
     description2: string,
     operationDate: Date,
@@ -25,6 +29,8 @@ export class Operation {
     this._type = type;
     this._categorie = categorie;
     this._compte = compte;
+    this._compteName = compteName;
+    this._compteType = compteType;
     this._description1 = description1;
     this._description2 = description2;
     this._operationDate = operationDate;
@@ -173,5 +179,22 @@ export class Operation {
    */
   public set operationDate(value: Date) {
     this._operationDate = value;
+  }
+
+
+  get compteName(): string {
+    return this._compteName;
+  }
+
+  set compteName(value: string) {
+    this._compteName = value;
+  }
+
+  get compteType(): string {
+    return this._compteType;
+  }
+
+  set compteType(value: string) {
+    this._compteType = value;
   }
 }
