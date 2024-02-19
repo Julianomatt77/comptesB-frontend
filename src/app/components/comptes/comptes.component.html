@@ -179,11 +179,17 @@
             <ng-container *ngFor="let compte of monthlyHistoryPerAccount">
               <tr>
                 <td>{{ compte.name }}</td>
-                <td *ngFor="let history of compte.history">
-                  {{ history.soldeFinal | number: "1.0-2":"fr" }}€
+                <td *ngIf="!compte.history[0]">
+                  {{ compte.solde | number: "1.0-2":"fr" }}€
                 </td>
-                <td class="text-success">{{compte.history[0].totalCredit | number: "1.0-2":"fr" }}€</td>
-                <td class="text-danger">{{compte.history[0].totalDebit| number: "1.0-2":"fr" }}€</td>
+                <ng-container *ngIf="compte.history[0]">
+                  <td *ngFor="let history of compte.history">
+                    {{ history.soldeFinal | number: "1.0-2":"fr" }}€
+                  </td>
+                </ng-container>
+
+                <td *ngIf="compte.history[0]" class="text-success">{{compte.history[0].totalCredit | number: "1.0-2":"fr" }}€</td>
+                <td *ngIf="compte.history[0]" class="text-danger">{{compte.history[0].totalDebit| number: "1.0-2":"fr" }}€</td>
               </tr>
             </ng-container>
           </tbody>

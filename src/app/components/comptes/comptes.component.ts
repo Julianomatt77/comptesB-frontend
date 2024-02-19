@@ -568,6 +568,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
         this.monthlyHistoryPerAccount.push({
           name: compte.name,
+          solde: compte.soldeActuel,
           history: filteredmonthlyHistory,
         });
       }
