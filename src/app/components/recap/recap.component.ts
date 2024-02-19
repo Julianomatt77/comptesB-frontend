@@ -467,11 +467,11 @@ export class RecapComponent implements OnInit {
       this.operationService
         .getOperationsFiltered((i + 1).toString(), year)
         .subscribe((data) => {
-          console.log(data);
+          // console.log(data);
           this.compteEpargneList.forEach((compte) => {
             // console.log(compte);
             data.forEach((monthData) => {
-              console.log(compte);
+              // console.log(compte);
               // console.log(monthData);
               if (
                 ((compte.name == monthData.compte)  || (compte._id == monthData.compte)) &&
@@ -480,7 +480,7 @@ export class RecapComponent implements OnInit {
                 monthData.categorie != 'Transfert'
               ) {
                 // MAJ des données du tableau
-                console.log(monthData);
+                // console.log(monthData);
                 this.epargnePerYear[i].economie += monthData.montant;
                 this.epargnePerYear[i].economie = Math.round(
                   this.epargnePerYear[i].economie
@@ -554,6 +554,7 @@ export class RecapComponent implements OnInit {
   displayYearlyEpargne(year: string) {
     this.yearlyArray = [];
     let totalInitial = 0;
+    let totalInvesti = 0;
     let totalFinal = 0;
     let totalEvolution = 0;
     this.evolutionEpargne = 0;
@@ -567,21 +568,25 @@ export class RecapComponent implements OnInit {
     });
 
     this.yearlyArray.forEach((compte) => {
-      totalInitial += compte.history.totalInvesti;
+      console.log(compte)
+      totalInitial += compte.history.soldeInitial;
+      totalInvesti += compte.history.totalInvesti;
       totalFinal += compte.history.soldeFinal;
     });
 
-    if (totalFinal - totalInitial == 0) {
+    if (totalFinal - totalInvesti == 0) {
       totalEvolution = 0;
     } else {
-      totalEvolution = ((totalFinal - totalInitial) / totalInitial) * 100;
+      totalEvolution = ((totalFinal - totalInvesti) / totalInvesti) * 100;
+      totalEvolution = Math.round(totalEvolution * 100) / 100
     }
 
     this.yearlyArray.push({
       name: 'TOTAL',
       history: {
         year: year,
-        totalInvesti: totalInitial,
+        totalInvesti: totalInvesti,
+        soldeInitial: totalInitial,
         soldeFinal: totalFinal,
         evolution: totalEvolution,
       },
@@ -606,6 +611,7 @@ export class RecapComponent implements OnInit {
         arrayToExport.push({
           compte: data.name,
           'solde initial': data.history.soldeInitial,
+          'total investi': data.history.totalInvesti,
           'solde Final': data.history.soldeFinal,
           evolution: data.history.evolution,
         });
