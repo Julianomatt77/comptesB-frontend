@@ -55,8 +55,8 @@
       formControlName="compte"
       [(ngModel)]="operation.compte"
     >
-      <option *ngFor="let compte of compteList" [ngValue]="compte[1]">
-        {{ compte[0] }}
+      <option *ngFor="let compte of compteList" [ngValue]="compte._id">
+        {{ compte.name }}
       </option>
     </select>
   </div>

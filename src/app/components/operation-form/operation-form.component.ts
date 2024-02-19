@@ -62,6 +62,8 @@ export class OperationFormComponent implements OnInit {
   ) {
     this.formSubmitted = new EventEmitter<Operation>();
     this.userId = this.cookieService.get('userId');
+    this.compteList = data.compteList;
+
     if (data.addOrEdit == 'edit') {
       this.addOrEdit = 'edit';
       this.buttonLabel = 'Mettre à jour';
@@ -81,6 +83,8 @@ export class OperationFormComponent implements OnInit {
         '',
         '',
         '',
+        '',
+        '',
         new Date(Date.now()),
         0
       );
@@ -93,19 +97,12 @@ export class OperationFormComponent implements OnInit {
       type: false,
       categorie: ['', [Validators.required]],
       compte: ['', [Validators.required]],
+      compteName: '',
+      compteType: '',
       description1: ['', [Validators.required]],
       description2: '',
       operationDate: [Date(), [Validators.required]],
       solde: 0,
-    });
-
-    this.compteService.getAllAccounts().subscribe((data) => {
-      data.forEach((compte) => {
-        if (compte.userId == this.userId) {
-          // this.compteList.push(compte.name);
-          this.compteList.push([compte.name, compte._id]);
-        }
-      });
     });
 
     this.initForm();
@@ -113,13 +110,11 @@ export class OperationFormComponent implements OnInit {
 
   private initForm(): void {
     if (this.addOrEdit == 'edit') {
-      this.operationService.getOneOperation(this.id).subscribe((data) => {
-        if (data.montant < 0) {
-          data.montant = -data.montant;
-        }
-        this.operation = data;
-        this.operation.operationDate = new Date(this.operation.operationDate);
-      });
+      if (this.operation.montant < 0){
+        this.operation.montant = -this.operation.montant;
+      }
+      this.operation.operationDate = new Date(this.operation.operationDate);
+
       this.tempMontant = this.operation.montant;
     }
   }
@@ -134,70 +129,44 @@ export class OperationFormComponent implements OnInit {
   }
 
   onSubmitOperationForm(): void {
+    const compte = this.compteList.find(compte => compte._id === this.operation.compte)
+
+    this.operation.solde =
+      compte.soldeActuel + (this.operation.montant - this.tempMontant);
+
+    this.compteId = compte._id;
+    compte.soldeActuel = this.operation.solde;
+
+    this.operation.montant = this.isCredit(
+      this.operation.type,
+      this.operation.montant
+    );
+
+    const compteData = {
+      id: this.compteId,
+      compte: compte,
+    };
+
+    let updateSolde = this.compteService.updateOneAccount(compteData);
+
     if (this.addOrEdit == 'edit') {
-      // console.log(this.operation.compte) //compte id
-      this.compteService
-        // .getOneAccountByName(this.operation.compte)
-        .getOneAccount(this.operation.compte)
-        .subscribe((compte) => {
-          // console.log(compte);
-          this.operation.montant = this.isCredit(
-            this.operation.type,
-            this.operation.montant
-          );
+      const data = {
+        id: this.id,
+        operation: this.operation,
+      };
+      let updateOperation = this.operationService.updateOneOperation(data);
 
-          this.operation.solde =
-            compte.soldeActuel + (this.operation.montant - this.tempMontant);
-
-          this.compteId = compte._id;
-          compte.soldeActuel = this.operation.solde;
-
-          const compteData = {
-            id: this.compteId,
-            compte: compte,
-          };
-
-          const data = {
-            id: this.id,
-            operation: this.operation,
-          };
-
-          let updateSolde = this.compteService.updateOneAccount(compteData);
-          let updateOperation = this.operationService.updateOneOperation(data);
-
-          forkJoin([updateSolde, updateOperation]).subscribe(() => {
-            this.dialogRef.close();
-          });
-        });
+      forkJoin([updateSolde, updateOperation]).subscribe(() => {
+        this.dialogRef.close();
+      });
     } else {
-      // console.log(this.operation.compte)
-      this.compteService
-        .getOneAccount(this.operation.compte)
-        .subscribe((compte) => {
-          this.operation.montant = this.isCredit(
-            this.operation.type,
-            this.operation.montant
-          );
+      let createOperation = this.operationService.createOperation(
+        this.operation
+      );
 
-          this.operation.solde = compte.soldeActuel + this.operation.montant;
-
-          this.compteId = compte._id;
-          compte.soldeActuel = this.operation.solde;
-
-          const compteData = {
-            id: this.compteId,
-            compte: compte,
-          };
-
-          let updateSolde = this.compteService.updateOneAccount(compteData);
-          let createOperation = this.operationService.createOperation(
-            this.operation
-          );
-
-          forkJoin([updateSolde, createOperation]).subscribe(() => {
-            this.dialogRef.close();
-          });
-        });
+      forkJoin([updateSolde, createOperation]).subscribe(() => {
+        this.dialogRef.close();
+      });
     }
   }
 
