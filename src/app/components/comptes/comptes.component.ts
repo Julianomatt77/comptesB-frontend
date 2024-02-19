@@ -705,7 +705,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
         arrayToExport.push({
           Date: data.history[0].dateSolde,
           Compte: data.name,
-          'Solde Initial': data.history[0].soldeInitia,
+          'Solde Initial': data.history[0].soldeInitial,
           Différence: data.history[0].montant,
           'Solde Final': data.history[0].soldeFinal,
         });
