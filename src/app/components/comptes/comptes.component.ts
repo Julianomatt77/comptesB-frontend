@@ -202,11 +202,10 @@ export class ComptesComponent implements OnInit, OnDestroy {
           // this.spendByCategory (camembert) -> a besoin du service operationsFiltered (donc operationList)
           this.getDepenseByCategory(this.todayMonthString, this.todayYear);
           // console.log(this.soldePerAccount)
+          this.changeDetectorRef.detectChanges();
+          this.dataSource.paginator = this.paginator;
+          this.obs = this.dataSource.connect();
         })
-
-        this.changeDetectorRef.detectChanges();
-        this.dataSource.paginator = this.paginator;
-        this.obs = this.dataSource.connect();
       });
 
     if (this.todayMonthString.length < 2) {
@@ -510,6 +509,10 @@ export class ComptesComponent implements OnInit, OnDestroy {
       this.isLoading = false;
       this.getMonthlySolde(this.todayMonthString, this.todayYear);
       this.getDepenseByCategory(this.todayMonthString, this.todayYear);
+
+      this.changeDetectorRef.detectChanges();
+      this.dataSource.paginator = this.paginator;
+      this.obs = this.dataSource.connect();
     })
   }
 
@@ -532,6 +535,9 @@ export class ComptesComponent implements OnInit, OnDestroy {
         '12',
         new Date(Date.now()).getFullYear().toString()
       );
+      this.changeDetectorRef.detectChanges();
+      this.dataSource.paginator = this.paginator;
+      this.obs = this.dataSource.connect();
     })
 
   }
