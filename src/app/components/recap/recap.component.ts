@@ -49,6 +49,7 @@ export class RecapComponent implements OnInit {
   compteEpargneList: any[] = [];
   compteId = '';
   form!: FormGroup;
+  isLoading = true;
   operationPerYear: Recap[] = [
     { month: 'Janvier', investi: 0, economie: 0, solde: 0 },
     { month: 'Février', investi: 0, economie: 0, solde: 0 },
@@ -202,6 +203,8 @@ export class RecapComponent implements OnInit {
     this.totalCredit = 0;
     this.totalDebit = 0;
     this.filteredYear = this.form.value.rangeDate;
+    this.todayYear = this.filteredYear
+    this.isLoading = true;
 
     // Si valeur du datepicker different de la date d'aujourd'hui alors un filtre est appliqué
     if (this.filteredYear != new Date(Date.now()).getFullYear().toString()) {
@@ -235,7 +238,7 @@ export class RecapComponent implements OnInit {
 
     forkJoin([compteListObservable, operationsObservable]).subscribe((data) => {
       this.soldeAllAccounts = [];
-
+      this.isLoading = false;
       // récupération des comptes
       data[0].forEach((compte) => {
         if (

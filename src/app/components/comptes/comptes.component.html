@@ -3,7 +3,11 @@
     <h1 class="mb-2">Récapitulatif des opérations</h1>
   </div>
 
-  <div class="d-flex align-items-center mb-2 justify-content-center">
+  <div *ngIf="isLoading" class="ring">Loading
+    <span class="loading"></span>
+  </div>
+
+  <div *ngIf="!isLoading" class="d-flex align-items-center mb-2 justify-content-center">
     <div class="mx-2">
       <button class="btn btn-primary" (click)="resetDateFilters()">
         Toutes opérations
@@ -33,7 +37,7 @@
     </form>
   </div>
 
-  <div class="row mt-2 pb-5" id="dataToPrint">
+  <div *ngIf="!isLoading" class="row mt-2 pb-5" id="dataToPrint">
     <div class="col-lg-8">
       <div class="row">
         <!-- <div>
