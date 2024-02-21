@@ -59,6 +59,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
   totalCredit = 0;
   totalDebit = 0;
   userId!: string;
+  isLoading = true;
 
   compteList: any[] = [];
   compteId = '';
@@ -195,7 +196,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
           // this.soldePerAccount puis this.monthlyHistoryPerAccount (affichage du solde de chaque compte à droite) -> a besoin du service allAccounts (donc de comptesList)
           // + de operationYears + d'une boucle des opérations
           // this.getSoldePerAccount(this.operationList);
-
+          this.isLoading = false;
           // this.getSoldePerAccount(operations);
           this.getMonthlySolde(this.todayMonthString, this.todayYear);
           // this.spendByCategory (camembert) -> a besoin du service operationsFiltered (donc operationList)
@@ -219,6 +220,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
   // Create Observables for showOperationsFiltered and showAccounts
   private showOperationsFilteredObservable(): Observable<any> {
+    this.isLoading = true;
     return this.showOperationsFiltered(this.todayMonthString, this.todayYear).pipe(
       map(() => {
         return;
@@ -227,6 +229,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
   }
 
   private showAccountsObservable(): Observable<any> {
+    this.isLoading = true;
     return this.showAccounts().pipe(
       map(() => {
         return;
@@ -309,6 +312,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
           this.showOperationsFilteredObservable(),
           this.showAccountsObservable()
         ]).subscribe(() => {
+          this.isLoading = false;
           this.getMonthlySolde(this.todayMonthString, this.todayYear);
           this.getDepenseByCategory(this.todayMonthString, this.todayYear);
         })
@@ -335,6 +339,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
           this.showOperationsFilteredObservable(),
           this.showAccountsObservable()
         ]).subscribe(() => {
+          this.isLoading = false;
           this.getMonthlySolde(this.todayMonthString, this.todayYear);
           this.getDepenseByCategory(this.todayMonthString, this.todayYear);
         })
@@ -380,6 +385,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
           this.showOperationsFilteredObservable(),
           this.showAccountsObservable()
         ]).subscribe(() => {
+          this.isLoading = false;
           this.getMonthlySolde(this.todayMonthString, this.todayYear);
           this.getDepenseByCategory(this.todayMonthString, this.todayYear);
         })
@@ -425,6 +431,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
       .afterClosed()
       .subscribe(() => {
         this.showAccountsObservable().subscribe(() => {
+          this.isLoading = false;
           this.getMonthlySolde(this.todayMonthString, this.todayYear);
         })
       });
@@ -444,6 +451,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
         .afterClosed()
         .subscribe(() => {
           this.showAccountsObservable().subscribe(() => {
+            this.isLoading = false;
             this.getMonthlySolde(this.todayMonthString, this.todayYear);
           })
         });
@@ -455,102 +463,13 @@ export class ComptesComponent implements OnInit, OnDestroy {
       let compteIndex = data.findIndex((p) => p.name == compte.name);
       this.compteService.deleteAccount(data[compteIndex]._id).subscribe(() => {
         this.showAccountsObservable().subscribe(() => {
+          this.isLoading = false;
           this.getMonthlySolde(this.todayMonthString, this.todayYear);
         })
       });
     });
   }
 
-  //TODO: a supprimer ?
-  /*
-  getSoldePerAccount(operations: any[]) {
-    this.soldePerAccount = [];
-
-    this.compteList.forEach((compte, index) => {
-      if ( compte.userId == this.userId && compte.typeCompte == 'Compte Courant'
-      ){
-        let initialSolde = compte.soldeInitial;
-        let accountName = compte.name;
-        let accountId = compte._id;
-
-        this.soldePerAccount.push({ name: accountName, id: accountId, history: [] });
-        // Find the index of the account in the new array
-        let compteIndex = this.soldePerAccount.findIndex(
-          (p) => p.name == accountName
-        );
-
-        // Récupération du montant des opérations pour chaque mois et création du tableau avec bilan mensuel
-        this.operationsYears.forEach((operationyear) => {
-          for (let i = 0; i < 12; i++) {
-            let montant = 0;
-            let month: string;
-            let totalDebit = 0;
-            let totalCredit = 0;
-
-            if (i < 9) {
-              month = 0 + (i + 1).toString();
-            } else {
-              month = (i + 1).toString();
-            }
-
-            operations.forEach((operation) => {
-              if (
-                (operation.compte == accountName ||
-                  operation.compteName == accountName ||
-                  operation.compte == accountId) &&
-                operation.operationDate.includes(
-                  operationyear + '-' + month
-                ) &&
-                operation.userId === this.userId
-              ) {
-                if (operation.type){
-                  totalCredit += operation.montant
-                  let temp = Math.round(totalCredit * 100) / 100;
-                  totalCredit = temp;
-                } else {
-                  totalDebit += (-operation.montant)
-                  let temp = Math.round(totalDebit * 100) / 100;
-                  totalDebit = temp;
-                }
-                montant += operation.montant;
-              }
-            });
-
-            let compteIndex = this.soldePerAccount.findIndex(
-              (p) => p.name == accountName
-            );
-
-            this.soldePerAccount[compteIndex].history.push({
-              dateSolde: operationyear + '-' + month,
-              soldeInitial: initialSolde,
-              montant: montant,
-              soldeFinal: initialSolde,
-              totalCredit: totalCredit,
-              totalDebit: totalDebit
-            });
-          }
-        });
-
-        // MAJ du solde initial et final mensuel
-        for (let i = 0; i < this.soldePerAccount[compteIndex].history.length; i++) {
-          let montant = this.soldePerAccount[compteIndex].history[i].montant;
-
-          if (i > 0) {
-            this.soldePerAccount[compteIndex].history[i].soldeInitial =
-              this.soldePerAccount[compteIndex].history[i - 1].soldeFinal;
-          }
-          this.soldePerAccount[compteIndex].history[i].soldeFinal =
-            this.soldePerAccount[compteIndex].history[i].soldeInitial +
-            montant;
-        }
-
-      }
-    })
-      // console.log(this.soldePerAccount);
-      this.getMonthlySolde(this.todayMonthString, this.todayYear);
-  }
-
-   */
 
   getMonthlySolde(month: string, year: string) {
     this.monthlyHistoryPerAccount = [];
@@ -583,11 +502,12 @@ export class ComptesComponent implements OnInit, OnDestroy {
     this.todayYear = this.form.value.rangeDate.split('-')[0];
 
     this.dateFiltered = true;
-
+    this.isLoading = true;
     forkJoin([
       this.showOperationsFilteredObservable(),
       this.showAccountsObservable()
     ]).subscribe(() => {
+      this.isLoading = false;
       this.getMonthlySolde(this.todayMonthString, this.todayYear);
       this.getDepenseByCategory(this.todayMonthString, this.todayYear);
     })
@@ -606,6 +526,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
       this.showOperationsFilteredObservable(),
       this.showAccountsObservable()
     ]).subscribe(() => {
+      this.isLoading = false;
       this.getMonthlySolde('12', new Date(Date.now()).getFullYear().toString());
       this.getDepenseByCategory(
         '12',
