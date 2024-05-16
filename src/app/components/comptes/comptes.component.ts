@@ -202,9 +202,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
           // this.spendByCategory (camembert) -> a besoin du service operationsFiltered (donc operationList)
           this.getDepenseByCategory(this.todayMonthString, this.todayYear);
           // console.log(this.soldePerAccount)
-          this.changeDetectorRef.detectChanges();
-          this.dataSource.paginator = this.paginator;
-          this.obs = this.dataSource.connect();
+          this.updatePaginator();
         })
       });
 
@@ -286,9 +284,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
         });
 
         this.dataSource = new MatTableDataSource(this.operationList);
-        this.changeDetectorRef.detectChanges();
-        this.dataSource.paginator = this.paginator;
-        this.obs = this.dataSource.connect();
+        this.updatePaginator();
 
         observer.next();
         observer.complete();
@@ -314,14 +310,14 @@ export class ComptesComponent implements OnInit, OnDestroy {
           this.isLoading = false;
           this.getMonthlySolde(this.todayMonthString, this.todayYear);
           this.getDepenseByCategory(this.todayMonthString, this.todayYear);
+
+          this.updatePaginator();
         })
 
-        this.changeDetectorRef.detectChanges();
-        this.dataSource.paginator = this.paginator;
-        this.obs = this.dataSource.connect();
       });
   }
 
+  // Edit operation
   openOperationDetail(operation: any) {
     this.dialog
       .open(OperationFormComponent, {
@@ -341,10 +337,14 @@ export class ComptesComponent implements OnInit, OnDestroy {
           this.isLoading = false;
           this.getMonthlySolde(this.todayMonthString, this.todayYear);
           this.getDepenseByCategory(this.todayMonthString, this.todayYear);
+
+          // Maj du paginator
+          this.updatePaginator();
         })
       });
   }
 
+  // Delete operation
   openConfirmation(operation: any) {
     this.dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       // width: '250px',
@@ -387,6 +387,9 @@ export class ComptesComponent implements OnInit, OnDestroy {
           this.isLoading = false;
           this.getMonthlySolde(this.todayMonthString, this.todayYear);
           this.getDepenseByCategory(this.todayMonthString, this.todayYear);
+
+          // Maj du paginator
+          this.updatePaginator();
         })
       })
     });
@@ -468,7 +471,6 @@ export class ComptesComponent implements OnInit, OnDestroy {
       });
     });
   }
-
 
   getMonthlySolde(month: string, year: string) {
     this.monthlyHistoryPerAccount = [];
@@ -649,5 +651,13 @@ export class ComptesComponent implements OnInit, OnDestroy {
     if (this.dataSource) {
       this.dataSource.disconnect();
     }
+  }
+
+  /*********** GLOBAL *************** */
+
+  updatePaginator() {
+    this.changeDetectorRef.detectChanges();
+    this.dataSource.paginator = this.paginator;
+    this.obs = this.dataSource.connect();
   }
 }
