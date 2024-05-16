@@ -179,6 +179,7 @@ export class RecapComponent implements OnInit {
         operation.reverse();
         this.firstOperationYear = operation[0].operationDate.split('-')[0];
         this.displayYear = [];
+        this.displayYear.push(new Date(Date.now()).getFullYear())
 
         for (let i = 0; i <= year - this.firstOperationYear; i++) {
           this.displayYear.push(year - i);
