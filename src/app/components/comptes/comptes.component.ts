@@ -662,8 +662,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
     if (type == 'operations') {
       arrayToExport = [];
       this.operationList.forEach((data) => {
-        arrayToExport.push({
-          Date: this.todayYear + '-' + this.todayMonthString,
+        arrayToExport.unshift({
+          Date: data.operationDate.split('T')[0],
           Crédit: data.type ? data.montant : '',
           Débit: !data.type ? -data.montant : '',
           Catégorie: data.categorie,

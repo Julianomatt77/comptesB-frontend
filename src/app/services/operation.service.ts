@@ -232,9 +232,9 @@ export class OperationService {
     var str = '';
     var row = '';
 
-    for (var index in objArray[0]) {
+    for (let index in objArray[0]) {
       //Now convert each value to string and comma-separated
-      row += index + ',';
+      row += index + ';';
     }
     row = row.slice(0, -1);
     //append Label row with line break
@@ -243,9 +243,13 @@ export class OperationService {
     for (var i = 0; i < array.length; i++) {
       var line = '';
       for (var index in array[i]) {
-        if (line != '') line += ',';
+        if (line != '') line += ';';
 
-        line += array[i][index];
+        // On transforme les . des nombres par des virgules
+        const value = array[i][index];
+        const newValue = typeof value === 'number' ? value.toString().replace(/\./g, ',') : value;
+
+        line += newValue;
       }
       str += line + '\r\n';
     }
