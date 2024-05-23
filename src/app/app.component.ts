@@ -28,11 +28,15 @@ export class AppComponent {
       },
       {
         name: 'description',
-        content: 'Application de gestion de comptes bancaires',
+        content: 'Compty est votre nouvelle application de gestion de comptes bancaires qui vous permet de gérer toutes vos opérations quotidiennes et les exporter au format .csv très simplement.',
       },
       {
         name: 'viewport',
         content: 'width=device-width, initial-scale=1.0',
+      },
+      {
+        name: 'robots',
+        content: 'index, follow',
       },
       {
         property: 'og:title',
@@ -44,12 +48,20 @@ export class AppComponent {
       },
       {
         property: 'og:description',
-        content: 'Application de gestion de comptes bancaires',
+        content: 'Compty est votre nouvelle application de gestion de comptes bancaires qui vous permet de gérer toutes vos opérations quotidiennes et les exporter au format .csv très simplement.',
       },
       {
         property: 'og:url',
-        content: 'https://www.martin-julien-dev.fr',
+        content: 'https://jm-comptesb.martin-julien-dev.fr',
       },
+      {
+        property: 'og:image',
+        content: 'https://jm-comptesb.martin-julien-dev.fr/assets/images/logo_compty.png'
+      },
+      {
+        property: 'og:site_name',
+        content: 'Compty'
+      }
     ]);
   }
 
