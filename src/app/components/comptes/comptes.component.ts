@@ -127,12 +127,15 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
   form!: FormGroup;
   formAccountFiltered!: FormGroup;
+  formCategoryFiltered!: FormGroup;
   todayMonth = new Date(Date.now()).getMonth() + 1;
   todayYear = new Date(Date.now()).getFullYear().toString();
   todayMonthString = this.todayMonth.toString();
   dateFiltered = true;
   accountFiltered = false;
+  categoryFiltered = false;
   selectedAccount = "";
+  selectedCategory = "";
 
   firstOperationYear = 0;
   operationsYears: number[] = [];
@@ -222,6 +225,10 @@ export class ComptesComponent implements OnInit, OnDestroy {
     this.formAccountFiltered = this.fb.group({
       account: this.selectedAccount
     });
+
+    this.formCategoryFiltered = this.fb.group({
+      category: this.selectedCategory
+    });
   }
 
   // Create Observables for showOperationsFiltered and showAccounts
@@ -283,7 +290,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
             );
             operation.classCSS = this.categorieClass[index][1];
 
-            if (this.selectedAccount == "" || this.selectedAccount == operation.compte){
+            if ((this.selectedAccount == "" || this.selectedAccount == operation.compte) &&
+              (this.selectedCategory == "" || this.selectedCategory == operation.categorie) ){
               this.operationList.push(operation);
 
               this.totalOperations(
@@ -563,6 +571,18 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
     // compte id
     this.selectedAccount = this.formAccountFiltered.value.account;
+
+    this.showOperationsFilteredObservable().subscribe(() => {
+      this.isLoading = false;
+      this.updatePaginator();
+    })
+  }
+
+  /************** Category filter ***********/
+  onSubmitCategoryFilter(){
+    this.categoryFiltered = true;
+
+    this.selectedCategory = this.formCategoryFiltered.value.category;
 
     this.showOperationsFilteredObservable().subscribe(() => {
       this.isLoading = false;

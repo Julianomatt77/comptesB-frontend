@@ -56,6 +56,18 @@
         </mat-form-field>
       </div>
     </form>
+
+    <form [formGroup]="formCategoryFiltered" (ngSubmit)="onSubmitCategoryFilter()">
+      <div class="d-flex align-items-center">
+        <mat-form-field class="mx-2">
+          <mat-label>Filtrer par catégorie</mat-label>
+          <mat-select formControlName="category" (selectionChange)="onSubmitCategoryFilter()">
+            <mat-option value="">Toutes les catégories</mat-option>
+            <mat-option *ngFor="let category of categorieList " value="{{ category }}">{{category}}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </form>
   </div>
 
 
