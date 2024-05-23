@@ -55,9 +55,13 @@
       formControlName="compte"
       [(ngModel)]="operation.compte"
     >
-      <option *ngFor="let compte of compteList" [ngValue]="compte._id">
-        {{ compte.name }}
-      </option>
+      <ng-container *ngFor="let type of groupedCompteTypes">
+        <optgroup [label]="type">
+          <option *ngFor="let compte of groupedComptes[type]" [ngValue]="compte._id">
+            {{ compte.name }}
+          </option>
+        </optgroup>
+      </ng-container>
     </select>
   </div>
 

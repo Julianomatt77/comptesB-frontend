@@ -7,6 +7,7 @@
     <span class="loading"></span>
   </div>
 
+  <!--  Filtre par date-->
   <div *ngIf="!isLoading" class="d-flex align-items-center mb-2 justify-content-center">
     <div class="mx-2">
       <button class="btn btn-primary" (click)="resetDateFilters()">
@@ -24,7 +25,6 @@
           />
         </mat-form-field>
         <div class="mx-2">
-          <!-- <button type="submit" class="btn btn-success">Filtrer</button> -->
           <button id="filterButton" type="submit" class="bg-light">
             <fa-icon
               [icon]="faFilter"
@@ -45,27 +45,25 @@
           <mat-label>Filtrer par compte</mat-label>
           <mat-select formControlName="account" (selectionChange)="onSubmitAccountFilter()">
             <mat-option value="">Tous les comptes</mat-option>
-            <mat-option *ngFor="let compte of compteList " value="{{ compte._id }}">{{compte.name}}</mat-option>
+            <ng-container *ngFor="let type of groupedCompteTypes">
+              <mat-optgroup [label]="type">
+                <mat-option *ngFor="let compte of groupedComptes[type]" [value]="compte._id">
+                  {{ compte.name }}
+                </mat-option>
+              </mat-optgroup>
+            </ng-container>
           </mat-select>
         </mat-form-field>
-
       </div>
     </form>
   </div>
 
-  <div *ngIf="!isLoading" class="row mt-2 pb-5" id="dataToPrint">
-    <div class="col-lg-8">
-      <div class="row">
-        <!-- <div>
-          <a href="javascript:;" (click)="AddOperation()" class="">
-            <fa-icon
-              [icon]="faPlus"
-              class="text-primary"
-              style="font-size: 50px"
-            ></fa-icon>
-          </a>
-        </div> -->
 
+  <div *ngIf="!isLoading" class="row mt-2 pb-5" id="dataToPrint">
+
+    <div class="col-lg-8">
+      <!--  Recap montants opérations du mois + télécharger-->
+      <div class="row">
         <div class="text-success col-lg-3 col-6">
           Crédit = <fa-icon [icon]="faArrowUp"></fa-icon>
           {{ totalCredit | number: "1.0-2":"fr" }}€
@@ -98,6 +96,7 @@
           </a>
         </div>
       </div>
+<!--      Ajouter une opération-->
       <div class="d-flex justify-content-center">
         <a href="javascript:;" (click)="AddOperation()" class="">
           <fa-icon
@@ -107,9 +106,7 @@
           ></fa-icon>
         </a>
       </div>
-
-
-
+      <!-- Affichage des opérations + paginator -->
       <div>
         <!-- Affichage des opérations -->
         <div class="row d-flex justify-content-evenly">
@@ -167,7 +164,9 @@
         </mat-paginator>
       </div>
     </div>
+
     <div class="col-lg-4">
+<!--      Ajout de compte + télécharger comptes-->
       <div class="d-flex justify-content-evenly">
         <div>
           <a href="javascript:;" (click)="AddAccount()" class="">
@@ -188,6 +187,7 @@
           </a>
         </div>
       </div>
+<!--      Récap des comptes-->
       <div>
         <table class="table">
           <thead>
@@ -219,6 +219,7 @@
         </table>
       </div>
 
+<!--      Graphique par catégorie-->
       <div class="mb-5">
         <!-- <h3 class="text-center">Dépense par catégorie</h3> -->
         <!-- <div class="mx-2">

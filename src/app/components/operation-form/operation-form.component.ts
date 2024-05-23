@@ -39,9 +39,10 @@ export class OperationFormComponent implements OnInit {
     'Salaire',
     'Transfert',
     'Voyage',
-    'santé',
   ];
   compteList: any[] = [];
+  groupedComptes: { [key: string]: any[] } = {};
+  groupedCompteTypes: string[] = [];
   userId!: string;
 
   compteId = '';
@@ -63,6 +64,11 @@ export class OperationFormComponent implements OnInit {
     this.formSubmitted = new EventEmitter<Operation>();
     this.userId = this.cookieService.get('userId');
     this.compteList = data.compteList;
+
+    // On réorganise l'ordre d'affichage des comptes
+    this.compteList = this.compteService.sortCompteListByType(this.compteList);
+    this.groupedComptes = this.compteService.groupComptesByType(this.compteList);
+    this.groupedCompteTypes = Object.keys(this.groupedComptes);
 
     if (data.addOrEdit == 'edit') {
       this.addOrEdit = 'edit';

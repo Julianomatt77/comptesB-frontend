@@ -68,4 +68,33 @@ export class CompteService {
 
     return compteListObservable;
   }
+
+  public sortCompteListByType(compteList: any[])  {
+    compteList.sort((a: any, b: any) => {
+      if (a.typeCompte === 'Compte Courant' && b.typeCompte !== 'Compte Courant') {
+        return -1;
+      } else if (a.typeCompte !== 'Compte Courant' && b.typeCompte === 'Compte Courant') {
+        return 1;
+      } else if (a.typeCompte < b.typeCompte) {
+        return -1;
+      } else if (a.typeCompte > b.typeCompte) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+
+    return compteList;
+  }
+
+  public groupComptesByType(compteList: any[]): { [key: string]: any[] } {
+    return compteList.reduce((groups, compte) => {
+      const type = compte.typeCompte;
+      if (!groups[type]) {
+        groups[type] = [];
+      }
+      groups[type].push(compte);
+      return groups;
+    }, {} as { [key: string]: any[] });
+  }
 }
