@@ -28,6 +28,7 @@ import {
   faPen,
   faPlusCircle,
   faTrashCan,
+  faClose
 } from '@fortawesome/free-solid-svg-icons';
 // import * as jsPDF from 'jspdf';
 import jsPDF from 'jspdf';
@@ -65,6 +66,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
   compteId = '';
   compteCourantList: any[] = [];
   compteEpargneList: any[] = [];
+  groupedComptes: { [key: string]: any[] } = {};
+  groupedCompteTypes: string[] = [];
 
   soldeAllAccounts: any[] = [];
   soldePerAccount: any[] = [];
@@ -84,7 +87,6 @@ export class ComptesComponent implements OnInit, OnDestroy {
     'Salaire',
     'Transfert',
     'Voyage',
-    'santé',
   ];
   categorieClass: any[] = [
     ['Courses', 'courses'],
@@ -98,7 +100,6 @@ export class ComptesComponent implements OnInit, OnDestroy {
     ['Salaire', 'salaire'],
     ['Transfert', 'transfert'],
     ['Voyage', 'voyage'],
-    ['santé', 'sante'],
   ];
 
   // datasource = [];
@@ -143,6 +144,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
   faDownload = faDownload;
   faPlus = faPlusCircle;
   faFilter = faFilter;
+  faClose = faClose;
 
   width = 0;
 
@@ -426,7 +428,12 @@ export class ComptesComponent implements OnInit, OnDestroy {
             }
           }
         });
-// console.log(this.compteList)
+
+        // On réorganise l'ordre d'affichage des comptes
+        this.compteList = this.compteService.sortCompteListByType(this.compteList);
+        this.groupedComptes = this.compteService.groupComptesByType(this.compteList);
+        this.groupedCompteTypes = Object.keys(this.groupedComptes);
+
         return this.compteList;
       })
     );
