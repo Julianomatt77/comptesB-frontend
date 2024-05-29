@@ -10,6 +10,8 @@ export class Operation {
   private _description2: string;
   private _operationDate: Date;
   private _solde: number;
+  private _isTransfert: boolean;
+  private _compteReceveur: string;
 
   constructor(
     id: string,
@@ -22,7 +24,9 @@ export class Operation {
     description1: string,
     description2: string,
     operationDate: Date,
-    solde: number
+    solde: number,
+    isTransfert: boolean,
+    compteReceveur: string
   ) {
     this._id = id;
     this._montant = montant;
@@ -35,6 +39,8 @@ export class Operation {
     this._description2 = description2;
     this._operationDate = operationDate;
     this._solde = solde;
+    this._isTransfert = isTransfert;
+    this._compteReceveur = compteReceveur;
   }
 
   /**
@@ -196,5 +202,22 @@ export class Operation {
 
   set compteType(value: string) {
     this._compteType = value;
+  }
+
+  get isTransfert(): boolean {
+    return this._isTransfert;
+  }
+
+  set isTransfert(value: boolean) {
+    this._isTransfert = value;
+  }
+
+
+  get compteReceveur(): string {
+    return this._compteReceveur;
+  }
+
+  set compteReceveur(value: string) {
+    this._compteReceveur = value;
   }
 }

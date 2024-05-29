@@ -25,6 +25,7 @@ export class OperationFormComponent implements OnInit {
 
   form!: FormGroup;
   operation!: Operation;
+  operationReceveur!: Operation;
   addOrEdit!: string;
   buttonLabel!: string;
   categorieList: string[] = [
@@ -44,9 +45,12 @@ export class OperationFormComponent implements OnInit {
   groupedComptes: { [key: string]: any[] } = {};
   groupedCompteTypes: string[] = [];
   userId!: string;
+  transfertBetweenAccount = false;
 
   compteId = '';
+  compteReceveurId = '';
   tempMontant = 0;
+  tempMontantReceveur = 0;
 
   operationDateDay!: string;
   operationDateMonth!: string;
@@ -92,7 +96,24 @@ export class OperationFormComponent implements OnInit {
         '',
         '',
         new Date(Date.now()),
-        0
+        0,
+        false,
+        ''
+      );
+      this.operationReceveur = new Operation(
+        '',
+        0,
+        false,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        new Date(Date.now()),
+        0,
+        false,
+        ''
       );
     }
   }
@@ -101,7 +122,7 @@ export class OperationFormComponent implements OnInit {
     this.form = this.fb.group({
       montant: [0, [Validators.required]],
       type: false,
-      categorie: ['', [Validators.required]],
+      categorie: [this.categorieList[9], [Validators.required]],
       compte: ['', [Validators.required]],
       compteName: '',
       compteType: '',
@@ -109,6 +130,9 @@ export class OperationFormComponent implements OnInit {
       description2: '',
       operationDate: [Date(), [Validators.required]],
       solde: 0,
+      isTransfert: false,
+      compteReceveur: "",
+      compteReceveurName: ""
     });
 
     this.initForm();
@@ -155,28 +179,62 @@ export class OperationFormComponent implements OnInit {
 
     let updateSolde = this.compteService.updateOneAccount(compteData);
 
-    if (this.addOrEdit == 'edit') {
-      const data = {
-        id: this.id,
-        operation: this.operation,
-      };
-      let updateOperation = this.operationService.updateOneOperation(data);
+    if (this.transfertBetweenAccount) {
+      this.operationReceveur.compte = this.operation.compteReceveur
+      this.operationReceveur.description1 = this.operation.description1
+      this.operationReceveur.categorie = this.operation.categorie
+      this.operationReceveur.operationDate = this.operation.operationDate
+      this.operationReceveur.type = true
 
-      forkJoin([updateSolde, updateOperation]).subscribe(() => {
+      const compteReceveur = this.compteList.find(compte => compte._id === this.operation.compteReceveur)
+      this.operationReceveur.solde = compteReceveur.soldeActuel + (this.operationReceveur.montant - this.tempMontantReceveur);
+      this.compteReceveurId = compteReceveur._id;
+      compteReceveur.soldeActuel = this.operationReceveur.solde
+      this.operationReceveur.montant = -this.operation.montant
+
+      const compteDataReceveur = {
+        id: this.compteReceveurId,
+        compte: compteReceveur,
+      };
+
+      let updateSoldeReceveur = this.compteService.updateOneAccount(compteDataReceveur);
+      let createOperationReceveur = this.operationService.createOperation(this.operationReceveur);
+      let createOperation = this.operationService.createOperation(this.operation);
+
+      forkJoin([updateSolde, createOperation, updateSoldeReceveur, createOperationReceveur]).subscribe(() => {
         this.dialogRef.close();
       });
     } else {
-      let createOperation = this.operationService.createOperation(
-        this.operation
-      );
+      if (this.addOrEdit == 'edit') {
+        const data = {
+          id: this.id,
+          operation: this.operation,
+        };
+        let updateOperation = this.operationService.updateOneOperation(data);
 
-      forkJoin([updateSolde, createOperation]).subscribe(() => {
-        this.dialogRef.close();
-      });
+        forkJoin([updateSolde, updateOperation]).subscribe(() => {
+          this.dialogRef.close();
+        });
+      } else {
+        let createOperation = this.operationService.createOperation(
+          this.operation
+        );
+
+        forkJoin([updateSolde, createOperation]).subscribe(() => {
+          this.dialogRef.close();
+        });
+      }
     }
   }
 
   changeFn(e: any) {
     this.operation.operationDate = e.target.value;
+  }
+
+  changeTransfert(e: any){
+    this.transfertBetweenAccount = this.operation.isTransfert
+    this.operation.categorie = this.categorieList[9];
+    this.operation.description1 = this.categorieList[9];
+    this.operation.type = false
   }
 }
