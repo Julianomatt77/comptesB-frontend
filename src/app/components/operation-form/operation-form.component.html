@@ -21,6 +21,10 @@
       [(ngModel)]="operation.montant"
     />
   </div>
+  <div *ngIf="!form.get('montant')?.valid && submitted" class="alert alert-danger">
+    <p>Un montant supérieur ou égal 0,01 € est obligatoire.</p>
+  </div>
+
   <div class="form-group mt-2">
     <label for="operationDate">Date de l'opération</label>
     <input
@@ -31,6 +35,9 @@
       [ngModel]="operation.operationDate | date: 'yyyy-MM-dd'"
       (change)="changeFn($event)"
     />
+  </div>
+  <div *ngIf="!form.get('operationDate')?.valid && submitted" class="alert alert-danger">
+    <p>Une date est obligatoire.</p>
   </div>
 
   <div *ngIf="!transfertBetweenAccount" class="mt-2">
@@ -58,6 +65,9 @@
       </option>
     </select>
   </div>
+  <div *ngIf="!form.get('categorie')?.valid && submitted && !transfertBetweenAccount" class="alert alert-danger">
+    <p>Une catégorie de dépense est obligatoire.</p>
+  </div>
 
   <div class="form-group mt-2">
     <label for="compte">{{ transfertBetweenAccount && addOrEdit !== 'edit' ? 'Compte Débiteur' : 'Compte' }}</label>
@@ -75,6 +85,9 @@
         </optgroup>
       </ng-container>
     </select>
+  </div>
+  <div *ngIf="!form.get('compte')?.valid && submitted" class="alert alert-danger">
+    <p>Un compte est obligatoire.</p>
   </div>
 
   <div *ngIf="transfertBetweenAccount && addOrEdit != 'edit'" class="form-group mt-2">
@@ -104,6 +117,9 @@
       [(ngModel)]="operation.description1"
     />
   </div>
+  <div *ngIf="!form.get('description1')?.valid && submitted" class="alert alert-danger">
+    <p>Une description est obligatoire.</p>
+  </div>
 
   <div *ngIf="addOrEdit != 'edit' && compteList.length >= 2" class="mt-2">
     Pas de transfert entre compte
@@ -119,7 +135,7 @@
   </div>
 
   <div class="row col-md-4 mx-auto my-4">
-    <button type="submit" class="btn btn-dark btn-lg" [disabled]="form.invalid">
+    <button type="submit" class="btn btn-dark btn-lg">
       {{ buttonLabel }}
     </button>
   </div>
