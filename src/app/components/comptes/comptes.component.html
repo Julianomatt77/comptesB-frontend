@@ -10,7 +10,7 @@
   <!--  Filtre par date-->
   <div *ngIf="!isLoading" class="d-flex align-items-center mb-2 justify-content-center">
     <div class="mx-2">
-      <button class="btn btn-primary" (click)="resetDateFilters()">
+      <button class="btn btn-primary" (click)="resetDateFilters()" title="Enlever le filtre par date">
         Toutes opérations
       </button>
     </div>
@@ -30,6 +30,7 @@
               [icon]="faFilter"
               class="text-primary"
               style="font-size: 20px"
+              title="Filtrer par date"
             ></fa-icon>
           </button>
         </div>
@@ -39,7 +40,7 @@
 
 <!--  Filtre par compte-->
   <div *ngIf="!isLoading" class="d-flex align-items-center mb-2 justify-content-center">
-    <form [formGroup]="formAccountFiltered" (ngSubmit)="onSubmitAccountFilter()">
+    <form [formGroup]="formAccountFiltered" (ngSubmit)="onSubmitAccountFilter()" title="Filtrer par compte">
       <div class="d-flex align-items-center">
         <mat-form-field class="mx-2">
           <mat-label>Filtrer par compte</mat-label>
@@ -57,7 +58,7 @@
       </div>
     </form>
 
-    <form [formGroup]="formCategoryFiltered" (ngSubmit)="onSubmitCategoryFilter()">
+    <form [formGroup]="formCategoryFiltered" (ngSubmit)="onSubmitCategoryFilter()" title="Filtrer par catégorie">
       <div class="d-flex align-items-center">
         <mat-form-field class="mx-2">
           <mat-label>Filtrer par catégorie</mat-label>
@@ -104,6 +105,7 @@
               [icon]="faDownload"
               class="text-primary"
               style="font-size: 20px"
+              title="Télécharger les opérations"
             ></fa-icon>
           </a>
         </div>
@@ -187,6 +189,7 @@
               [icon]="faPlus"
               class="text-primary"
               style="font-size: 20px"
+              title="Ajouter un compte"
             ></fa-icon>
           </a>
         </div>
@@ -196,6 +199,7 @@
               [icon]="faDownload"
               class="text-primary"
               style="font-size: 20px"
+              title="Télécharger les comptes"
             ></fa-icon>
           </a>
         </div>

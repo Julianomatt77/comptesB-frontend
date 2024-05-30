@@ -16,13 +16,13 @@
       id="navbarSupportedContent"
     >
       <ul class="navbar-nav d-flex justify-content-evenly w-100">
-        <li class="nav-item mt-2">
+        <li class="nav-item mt-2" title="Page d'accueil">
           <a [routerLink]="['/']">
             <fa-icon [icon]="faHouseChimney" style="font-size: 30px"></fa-icon>
           </a>
         </li>
 
-        <li class="nav-item mt-2">
+        <li class="nav-item mt-2" title="Liste des opérations">
           <button
             mat-raised-button
             color="primary"
@@ -33,7 +33,7 @@
           </button>
         </li>
 
-        <li class="nav-item mt-2">
+        <li class="nav-item mt-2" title="Récapitulatif">
           <button
             mat-raised-button
             color="warn"
@@ -44,7 +44,7 @@
           </button>
         </li>
 
-        <li class="nav-item mt-2">
+        <li class="nav-item mt-2" title="Dépenses communes">
           <button
             mat-raised-button
             color="accent"
@@ -55,13 +55,13 @@
           </button>
         </li>
         <li class="nav-item mt-2">
-          <a *ngIf="isLoggedIn" [routerLink]="['/gestionUser']">
+          <a *ngIf="isLoggedIn" [routerLink]="['/gestionUser']" title="Editer le compte utilisateur">
             <fa-icon [icon]="faUserPen" style="font-size: 30px"></fa-icon>
           </a>
         </li>
 
         <li class="nav-item mt-2">
-          <a *ngIf="isLoggedIn" href="" (click)="logout()">
+          <a *ngIf="isLoggedIn" href="" (click)="logout()" title="Se déconnecter">
             <fa-icon
               [icon]="faUserSlash"
               class="text-danger"
@@ -71,7 +71,7 @@
         </li>
 
         <li class="nav-item mt-2">
-          <a *ngIf="!isLoggedIn" [routerLink]="['/login']">
+          <a *ngIf="!isLoggedIn" [routerLink]="['/login']" title="Se connecter">
             <fa-icon [icon]="faUser" style="font-size: 30px"></fa-icon>
           </a>
         </li>
