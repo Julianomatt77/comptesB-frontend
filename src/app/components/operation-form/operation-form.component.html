@@ -1,4 +1,16 @@
 <form [formGroup]="form" (ngSubmit)="onSubmitOperationForm()">
+  <div class="d-flex justify-content-end">
+    <div>
+      <a href="javascript:;" (click)="closePopup()" class="">
+        <fa-icon
+          [icon]="faClose"
+          class="text-black"
+          style="font-size: 30px"
+        ></fa-icon>
+      </a>
+    </div>
+  </div>
+
   <div class="form-group mt-2">
     <label for="montant">Montant</label>
     <input
