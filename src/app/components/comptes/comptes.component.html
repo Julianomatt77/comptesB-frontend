@@ -115,6 +115,7 @@
             [icon]="faPlus"
             class="text-primary"
             style="font-size: 50px"
+            title="Ajouter une opération"
           ></fa-icon>
         </a>
       </div>
@@ -137,14 +138,14 @@
                 class="text-success d-flex justify-content-center"
               >
                 <fa-icon [icon]="faArrowUp" class="mx-2"></fa-icon>
-                {{ card.montant | number: "1.0-2":"fr" }}€
+                <span class="badge-montant">{{ card.montant | number: "1.0-2":"fr" }}€</span>
               </div>
               <div
                 *ngIf="card.montant < 0"
                 class="text-danger d-flex justify-content-center"
               >
                 <fa-icon [icon]="faArrowDown" class="mx-2"></fa-icon>
-                {{ card.montant | number: "1.0-2":"fr" }}€
+                <span class="badge-montant">{{ card.montant | number: "1.0-2":"fr" }}€</span>
               </div>
 
               <div class="d-flex justify-content-evenly">
@@ -153,12 +154,12 @@
               </div>
               <div class="d-flex justify-content-evenly">
                 <div>
-                  <button (click)="openOperationDetail(card)" class="btn">
+                  <button (click)="openOperationDetail(card)" class="btn" title="Mettre à jour l'opération">
                     <fa-icon [icon]="faPen"></fa-icon>
                   </button>
                 </div>
                 <div>
-                  <button (click)="openConfirmation(card)" class="btn">
+                  <button (click)="openConfirmation(card)" class="btn" title="Supprimer l'opération">
                     <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
                   </button>
                 </div>

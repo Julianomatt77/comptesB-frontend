@@ -93,7 +93,7 @@
     />
   </div>
 
-  <div *ngIf="addOrEdit != 'edit'" class="mt-2">
+  <div *ngIf="addOrEdit != 'edit' && compteList.length >= 2" class="mt-2">
     Pas de transfert entre compte
     <mat-slide-toggle
       class="example-margin"
