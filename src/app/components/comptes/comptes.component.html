@@ -8,7 +8,7 @@
   </div>
 
   <!--  Filtre par date-->
-  <div *ngIf="!isLoading" class="d-flex align-items-center mb-2 justify-content-center">
+  <div *ngIf="!isLoading" class="d-flex align-items-center mb-2 justify-content-center flex-wrap">
     <div class="mx-2">
       <button class="btn btn-primary" (click)="resetDateFilters()" title="Enlever le filtre par date">
         Toutes opérations
@@ -38,11 +38,11 @@
     </form>
   </div>
 
-<!--  Filtre par compte-->
-  <div *ngIf="!isLoading" class="d-flex align-items-center mb-2 justify-content-center">
+<!--  Filtres-->
+  <div *ngIf="!isLoading" class="d-flex align-items-center mb-2 justify-content-center gap-3 flex-wrap">
     <form [formGroup]="formAccountFiltered" (ngSubmit)="onSubmitAccountFilter()" title="Filtrer par compte">
       <div class="d-flex align-items-center">
-        <mat-form-field class="mx-2">
+        <mat-form-field>
           <mat-label>Filtrer par compte</mat-label>
           <mat-select formControlName="account" (selectionChange)="onSubmitAccountFilter()">
             <mat-option value="">Tous les comptes</mat-option>
@@ -60,7 +60,7 @@
 
     <form [formGroup]="formCategoryFiltered" (ngSubmit)="onSubmitCategoryFilter()" title="Filtrer par catégorie">
       <div class="d-flex align-items-center">
-        <mat-form-field class="mx-2">
+        <mat-form-field>
           <mat-label>Filtrer par catégorie</mat-label>
           <mat-select formControlName="category" (selectionChange)="onSubmitCategoryFilter()">
             <mat-option value="">Toutes les catégories</mat-option>
@@ -69,11 +69,22 @@
         </mat-form-field>
       </div>
     </form>
+
+    <div>
+      <button class="btn" [ngClass]="{'btn-primary': !selectedType, 'btn-outline-primary': selectedType}" (click)="typeFilter(true)">Crédits</button>
+    </div>
+
+    <div>
+      <button class="btn" [ngClass]="{'btn-danger': selectedType == null || selectedType == true, 'btn-outline-danger': selectedType == false}" (click)="typeFilter(false)">Débits</button>
+    </div>
+
+    <div>
+      <button class="btn btn-outline-dark" (click)="resetAllFilters()">Supprimer les filtres</button>
+    </div>
   </div>
 
 
   <div *ngIf="!isLoading" class="row mt-2 pb-5" id="dataToPrint">
-
     <div class="col-lg-8">
       <!--  Recap montants opérations du mois + télécharger-->
       <div class="row">
