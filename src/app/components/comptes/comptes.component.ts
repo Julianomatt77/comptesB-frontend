@@ -132,10 +132,9 @@ export class ComptesComponent implements OnInit, OnDestroy {
   todayYear = new Date(Date.now()).getFullYear().toString();
   todayMonthString = this.todayMonth.toString();
   dateFiltered = true;
-  accountFiltered = false;
-  categoryFiltered = false;
   selectedAccount = "";
   selectedCategory = "";
+  selectedType = null;
 
   firstOperationYear = 0;
   operationsYears: number[] = [];
@@ -291,7 +290,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
             operation.classCSS = this.categorieClass[index][1];
 
             if ((this.selectedAccount == "" || this.selectedAccount == operation.compte) &&
-              (this.selectedCategory == "" || this.selectedCategory == operation.categorie) ){
+              (this.selectedCategory == "" || this.selectedCategory == operation.categorie) &&
+              (this.selectedType === null || this.selectedType == operation.type)){ //Prise en compte des filtres
               this.operationList.push(operation);
 
               this.totalOperations(
@@ -567,8 +567,6 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
   /************** Account filter ***********/
   onSubmitAccountFilter(){
-    this.accountFiltered = true;
-
     // compte id
     this.selectedAccount = this.formAccountFiltered.value.account;
 
@@ -580,9 +578,36 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
   /************** Category filter ***********/
   onSubmitCategoryFilter(){
-    this.categoryFiltered = true;
-
     this.selectedCategory = this.formCategoryFiltered.value.category;
+
+    this.showOperationsFilteredObservable().subscribe(() => {
+      this.isLoading = false;
+      this.updatePaginator();
+    })
+  }
+
+  /************** Crédit / débit filter ***********/
+  typeFilter(type: any){
+    if (this.selectedType == null || this.selectedType !== type){
+        this.selectedType = type
+    } else {
+      this.selectedType = null
+    }
+
+    this.showOperationsFilteredObservable().subscribe(() => {
+      this.isLoading = false;
+      this.updatePaginator();
+    })
+  }
+
+  resetAllFilters(){
+    this.selectedType = null;
+    
+    this.selectedCategory = "";
+    this.formCategoryFiltered.get('category')?.setValue('');
+
+    this.selectedAccount = "";
+    this.formAccountFiltered.get('account')?.setValue('');
 
     this.showOperationsFilteredObservable().subscribe(() => {
       this.isLoading = false;
