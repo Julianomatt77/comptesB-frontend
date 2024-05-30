@@ -13,6 +13,7 @@ import { OperationService } from 'src/app/services/operation.service';
 import { CompteService } from 'src/app/services/compte.service';
 import { forkJoin } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
+import {faClose} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-operation-form',
@@ -56,6 +57,8 @@ export class OperationFormComponent implements OnInit {
   operationDateMonth!: string;
   operationDateYear!: string;
   operationdateString!: string;
+
+  faClose = faClose;
 
   constructor(
     private fb: FormBuilder,
@@ -236,5 +239,9 @@ export class OperationFormComponent implements OnInit {
     this.operation.categorie = this.categorieList[9];
     this.operation.description1 = this.categorieList[9];
     this.operation.type = false
+  }
+
+  closePopup(){
+    this.dialogRef.close();
   }
 }

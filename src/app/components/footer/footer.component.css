@@ -18,3 +18,9 @@ footer {
     padding-top: 20px;
   }
 }
+
+@media screen and (max-width: 420px) {
+  footer {
+    display: none;
+  }
+}
