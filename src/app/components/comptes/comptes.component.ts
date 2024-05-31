@@ -181,40 +181,46 @@ export class ComptesComponent implements OnInit, OnDestroy {
       this.operationService
         .getOperations(this.allOperations, this.userId)
         .subscribe((operations) => {
-          // Menu déroulant pour années avec data
-          operations.reverse();
-          this.firstOperationYear = operations[0].operationDate.split('-')[0];
-          for (let i = 0; i <= year - this.firstOperationYear; i++) {
-            this.operationsYears.push(year - i);
-          }
-          this.operationsYears.unshift(new Date(Date.now()).getFullYear());
-          this.operationsYears.reverse();
+          if (operations && operations.length > 0){
+            // Menu déroulant pour années avec data
+            operations.reverse();
+            this.firstOperationYear = operations[0].operationDate.split('-')[0];
+            for (let i = 0; i <= year - this.firstOperationYear; i++) {
+              this.operationsYears.push(year - i);
+            }
+            this.operationsYears.unshift(new Date(Date.now()).getFullYear());
+            this.operationsYears.reverse();
 
-          this.dataSource = new MatTableDataSource(this.operationList);
-          if ((new Date(Date.now()).getMonth() + 1).toString().length < 2) {
-            this.todayMonthString =
-              '0' + (new Date(Date.now()).getMonth() + 1).toString();
+            this.dataSource = new MatTableDataSource(this.operationList);
+            if ((new Date(Date.now()).getMonth() + 1).toString().length < 2) {
+              this.todayMonthString =
+                '0' + (new Date(Date.now()).getMonth() + 1).toString();
+            }
+
+            this.subscriptions.add(
+              forkJoin([
+                // this.operationList + dataSource, obs, paginator
+                this.showOperationsFilteredObservable(),
+                // this.compteList, this.compteCourantList, this.compteEpargneList
+                this.showAccountsObservable()
+              ]).subscribe(() => {
+                // this.soldePerAccount puis this.monthlyHistoryPerAccount (affichage du solde de chaque compte à droite) -> a besoin du service allAccounts (donc de comptesList)
+                // + de operationYears + d'une boucle des opérations
+                // this.getSoldePerAccount(this.operationList);
+                this.isLoading = false;
+                // this.getSoldePerAccount(operations);
+                this.getMonthlySolde(this.todayMonthString, this.todayYear);
+                // this.spendByCategory (camembert) -> a besoin du service operationsFiltered (donc operationList)
+                this.getDepenseByCategory(this.todayMonthString, this.todayYear);
+                // console.log(this.soldePerAccount)
+                this.updatePaginator();
+              })
+            )
+          } else {
+            this.operationsYears.push(new Date(Date.now()).getFullYear());
+            this.isLoading = false;
           }
 
-          this.subscriptions.add(
-            forkJoin([
-              // this.operationList + dataSource, obs, paginator
-              this.showOperationsFilteredObservable(),
-              // this.compteList, this.compteCourantList, this.compteEpargneList
-              this.showAccountsObservable()
-            ]).subscribe(() => {
-              // this.soldePerAccount puis this.monthlyHistoryPerAccount (affichage du solde de chaque compte à droite) -> a besoin du service allAccounts (donc de comptesList)
-              // + de operationYears + d'une boucle des opérations
-              // this.getSoldePerAccount(this.operationList);
-              this.isLoading = false;
-              // this.getSoldePerAccount(operations);
-              this.getMonthlySolde(this.todayMonthString, this.todayYear);
-              // this.spendByCategory (camembert) -> a besoin du service operationsFiltered (donc operationList)
-              this.getDepenseByCategory(this.todayMonthString, this.todayYear);
-              // console.log(this.soldePerAccount)
-              this.updatePaginator();
-            })
-          )
         })
     );
 
@@ -330,16 +336,18 @@ export class ComptesComponent implements OnInit, OnDestroy {
       })
       .afterClosed()
       .subscribe(() => {
-        forkJoin([
-          this.showOperationsFilteredObservable(),
-          this.showAccountsObservable()
-        ]).subscribe(() => {
-          this.isLoading = false;
-          this.getMonthlySolde(this.todayMonthString, this.todayYear);
-          this.getDepenseByCategory(this.todayMonthString, this.todayYear);
+        this.subscriptions.add(
+          forkJoin([
+            this.showOperationsFilteredObservable(),
+            this.showAccountsObservable()
+          ]).subscribe(() => {
+            this.isLoading = false;
+            this.getMonthlySolde(this.todayMonthString, this.todayYear);
+            this.getDepenseByCategory(this.todayMonthString, this.todayYear);
 
-          this.updatePaginator();
-        })
+            this.updatePaginator();
+          })
+        )
 
       });
   }
@@ -357,17 +365,19 @@ export class ComptesComponent implements OnInit, OnDestroy {
       })
       .afterClosed()
       .subscribe(() => {
-        forkJoin([
-          this.showOperationsFilteredObservable(),
-          this.showAccountsObservable()
-        ]).subscribe(() => {
-          this.isLoading = false;
-          this.getMonthlySolde(this.todayMonthString, this.todayYear);
-          this.getDepenseByCategory(this.todayMonthString, this.todayYear);
+        this.subscriptions.add(
+          forkJoin([
+            this.showOperationsFilteredObservable(),
+            this.showAccountsObservable()
+          ]).subscribe(() => {
+            this.isLoading = false;
+            this.getMonthlySolde(this.todayMonthString, this.todayYear);
+            this.getDepenseByCategory(this.todayMonthString, this.todayYear);
 
-          // Maj du paginator
-          this.updatePaginator();
-        })
+            // Maj du paginator
+            this.updatePaginator();
+          })
+        )
       });
   }
 
@@ -468,10 +478,12 @@ export class ComptesComponent implements OnInit, OnDestroy {
       })
       .afterClosed()
       .subscribe(() => {
-        this.showAccountsObservable().subscribe(() => {
-          this.isLoading = false;
-          this.getMonthlySolde(this.todayMonthString, this.todayYear);
-        })
+        this.subscriptions.add(
+          this.showAccountsObservable().subscribe(() => {
+            this.isLoading = false;
+            this.getMonthlySolde(this.todayMonthString, this.todayYear);
+          })
+        )
       });
   }
 
@@ -489,27 +501,31 @@ export class ComptesComponent implements OnInit, OnDestroy {
           })
           .afterClosed()
           .subscribe(() => {
-            this.showAccountsObservable().subscribe(() => {
-              this.isLoading = false;
-              this.getMonthlySolde(this.todayMonthString, this.todayYear);
-            })
+            this.subscriptions.add(
+              this.showAccountsObservable().subscribe(() => {
+                this.isLoading = false;
+                this.getMonthlySolde(this.todayMonthString, this.todayYear);
+              })
+            )
           });
       })
     );
   }
 
   deleteAccount(compte: any) {
-    this.compteService.getAllAccounts().subscribe((data) => {
-      let compteIndex = data.findIndex((p) => p.name == compte.name);
-      this.subscriptions.add(
-        this.compteService.deleteAccount(data[compteIndex]._id).subscribe(() => {
-          this.showAccountsObservable().subscribe(() => {
-            this.isLoading = false;
-            this.getMonthlySolde(this.todayMonthString, this.todayYear);
+    this.subscriptions.add(
+      this.compteService.getAllAccounts().subscribe((data) => {
+        let compteIndex = data.findIndex((p) => p.name == compte.name);
+        this.subscriptions.add(
+          this.compteService.deleteAccount(data[compteIndex]._id).subscribe(() => {
+            this.showAccountsObservable().subscribe(() => {
+              this.isLoading = false;
+              this.getMonthlySolde(this.todayMonthString, this.todayYear);
+            })
           })
-        })
-      )
-    });
+        )
+      })
+    );
   }
 
   getMonthlySolde(month: string, year: string) {
@@ -617,10 +633,12 @@ export class ComptesComponent implements OnInit, OnDestroy {
       this.selectedType = null
     }
 
-    this.showOperationsFilteredObservable().subscribe(() => {
-      this.isLoading = false;
-      this.updatePaginator();
-    })
+    this.subscriptions.add(
+      this.showOperationsFilteredObservable().subscribe(() => {
+        this.isLoading = false;
+        this.updatePaginator();
+      })
+    )
   }
 
   resetAllFilters(){
