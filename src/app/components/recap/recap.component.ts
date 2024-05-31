@@ -179,22 +179,28 @@ export class RecapComponent implements OnInit {
       this.operationService
         .getOperations(this.operationList, this.userId)
         .subscribe((operation) => {
-          operation.reverse();
-          this.firstOperationYear = operation[0].operationDate.split('-')[0];
-          this.displayYear = [];
-          this.displayYear.push(new Date(Date.now()).getFullYear())
+          if (operation && operation.length > 0){
+            operation.reverse();
+            this.firstOperationYear = operation[0].operationDate.split('-')[0];
+            this.displayYear = [];
+            this.displayYear.push(new Date(Date.now()).getFullYear())
 
-          for (let i = 0; i <= year - this.firstOperationYear; i++) {
-            this.displayYear.push(year - i);
-            this.operationsYears.push(year - i);
+            for (let i = 0; i <= year - this.firstOperationYear; i++) {
+              this.displayYear.push(year - i);
+              this.operationsYears.push(year - i);
+            }
+
+            this.operationsYears.unshift(new Date(Date.now()).getFullYear());
+            this.operationsYears.reverse();
+
+            //Récupération des opérations et de la liste des comptes courant (return soldeAllAccounts)
+            this.getBalancePerMonth(this.todayYear);
+            // this.getEpargnePerMonth(this.todayYear);
+          } else {
+            this.operationsYears.push(new Date(Date.now()).getFullYear());
+            this.isLoading = false;
           }
 
-          this.operationsYears.unshift(new Date(Date.now()).getFullYear());
-          this.operationsYears.reverse();
-
-          //Récupération des opérations et de la liste des comptes courant (return soldeAllAccounts)
-          this.getBalancePerMonth(this.todayYear);
-          // this.getEpargnePerMonth(this.todayYear);
         })
     );
 
