@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
 import { Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +21,9 @@ export class LoginComponent implements OnInit {
   errorMessage = '';
   roles: string[] = [];
   username: string = '';
+
+  passwordFieldType: string = 'password';
+  passwordFieldIcon = faEyeSlash;
 
   constructor(
     private authService: AuthService,
@@ -95,5 +99,15 @@ export class LoginComponent implements OnInit {
 
   reloadPage(): void {
     window.location.reload();
+  }
+
+  togglePasswordVisibility(): void {
+    if (this.passwordFieldType === 'password') {
+      this.passwordFieldType = 'text';
+      this.passwordFieldIcon = faEye;
+    } else {
+      this.passwordFieldType = 'password';
+      this.passwordFieldIcon = faEyeSlash;
+    }
   }
 }

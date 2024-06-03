@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-register',
@@ -16,6 +17,9 @@ export class RegisterComponent implements OnInit {
   isSuccessful = false;
   isSignUpFailed = false;
   errorMessage = '';
+
+  passwordFieldType: string = 'password';
+  passwordFieldIcon = faEyeSlash;
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -42,5 +46,15 @@ export class RegisterComponent implements OnInit {
         this.isSignUpFailed = true;
       },
     });
+  }
+
+  togglePasswordVisibility(): void {
+    if (this.passwordFieldType === 'password') {
+      this.passwordFieldType = 'text';
+      this.passwordFieldIcon = faEye;
+    } else {
+      this.passwordFieldType = 'password';
+      this.passwordFieldIcon = faEyeSlash;
+    }
   }
 }
