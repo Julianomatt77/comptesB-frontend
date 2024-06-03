@@ -40,6 +40,7 @@ export class GestionUserComponent implements OnInit {
   user!: User;
 
   compteList: any[] = [];
+  notActiveCompteList: any[] = [];
   compteCourantList: any[] = [];
   compteEpargneList: any[] = [];
   faPen = faPen;
@@ -158,23 +159,41 @@ export class GestionUserComponent implements OnInit {
 
   showAccounts() {
     this.compteList = [];
+    this.notActiveCompteList = [];
     this.compteCourantList = [];
     this.compteEpargneList = [];
-    this.compteService.getAllAccounts().subscribe((data) => {
-      data.forEach((compte) => {
-        if (compte.userId == this.userId) {
+
+    const activeAccounts = this.compteService.getAllAccounts()
+    const notActiveAccounts = this.compteService.getAllDeactivatedAccounts()
+
+    forkJoin([activeAccounts, notActiveAccounts]).subscribe(
+      (data) => {
+        let actives = data[0]
+        let notActives = data[1]
+
+        // On récupère les comptes actifs
+        actives.forEach((compte) => {
+          if (compte.userId == this.userId) {
+            let temp = Math.round(compte.soldeActuel * 100) / 100;
+            compte.soldeActuel = temp;
+            this.compteList.push(compte);
+
+            if (compte.typeCompte == 'Compte Courant') {
+              this.compteCourantList.push(compte);
+            } else {
+              this.compteEpargneList.push(compte);
+            }
+          }
+        });
+
+        // On récupère les comptes inactifs
+        notActives.forEach((compte) => {
           let temp = Math.round(compte.soldeActuel * 100) / 100;
           compte.soldeActuel = temp;
-          this.compteList.push(compte);
-
-          if (compte.typeCompte == 'Compte Courant') {
-            this.compteCourantList.push(compte);
-          } else {
-            this.compteEpargneList.push(compte);
-          }
-        }
-      });
-    });
+          this.notActiveCompteList.push(compte);
+        })
+      }
+    )
   }
 
   AddAccount() {
@@ -219,5 +238,11 @@ export class GestionUserComponent implements OnInit {
         // this.getSoldePerAccount(this.allOperations);
       });
     });
+  }
+
+  reactivateAccount(compte: any) {
+    this.compteService.reactivateAccount(compte._id).subscribe(()=>{
+      this.showAccounts();
+    })
   }
 }

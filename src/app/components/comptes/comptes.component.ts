@@ -302,15 +302,9 @@ export class ComptesComponent implements OnInit, OnDestroy {
               (p) => p[0] == operation.categorie
             );
 
-
             if (index != -1){
               operation.classCSS = this.categorieClass[index][1];
-            } else {
-              console.log(operation)
-              console.log(index)
-              // console.log(this.categorieClass)
-            }
-
+            } 
 
             if ((this.selectedAccount == "" || this.selectedAccount == operation.compte) &&
               (this.selectedCategory == "" || this.selectedCategory == operation.categorie) &&
