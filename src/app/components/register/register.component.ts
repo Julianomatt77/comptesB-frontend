@@ -13,10 +13,12 @@ export class RegisterComponent implements OnInit {
     username: null,
     email: null,
     password: null,
+    confirmPassword: null
   };
   isSuccessful = false;
   isSignUpFailed = false;
-  errorMessage = '';
+  isPasswordConfirmed = false;
+  errorList: Array<string> = [];
 
   passwordFieldType: string = 'password';
   passwordFieldIcon = faEyeSlash;
@@ -26,26 +28,37 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {}
 
   onSubmit(): void {
+    this.errorList = []
     const username = this.form.username.toLowerCase();
     const email = this.form.email.toLowerCase();
     const password = this.form.password;
     // const { username, email, password } = this.form;
 
-    this.authService.register(username, email, password).subscribe({
-      next: (data) => {
-        this.isSuccessful = true;
-        this.isSignUpFailed = false;
+    this.validatePasswordsMatch()
 
-        // Redirection après register
-        setTimeout(() => {
-          this.router.navigateByUrl('/login');
-        }, 1000);
-      },
-      error: (err) => {
-        this.errorMessage = err.error.message;
-        this.isSignUpFailed = true;
-      },
-    });
+    if (this.isPasswordConfirmed){
+      console.log(this.isPasswordConfirmed)
+      this.authService.register(username, email, password).subscribe({
+        next: (data) => {
+          this.isSuccessful = true;
+          this.isSignUpFailed = false;
+
+          // Redirection après register
+          setTimeout(() => {
+            this.router.navigateByUrl('/login');
+          }, 1000);
+        },
+        error: (err) => {
+          const errors = err.error.error.errors;
+          for (let key in errors) {
+            if (errors[key].message) {
+              this.errorList.push(errors[key].message);
+            }
+          }
+          this.isSignUpFailed = true;
+        },
+      });
+    }
   }
 
   togglePasswordVisibility(): void {
@@ -55,6 +68,19 @@ export class RegisterComponent implements OnInit {
     } else {
       this.passwordFieldType = 'password';
       this.passwordFieldIcon = faEyeSlash;
+    }
+  }
+
+  validatePasswordsMatch(): void {
+    const passwordControl = this.form.password;
+    const confirmPasswordControl = this.form.confirmPassword;
+
+    if (passwordControl && confirmPasswordControl) {
+      if (passwordControl !== confirmPasswordControl) {
+        this.isPasswordConfirmed = false
+      } else {
+        this.isPasswordConfirmed = true
+      }
     }
   }
 }
