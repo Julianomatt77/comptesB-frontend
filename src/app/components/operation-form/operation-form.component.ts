@@ -241,12 +241,12 @@ export class OperationFormComponent implements OnInit {
 
   changeTransfert(e: any){
     this.transfertBetweenAccount = this.operation.isTransfert
-    this.operation.categorie = this.categorieList[9];
-    this.operation.description1 = this.categorieList[9];
+    this.operation.categorie = this.categorieList[10];
+    this.operation.description1 = this.categorieList[10];
     this.operation.type = false
 
     let cat = this.form.get('categorie')
-    cat?.setValue(this.categorieList[9])
+    cat?.setValue(this.categorieList[10])
   }
 
   closePopup(){
