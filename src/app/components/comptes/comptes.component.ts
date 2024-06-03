@@ -85,6 +85,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
     'Remboursement',
     'Restaurant',
     'Salaire',
+    'santé',
     'Transfert',
     'Voyage',
   ];
@@ -98,6 +99,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
     ['Remboursement', 'remboursement'],
     ['Restaurant', 'restaurant'],
     ['Salaire', 'salaire'],
+    ['santé', 'santé'],
     ['Transfert', 'transfert'],
     ['Voyage', 'voyage'],
   ];
@@ -299,7 +301,10 @@ export class ComptesComponent implements OnInit, OnDestroy {
             let index = this.categorieClass.findIndex(
               (p) => p[0] == operation.categorie
             );
-            operation.classCSS = this.categorieClass[index][1];
+
+            if (index != -1){
+              operation.classCSS = this.categorieClass[index][1];
+            } 
 
             if ((this.selectedAccount == "" || this.selectedAccount == operation.compte) &&
               (this.selectedCategory == "" || this.selectedCategory == operation.categorie) &&

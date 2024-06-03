@@ -42,8 +42,8 @@ export class CompteService {
   }
 
   public deleteAccount(id: string) {
-    return this.http.delete<Compte>(
-      `${environment.baseUrl}/comptes/deleteAccount/${id}`
+    return this.http.post<Compte>(
+      `${environment.baseUrl}/comptes/deleteAccount/${id}`, {id: id}
     );
   }
 
@@ -51,6 +51,18 @@ export class CompteService {
     return this.http.post<any>(
       `${environment.baseUrl}/comptes/updateSolde/${name}`,
       solde
+    );
+  }
+
+  public getAllDeactivatedAccounts() {
+    return this.http.get<any[]>(
+      `${environment.baseUrl}/comptes/getAllDeactivatedAccounts`
+    );
+  }
+
+  public reactivateAccount(id: string) {
+    return this.http.post<Compte>(
+      `${environment.baseUrl}/comptes/reactivateAccount/${id}`, {id: id}
     );
   }
 
