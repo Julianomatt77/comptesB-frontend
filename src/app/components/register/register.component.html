@@ -78,13 +78,46 @@
               Le mot de passe doit avoir au moins 6 caractères
             </div>
           </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirmer le mot de passe</label>
+            <div class="row password-field">
+              <div>
+                <input
+                  [type]="passwordFieldType"
+                  class="form-control"
+                  name="confirmPassword"
+                  [(ngModel)]="form.confirmPassword"
+                  required
+                  #confirmPassword="ngModel"
+                  [ngClass]="{ 'is-invalid': f.submitted && confirmPassword.errors }"
+                />
+              </div>
+              <div>
+                <fa-icon [icon]="passwordFieldIcon" (click)="togglePasswordVisibility()"></fa-icon>
+              </div>
+            </div>
+            <div class="invalid-feedback" *ngIf="confirmPassword.errors && f.submitted">
+              <div *ngIf="confirmPassword.errors['required']">La confirmation du mot de passe est obligatoire</div>
+<!--              <div *ngIf="!isPasswordConfirmed">Les mots de passe ne correspondent pas</div>-->
+            </div>
+            <div class="invalid-feedback" *ngIf="f.submitted && !isPasswordConfirmed">
+              Les mots de passe ne correspondent pas
+            </div>
+
+          </div>
+
         </div>
         <div class="form-group">
           <button class="btn btn-primary btn-block mt-3">S'enregistrer</button>
         </div>
 
-        <div class="alert alert-warning" *ngIf="f.submitted && isSignUpFailed">
-          L'enregistrement a échoué<br />{{ errorMessage }}
+        <div class="" *ngIf="f.submitted && isSignUpFailed">
+          <p class="alert alert-danger">L'enregistrement a échoué</p>
+
+          <div *ngFor="let error of errorList" class="alert alert-warning">
+            <p class="pt-2">{{error}}</p>
+          </div>
         </div>
       </form>
 

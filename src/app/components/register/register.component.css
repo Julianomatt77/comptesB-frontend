@@ -1,12 +1,16 @@
 .password-field {
   position: relative;
 
-fa-icon {
-  position: absolute;
-  top: 50%;
-  right: 20px;
-  transform: translateY(-50%);
-  cursor: pointer;
-  font-size: 16px;
+  fa-icon {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 16px;
+  }
 }
+
+.invalid-feedback {
+  display: block !important;
 }
