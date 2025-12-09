@@ -30,7 +30,7 @@
     "bootstrap": "^5.2.0",
     "html2canvas": "^1.4.1",
     "jquery": "^3.6.0",
-    "jspdf": "^2.5.1",
+    "jspdf": "^3.0.2",
     "ng2-datepicker": "^12.0.0",
     "ng2-daterangepicker": "^3.0.1",
     "ngx-cookie-service": "^14.0.1",
