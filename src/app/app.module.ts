@@ -9,7 +9,7 @@ import { ErrorComponent } from './components/error/error.component';
 import { ComptesComponent } from './components/comptes/comptes.component';
 import { LoginComponent } from './components/login/login.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { OperationFormComponent } from './components/operation-form/operation-form.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -30,44 +30,38 @@ import { GestionUserComponent } from './components/gestion-user/gestion-user.com
 import { CguComponent } from './components/cgu/cgu.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    HeaderComponent,
-    DefaultComponent,
-    ErrorComponent,
-    ComptesComponent,
-    LoginComponent,
-    OperationFormComponent,
-    CompteFormComponent,
-    RegisterComponent,
-    RecapComponent,
-    FooterComponent,
-    GestionUserComponent,
-    CguComponent,
-    ConfirmationDialogComponent,
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    BrowserAnimationsModule,
-    MatDialogModule,
-    MatTableModule,
-    MatPaginatorModule,
-    FontAwesomeModule,
-    FontAwesomeModule,
-    MaterialExampleModule,
-    NgxChartsModule,
-    // CookieService,
-  ],
-  providers: [
-    { provide: LOCALE_ID, useValue: 'fr-FR' }, tokenInterceptor,
-    {provide : LocationStrategy , useClass: HashLocationStrategy}],
-  bootstrap: [AppComponent],
-})
+@NgModule({ declarations: [
+        AppComponent,
+        HeaderComponent,
+        DefaultComponent,
+        ErrorComponent,
+        ComptesComponent,
+        LoginComponent,
+        OperationFormComponent,
+        CompteFormComponent,
+        RegisterComponent,
+        RecapComponent,
+        FooterComponent,
+        GestionUserComponent,
+        CguComponent,
+        ConfirmationDialogComponent,
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        ReactiveFormsModule,
+        BrowserAnimationsModule,
+        MatDialogModule,
+        MatTableModule,
+        MatPaginatorModule,
+        FontAwesomeModule,
+        FontAwesomeModule,
+        MaterialExampleModule,
+        NgxChartsModule], providers: [
+        { provide: LOCALE_ID, useValue: 'fr-FR' }, tokenInterceptor,
+        { provide: LocationStrategy, useClass: HashLocationStrategy },
+        provideHttpClient(withInterceptorsFromDi())
+    ] })
 export class AppModule {
   constructor() {
     registerLocaleData(fr.default);
