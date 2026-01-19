@@ -18,9 +18,6 @@ import { HashLocationStrategy, LocationStrategy, registerLocaleData } from '@ang
 import * as fr from '@angular/common/locales/fr';
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { DatepickerModule } from 'ng2-datepicker';
-import { DatePickerComponent } from './components/date-picker/date-picker.component';
-import { Daterangepicker } from 'ng2-daterangepicker';
 // import { CookieService } from 'ngx-cookie-service';
 import { RegisterComponent } from './components/register/register.component';
 import { tokenInterceptor } from './token.interceptor';
@@ -43,7 +40,6 @@ import { ConfirmationDialogComponent } from './components/confirmation-dialog/co
     LoginComponent,
     OperationFormComponent,
     CompteFormComponent,
-    DatePickerComponent,
     RegisterComponent,
     RecapComponent,
     FooterComponent,
@@ -61,8 +57,6 @@ import { ConfirmationDialogComponent } from './components/confirmation-dialog/co
     MatDialogModule,
     MatTableModule,
     MatPaginatorModule,
-    DatepickerModule,
-    Daterangepicker,
     FontAwesomeModule,
     FontAwesomeModule,
     MaterialExampleModule,
