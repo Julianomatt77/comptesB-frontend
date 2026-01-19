@@ -1,9 +1,8 @@
-import {Component, OnInit, inject, ChangeDetectionStrategy} from '@angular/core';
+import {Component, OnInit, inject, ChangeDetectionStrategy, computed} from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
 import { CookieService } from 'ngx-cookie-service';
 import { Router, RouterLink } from '@angular/router';
-import { Subscription } from 'rxjs';
 import {
   faHouseChimney,
   faUser,
@@ -21,55 +20,31 @@ import { MatButton } from '@angular/material/button';
   changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [RouterLink, FaIconComponent, MatButton]
 })
-export class HeaderComponent implements OnInit {
-  private authService = inject(AuthService);
-  private storageService = inject(StorageService);
+export class HeaderComponent {
+  authService = inject(AuthService);
+  storageService = inject(StorageService);
   private cookieService = inject(CookieService);
   private router = inject(Router);
 
-  isLoggedIn!: boolean;
-  username: string = '';
-  authenticatedSubject!: Subscription;
 
-  userId!: string;
+  username: string = '';
 
   faUser = faUser;
   faUserPen = faUserPen;
   faUserSlash = faUserSlash;
   faHouseChimney = faHouseChimney;
 
-  constructor() {
-    this.userId = this.cookieService.get('userId');
-  }
+  isLoggedIn = this.authService.isAuthenticated;
 
   ngOnInit(): void {
-    // console.log(this.userId);
-    // if (this.userId) {
-    //   this.isLoggedIn = true;
-    // }
-    // console.log(this.isLoggedIn);
-    // this.userId = this.cookieService.get('userId');
-
-    this.authenticatedSubject =
-      this.authService.isAuthenticatedSubject.subscribe((data) => {
-        this.isLoggedIn = !!data;
-      });
-    if (this.storageService.isLoggedIn()) {
-      this.isLoggedIn = true;
-      this.username = this.storageService.getUser().username;
-    }
+    this.authService.initFromCookies();
   }
 
   logout() {
     this.authService.logout().subscribe(() => {
       this.router.navigateByUrl('');
     });
-    sessionStorage.removeItem('auth-user');
-    this.isLoggedIn = false;
-    this.username = '';
-  }
-
-  ngOnDestroy(): void {
-    this.authenticatedSubject.unsubscribe();
+    // sessionStorage.removeItem('auth-user');
+    // this.username = '';
   }
 }

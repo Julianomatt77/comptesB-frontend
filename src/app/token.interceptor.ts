@@ -19,22 +19,13 @@ export class TokenInterceptor implements HttpInterceptor {
         request.url.includes('recap') ||
         request.url.includes('depensesCommunes') ||
         request.url.includes('gestionUser')) &&
-      this.cookieService.check('auth-user') === false
+      this.cookieService.check('compty-auth-tok') === false
     ) {
       this.router.navigateByUrl('/login');
-    } else if (this.cookieService.check('auth-user') === true) {
+    } else if (this.cookieService.check('compty-auth-tok') === true) {
       request = request.clone({
         setHeaders: {
-          Authorization: `Bearer ${this.cookieService.get('auth-user')}`,
-        },
-      });
-    } else if (sessionStorage.getItem('auth-user') !== null) {
-      const token = JSON.parse(
-        JSON.stringify(sessionStorage.getItem('auth-user'))
-      )['token'];
-      request = request.clone({
-        setHeaders: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${this.cookieService.get('compty-auth-tok')}`,
         },
       });
     }

@@ -6,7 +6,8 @@ import {
   ViewChild,
   DOCUMENT,
   inject,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  signal
 } from '@angular/core';
 import { Operation } from 'src/app/models/Operation';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
@@ -53,18 +54,18 @@ export class RecapComponent implements OnInit {
   operationEpargneList: any[] = [];
   operationId!: string;
   operation!: Operation;
-  totalCredit = 0;
-  totalDebit = 0;
-  totaldifference = 0;
-  totalCreditEpargne = 0;
-  totalDebitEpargne = 0;
-  totaldifferenceEpargne = 0;
+  totalCredit = signal(0);
+  totalDebit = signal(0);
+  totaldifference = signal(0);
+  totalCreditEpargne = signal(0);
+  totalDebitEpargne = signal(0);
+  totaldifferenceEpargne = signal(0);
   userId!: string;
   compteList: any[] = [];
   compteEpargneList: any[] = [];
   compteId = '';
   form!: FormGroup;
-  isLoading = true;
+  isLoading = signal(true);
   operationPerYear: Recap[] = [
     { month: 'Janvier', investi: 0, economie: 0, solde: 0 },
     { month: 'Février', investi: 0, economie: 0, solde: 0 },
@@ -205,7 +206,7 @@ export class RecapComponent implements OnInit {
             // this.getEpargnePerMonth(this.todayYear);
           } else {
             this.operationsYears.push(new Date(Date.now()).getFullYear());
-            this.isLoading = false;
+            this.isLoading.set(false);
           }
 
         })
@@ -218,11 +219,11 @@ export class RecapComponent implements OnInit {
 
   // Envoi du filtre de sélection d'année
   onSubmitChangeDate() {
-    this.totalCredit = 0;
-    this.totalDebit = 0;
+    this.totalCredit.set(0);
+    this.totalDebit.set(0);
     this.filteredYear = this.form.value.rangeDate;
     this.todayYear = this.filteredYear
-    this.isLoading = true;
+    this.isLoading.set(true);
 
     // Si valeur du datepicker different de la date d'aujourd'hui alors un filtre est appliqué
     if (this.filteredYear != new Date(Date.now()).getFullYear().toString()) {
@@ -257,20 +258,20 @@ export class RecapComponent implements OnInit {
     this.subscriptions.add(
       forkJoin([compteListObservable, operationsObservable]).subscribe((data) => {
         this.soldeAllAccounts = [];
-        this.isLoading = false;
-        // récupération des comptes
-        data[0].forEach((compte) => {
-          if (
-            compte.userId == this.userId &&
-            compte.typeCompte == 'Compte Courant' &&
-            compte.name.toLowerCase() !== "compte joint"
-          ) {
-            this.compteList.push(compte);
-          } else if (compte.userId == this.userId &&
-            (compte.typeCompte == 'Epargne' || compte.typeCompte == 'Bourse')) {
-            this.compteEpargneList.push(compte);
-          }
-        });
+        this.isLoading.set(false);
+    // récupération des comptes
+    data[0].forEach((compte) => {
+      if (
+        compte.userId == this.userId &&
+        compte.typeCompte == 'Compte Courant' &&
+        compte.name.toLowerCase() !== "compte joint"
+      ) {
+        this.compteList.push(compte);
+      } else if (compte.userId == this.userId &&
+        (compte.typeCompte == 'Epargne' || compte.typeCompte == 'Bourse')) {
+        this.compteEpargneList.push(compte);
+      }
+    });
 
         //Récupération des opérations de l'utilisateur
         data[1].forEach((operation) => {
@@ -389,9 +390,9 @@ export class RecapComponent implements OnInit {
       data.solde = 0;
     });
 
-    this.totalCredit = 0;
-    this.totalDebit = 0;
-    this.totaldifference = 0;
+    this.totalCredit.set(0);
+    this.totalDebit.set(0);
+    this.totaldifference.set(0);
     this.evolutionCompteCourant = 0;
 
     // Récupération du solde par mois
@@ -406,7 +407,7 @@ export class RecapComponent implements OnInit {
     if (soldeFinal - soldeInitial == 0) {
       this.evolutionCompteCourant = 0;
     } else {
-      this.totaldifference = soldeFinal - soldeInitial;
+      this.totaldifference.set(soldeFinal - soldeInitial);
       this.evolutionCompteCourant =
         ((soldeFinal - soldeInitial) / soldeInitial) * 100;
     }
@@ -443,9 +444,9 @@ export class RecapComponent implements OnInit {
       data.solde = 0;
     });
 
-    this.totalCreditEpargne = 0;
-    this.totalDebitEpargne = 0;
-    this.totaldifferenceEpargne = 0;
+    this.totalCreditEpargne.set(0);
+    this.totalDebitEpargne.set(0);
+    this.totaldifferenceEpargne.set(0);
     this.evolutionEpargne = 0;
 
     // Récupération du solde par mois
@@ -494,9 +495,9 @@ export class RecapComponent implements OnInit {
 
         // MAJ de l'affichage du tableau
         this.dataSourceEpargne = new MatTableDataSource(this.epargnePerYear);
-        this.totaldifferenceEpargne = Math.round(
-          this.totalCreditEpargne + this.totalDebitEpargne
-        );
+        this.totaldifferenceEpargne.set(Math.round(
+          this.totalCreditEpargne() + this.totalDebitEpargne()
+        ));
 
       })
     }

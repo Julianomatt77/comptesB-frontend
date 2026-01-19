@@ -3,13 +3,13 @@
     <h1 class="mb-5">Récapitulatif Annuel des comptes</h1>
   </div>
 
-  @if (isLoading) {
+  @if (isLoading()) {
     <div class="ring">Loading
       <span class="loading"></span>
     </div>
   }
 
-  @if (!isLoading) {
+  @if (!isLoading()) {
     <div class="d-flex align-items-center justify-content-center mb-3">
       <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()">
         <div class="d-flex align-items-center">
@@ -43,7 +43,7 @@
   }
 
   <!-- ------   CHART     ---------->
-  @if (!isLoading) {
+  @if (!isLoading()) {
     <div class="d-flex align-items-center justify-content-center">
       <ngx-charts-line-chart
         (window:resize)="onResize($event)"
@@ -60,7 +60,7 @@
     </div>
   }
 
-  @if (!isLoading) {
+  @if (!isLoading()) {
     <div class="accordion" id="accordionExample">
       <!------------------- Comptes Courants --------------------->
       <div class="accordion-item">
@@ -109,16 +109,16 @@
                 Débit = <fa-icon [icon]="faArrowDown"></fa-icon>
                 {{ totalDebit }} €
               </div> -->
-              @if (totaldifference >= 0) {
+              @if (totaldifference() >= 0) {
                 <div class="mx-2 text-success">
                   Différence = <fa-icon [icon]="faArrowUp"></fa-icon>
-                  {{ totaldifference | number: "1.0-0":"fr" }} €
+                  {{ totaldifference() | number: "1.0-0":"fr" }} €
                 </div>
               }
-              @if (totaldifference < 0) {
+              @if (totaldifference() < 0) {
                 <div class="mx-2 text-danger">
                   Différence = <fa-icon [icon]="faArrowDown"></fa-icon>
-                  {{ totaldifference | number: "1.0-0":"fr" }} €
+                  {{ totaldifference() | number: "1.0-0":"fr" }} €
                 </div>
               }
             </div>

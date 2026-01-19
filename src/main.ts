@@ -1,5 +1,4 @@
 import { enableProdMode, LOCALE_ID, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import localeFr from '@angular/common/locales/fr';
 
 import { environment } from './environments/environment';
@@ -9,7 +8,6 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { AppRoutingModule } from './app/app-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -27,7 +25,7 @@ bootstrapApplication(AppComponent, {
         { provide: LOCALE_ID, useValue: 'fr-FR' }, tokenInterceptor,
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         provideHttpClient(withInterceptorsFromDi()),
-        provideAnimations()
+
     ]
 })
   .catch(err => console.error(err));

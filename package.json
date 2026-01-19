@@ -32,7 +32,8 @@
     "jspdf": "^2.5.1",
     "ngx-cookie-service": "^21.1.0",
     "rxjs": "~7.5.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "zone.js": "^0.16.0"
   },
   "devDependencies": {
     "@angular/build": "^21.1.0",

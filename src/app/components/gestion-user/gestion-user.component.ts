@@ -1,7 +1,7 @@
 import {Component, OnInit, Output, EventEmitter, Input, inject, ChangeDetectionStrategy} from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
-import { User } from '../../models/User';
+import { User } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from 'src/app/services/user.service';
 import { StorageService } from '../../services/storage.service';
@@ -103,7 +103,7 @@ export class GestionUserComponent implements OnInit {
 
     this.userService.updateOneUser(data).subscribe(() => {
       // Update session storaage data
-      this.storageService.saveUser(storageData);
+      // this.storageService.saveUser(storageData);
 
       // Update cookie data
       this.cookieService.set(

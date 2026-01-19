@@ -23,7 +23,7 @@
         </li>
 
         <li class="nav-item mt-2" title="Liste des opérations">
-          @if (isLoggedIn) {
+          @if (isLoggedIn()) {
             <button
               mat-raised-button
               color="primary"
@@ -35,7 +35,7 @@
         </li>
 
         <li class="nav-item mt-2" title="Récapitulatif">
-          @if (isLoggedIn) {
+          @if (isLoggedIn()) {
             <button
               mat-raised-button
               color="warn"
@@ -46,18 +46,8 @@
           }
         </li>
 
-        <!--        <li class="nav-item mt-2" title="Dépenses communes">-->
-        <!--          <button-->
-        <!--            mat-raised-button-->
-        <!--            color="accent"-->
-        <!--            *ngIf="isLoggedIn"-->
-        <!--            [routerLink]="['/depensesCommunes']"-->
-        <!--          >-->
-        <!--            Dépenses Communes-->
-      <!--          </button>-->
-    <!--        </li>-->
     <li class="nav-item mt-2">
-      @if (isLoggedIn) {
+      @if (isLoggedIn()) {
         <a [routerLink]="['/gestionUser']" title="Editer le compte utilisateur">
           <fa-icon [icon]="faUserPen" style="font-size: 30px"></fa-icon>
         </a>
@@ -65,7 +55,7 @@
     </li>
 
     <li class="nav-item mt-2">
-      @if (isLoggedIn) {
+      @if (isLoggedIn()) {
         <a href="" (click)="logout()" title="Se déconnecter">
           <fa-icon
             [icon]="faUserSlash"
@@ -77,7 +67,7 @@
     </li>
 
     <li class="nav-item mt-2">
-      @if (!isLoggedIn) {
+      @if (!isLoggedIn()) {
         <a [routerLink]="['/login']" title="Se connecter">
           <fa-icon [icon]="faUser" style="font-size: 30px"></fa-icon>
         </a>

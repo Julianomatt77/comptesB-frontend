@@ -16,7 +16,7 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
     imports: [FormsModule, NgClass, FaIconComponent, RouterLink]
 })
 export class LoginComponent implements OnInit {
-  private authService = inject(AuthService);
+  authService = inject(AuthService);
   private storageService = inject(StorageService);
   private cookieService = inject(CookieService);
   private router = inject(Router);
@@ -47,58 +47,25 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  onSubmit(): void {
-    // console.log(this.form);
+  async onSubmit(): Promise<void> {
     const username = this.form.username.toLowerCase();
     const password = this.form.password;
-    // const { username, password } = this.form;
 
-    this.authService.login(username, password).subscribe({
-      next: (data) => {
-        this.storageService.saveUser(data);
-        this.isLoginFailed = false;
-        this.isLoggedIn = true;
-        this.username = this.storageService.getUser().username;
-
-        this.cookieService.set(
-          'auth-user',
-          data.token,
-          0.2,
-          '/',
-          undefined,
-          false,
-          'Strict'
-        );
-        this.cookieService.set(
-          'userId',
-          data.userId,
-          0.2,
-          '/',
-          undefined,
-          false,
-          'Strict'
-        );
-        this.cookieService.set(
-          'username',
-          data.username,
-          0.2,
-          '/',
-          undefined,
-          false,
-          'Strict'
-        );
-
-        // Redirection après login
+    try {
+      await this.authService.login(username, password)
+      if (this.authService.isAuthenticated()){
+        this.storageService.getUser()
         setTimeout(() => {
           this.router.navigateByUrl('/comptes');
+          this.storageService.getUser()
         }, 2000);
-        // this.reloadPage();
-      },
-      error: (err) => {
-        this.errorMessage = err.error.message;
+      } else {
         this.isLoginFailed = true;
-      },
-    });
+      }
+    } catch (e: any) {
+      console.error(e.error.message)
+      this.errorMessage = e.error.message;
+    }
   }
 
   reloadPage(): void {

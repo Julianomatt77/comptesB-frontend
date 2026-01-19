@@ -3,14 +3,14 @@
     <h1 class="mb-2">Récapitulatif des opérations</h1>
   </div>
 
-  @if (isLoading) {
+  @if (isLoading()) {
     <div class="ring">Loading
       <span class="loading"></span>
     </div>
   }
 
   <!--  Filtre par date-->
-  @if (!isLoading) {
+  @if (!isLoading()) {
     <div class="d-flex align-items-center mb-2 justify-content-center flex-wrap">
       <div class="mx-2">
         <button class="btn btn-primary" (click)="resetDateFilters()" title="Enlever le filtre par date">
@@ -43,7 +43,7 @@
   }
 
   <!--  Filtres-->
-  @if (!isLoading) {
+  @if (!isLoading()) {
     <div class="d-flex align-items-center mb-2 justify-content-center gap-3 flex-wrap">
       <form [formGroup]="formAccountFiltered" (ngSubmit)="onSubmitAccountFilter()" title="Filtrer par compte">
         <div class="d-flex align-items-center">
@@ -90,33 +90,33 @@
   }
 
 
-  @if (!isLoading) {
+  @if (!isLoading()) {
     <div class="row mt-2 pb-5" id="dataToPrint">
       <div class="col-lg-8">
         <!--  Recap montants opérations du mois + télécharger-->
         <div class="row">
           <div class="text-success col-lg-3 col-6">
             Crédit = <fa-icon [icon]="faArrowUp"></fa-icon>
-            {{ totalCredit | number: "1.0-2":"fr" }}€
+            {{ totalCredit() | number: "1.0-2":"fr" }}€
           </div>
           <div class="text-danger col-lg-3 col-6">
             Débit = <fa-icon [icon]="faArrowDown"></fa-icon>
-            {{ totalDebit | number: "1.0-2":"fr" }}€
+            {{ totalDebit() | number: "1.0-2":"fr" }}€
           </div>
-          @if (totalCredit + totalDebit >= 0) {
+          @if (totalCredit() + totalDebit() >= 0) {
             <div
               class="text-success col-lg-4 col-6"
               >
               Différence = <fa-icon [icon]="faArrowUp"></fa-icon>
-              {{ totalCredit + totalDebit | number: "1.0-2":"fr" }}€
+              {{ totalCredit() + totalDebit() | number: "1.0-2":"fr" }}€
             </div>
           }
-          @if (totalCredit + totalDebit < 0) {
+          @if (totalCredit() + totalDebit() < 0) {
             <div
               class="text-danger col-lg-4 col-6"
               >
               Différence = <fa-icon [icon]="faArrowDown"></fa-icon>
-              {{ totalCredit + totalDebit | number: "1.0-2":"fr" }}€
+              {{ totalCredit() + totalDebit() | number: "1.0-2":"fr" }}€
             </div>
           }
           <div class="col-lg-1 col-5">
@@ -145,7 +145,7 @@
         <div>
           <!-- Affichage des opérations -->
           <div class="row d-flex justify-content-evenly">
-            @for (card of obs | async; track card) {
+            @for (card of obs(); track card) {
               <div
                 class="card my-2 mx-1 col-lg-5 px-0"
                 >

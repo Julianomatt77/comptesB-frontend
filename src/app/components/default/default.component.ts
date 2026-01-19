@@ -1,6 +1,5 @@
-import {Component, OnInit, Renderer2, DOCUMENT, inject, ChangeDetectionStrategy} from '@angular/core';
+import {Component, OnInit, Renderer2, DOCUMENT, inject, ChangeDetectionStrategy, computed} from '@angular/core';
 
-import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { CompteService } from 'src/app/services/compte.service';
@@ -20,25 +19,15 @@ export class DefaultComponent implements OnInit {
   private storageService = inject(StorageService);
   private compteService = inject(CompteService);
 
-  isLoggedIn!: boolean;
-  authenticatedSubject!: Subscription;
+  isLoggedIn = computed(() => {
+    return this.authService.isAuthenticated() || this.storageService.isLoggedIn();
+  });
 
   constructor() {
     this.renderer.addClass(this.document.body, 'bg-light');
   }
 
   ngOnInit(): void {
-    this.authenticatedSubject =
-      this.authService.isAuthenticatedSubject.subscribe((data) => {
-        this.isLoggedIn = !!data;
-      });
-    if (this.storageService.isLoggedIn()) {
-      this.isLoggedIn = true;
-    }
     this.compteService.getAllAccounts();
-  }
-
-  ngOnDestroy(): void {
-    this.authenticatedSubject.unsubscribe();
   }
 }

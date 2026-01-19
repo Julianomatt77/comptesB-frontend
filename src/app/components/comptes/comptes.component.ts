@@ -6,8 +6,11 @@ import {
   EventEmitter,
   DOCUMENT,
   inject,
-  ChangeDetectionStrategy
+  ChangeDetectionStrategy,
+  signal,
+  computed
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Operation } from 'src/app/models/Operation';
 import { OperationService } from 'src/app/services/operation.service';
 import { OperationFormComponent } from '../operation-form/operation-form.component';
@@ -15,7 +18,8 @@ import { OperationFormComponent } from '../operation-form/operation-form.compone
 // import { ConfirmationDialogComponent } from '../operation-form/operation-form.component';
 import { CompteFormComponent } from '../compte-form/compte-form.component';
 import { CompteService } from 'src/app/services/compte.service';
-import {forkJoin, Observable, Subscription} from 'rxjs';
+import { forkJoin, Observable, Subscription, firstValueFrom } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { MatSort } from '@angular/material/sort';
 import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
@@ -35,11 +39,10 @@ import {
 // import * as jsPDF from 'jspdf';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { HostBinding, Renderer2, ChangeDetectorRef } from '@angular/core';
-import { NgClass, AsyncPipe, DecimalPipe, DatePipe } from '@angular/common';
+import { Renderer2, ChangeDetectorRef } from '@angular/core';
+import { NgClass, DecimalPipe, DatePipe } from '@angular/common';
 import { OnDestroy } from '@angular/core';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
-import {map} from "rxjs/operators";
 import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { MatSelect } from '@angular/material/select';
@@ -51,7 +54,7 @@ import { PieChartModule } from '@swimlane/ngx-charts';
     templateUrl: './comptes.component.html',
     styleUrls: ['./comptes.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [FormsModule, ReactiveFormsModule, MatFormField, MatInput, FaIconComponent, MatLabel, MatSelect, MatOption, MatOptgroup, NgClass, MatPaginator, PieChartModule, AsyncPipe, DecimalPipe, DatePipe]
+    imports: [FormsModule, ReactiveFormsModule, MatFormField, MatInput, FaIconComponent, MatLabel, MatSelect, MatOption, MatOptgroup, NgClass, MatPaginator, PieChartModule, DecimalPipe, DatePipe]
 })
 export class ComptesComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
@@ -70,10 +73,10 @@ export class ComptesComponent implements OnInit, OnDestroy {
   allOperations: any[] = [];
   operationId!: string;
   operation!: Operation;
-  totalCredit = 0;
-  totalDebit = 0;
+  totalCredit = signal(0);
+  totalDebit = signal(0);
   userId!: string;
-  isLoading = true;
+  isLoading = signal(true);
 
   compteList: any[] = [];
   compteId = '';
@@ -117,14 +120,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
     ['Voyage', 'voyage'],
   ];
 
-  // datasource = [];
-  // dataSource!: MatTableDataSource<any>;
-  obs!: Observable<any>;
-  // dataSource: MatTableDataSource<Operation> = new MatTableDataSource<Operation>(
-  //   this.operationList
-  // );
-
   dataSource = new MatTableDataSource(this.operationList);
+  obs = toSignal(this.dataSource.connect(), {initialValue: [] as any[]});
   @ViewChild(MatSort) sort!: MatSort | undefined;
   @ViewChild('table') table!: MatTable<any> | undefined;
   childRevelancy = { displayColumns: [], hideColumns: [], data: [] };
@@ -212,7 +209,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
                 // this.soldePerAccount puis this.monthlyHistoryPerAccount (affichage du solde de chaque compte à droite) -> a besoin du service allAccounts (donc de comptesList)
                 // + de operationYears + d'une boucle des opérations
                 // this.getSoldePerAccount(this.operationList);
-                this.isLoading = false;
+                this.isLoading.set(false);
                 // this.getSoldePerAccount(operations);
                 this.getMonthlySolde(this.todayMonthString, this.todayYear);
                 // this.spendByCategory (camembert) -> a besoin du service operationsFiltered (donc operationList)
@@ -223,7 +220,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
             )
           } else {
             this.operationsYears.push(new Date(Date.now()).getFullYear());
-            this.isLoading = false;
+            this.isLoading.set(false);
           }
 
         })
@@ -246,9 +243,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Create Observables for showOperationsFiltered and showAccounts
   private showOperationsFilteredObservable(): Observable<any> {
-    this.isLoading = true;
+    this.isLoading.set(true);
     return this.showOperationsFiltered(this.todayMonthString, this.todayYear).pipe(
       map(() => {
         return;
@@ -257,7 +253,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
   }
 
   private showAccountsObservable(): Observable<any> {
-    this.isLoading = true;
+    this.isLoading.set(true);
     return this.showAccounts().pipe(
       map(() => {
         return;
@@ -268,16 +264,13 @@ export class ComptesComponent implements OnInit, OnDestroy {
   totalOperations(montant: number, type: boolean, categorie: string) {
     if (categorie != 'Transfert') {
       if (type == false) {
-        this.totalDebit += montant;
+        this.totalDebit.update(v => v + montant);
       } else {
-        this.totalCredit += montant;
+        this.totalCredit.update(v => v + montant);
       }
 
-      let temp1 = Math.round(this.totalDebit * 100) / 100;
-      this.totalDebit = temp1;
-
-      let temp2 = Math.round(this.totalCredit * 100) / 100;
-      this.totalCredit = temp2;
+      this.totalDebit.update(v => Math.round(v * 100) / 100);
+      this.totalCredit.update(v => Math.round(v * 100) / 100);
     }
   }
 
@@ -285,8 +278,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
   showOperationsFiltered(month: string, year: string): Observable<any> {
     this.operationList = [];
-    this.totalCredit = 0;
-    this.totalDebit = 0;
+    this.totalCredit.set(0);
+    this.totalDebit.set(0);
     let service: any = null;
 
     if (this.dateFiltered) {
@@ -349,7 +342,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
             this.showOperationsFilteredObservable(),
             this.showAccountsObservable()
           ]).subscribe(() => {
-            this.isLoading = false;
+            this.isLoading.set(false);
             this.getMonthlySolde(this.todayMonthString, this.todayYear);
             this.getDepenseByCategory(this.todayMonthString, this.todayYear);
 
@@ -378,7 +371,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
             this.showOperationsFilteredObservable(),
             this.showAccountsObservable()
           ]).subscribe(() => {
-            this.isLoading = false;
+            this.isLoading.set(false);
             this.getMonthlySolde(this.todayMonthString, this.todayYear);
             this.getDepenseByCategory(this.todayMonthString, this.todayYear);
 
@@ -432,7 +425,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
             this.showOperationsFilteredObservable(),
             this.showAccountsObservable()
           ]).subscribe(() => {
-            this.isLoading = false;
+            this.isLoading.set(false);
             this.getMonthlySolde(this.todayMonthString, this.todayYear);
             this.getDepenseByCategory(this.todayMonthString, this.todayYear);
 
@@ -487,7 +480,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
       .subscribe(() => {
         this.subscriptions.add(
           this.showAccountsObservable().subscribe(() => {
-            this.isLoading = false;
+            this.isLoading.set(false);
             this.getMonthlySolde(this.todayMonthString, this.todayYear);
           })
         )
@@ -510,7 +503,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
           .subscribe(() => {
             this.subscriptions.add(
               this.showAccountsObservable().subscribe(() => {
-                this.isLoading = false;
+                this.isLoading.set(false);
                 this.getMonthlySolde(this.todayMonthString, this.todayYear);
               })
             )
@@ -526,7 +519,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
         this.subscriptions.add(
           this.compteService.deleteAccount(data[compteIndex].id).subscribe(() => {
             this.showAccountsObservable().subscribe(() => {
-              this.isLoading = false;
+              this.isLoading.set(false);
               this.getMonthlySolde(this.todayMonthString, this.todayYear);
             })
           })
@@ -566,14 +559,14 @@ export class ComptesComponent implements OnInit, OnDestroy {
     this.todayYear = this.form.value.rangeDate.split('-')[0];
 
     this.dateFiltered = true;
-    this.isLoading = true;
+    this.isLoading.set(true);
 
     this.subscriptions.add(
       forkJoin([
         this.showOperationsFilteredObservable(),
         this.showAccountsObservable()
       ]).subscribe(() => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.getMonthlySolde(this.todayMonthString, this.todayYear);
         this.getDepenseByCategory(this.todayMonthString, this.todayYear);
 
@@ -596,7 +589,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
         this.showOperationsFilteredObservable(),
         this.showAccountsObservable()
       ]).subscribe(() => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.getMonthlySolde('12', new Date(Date.now()).getFullYear().toString());
         this.getDepenseByCategory(
           '12',
@@ -615,7 +608,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.showOperationsFilteredObservable().subscribe(() => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.updatePaginator();
       })
     )
@@ -626,7 +619,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
     this.selectedCategory = this.formCategoryFiltered.value.category;
     this.subscriptions.add(
       this.showOperationsFilteredObservable().subscribe(() => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.updatePaginator();
       })
     )
@@ -642,7 +635,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.showOperationsFilteredObservable().subscribe(() => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.updatePaginator();
       })
     )
@@ -659,7 +652,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
     this.subscriptions.add(
       this.showOperationsFilteredObservable().subscribe(() => {
-        this.isLoading = false;
+        this.isLoading.set(false);
         this.updatePaginator();
       })
     )
@@ -781,6 +774,5 @@ export class ComptesComponent implements OnInit, OnDestroy {
   updatePaginator() {
     this.changeDetectorRef.detectChanges();
     this.dataSource.paginator = this.paginator;
-    this.obs = this.dataSource.connect();
   }
 }
