@@ -1,4 +1,4 @@
-import { enableProdMode, LOCALE_ID, importProvidersFrom } from '@angular/core';
+import { enableProdMode, LOCALE_ID, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import localeFr from '@angular/common/locales/fr';
 
@@ -23,7 +23,7 @@ if (environment.production) {
 registerLocaleData(localeFr);
 bootstrapApplication(AppComponent, {
     providers: [
-        importProvidersFrom(BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, MatDialogModule, MatTableModule, MatPaginatorModule, FontAwesomeModule, FontAwesomeModule, NgxChartsModule),
+        provideZoneChangeDetection(),importProvidersFrom(BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, MatDialogModule, MatTableModule, MatPaginatorModule, FontAwesomeModule, FontAwesomeModule, NgxChartsModule),
         { provide: LOCALE_ID, useValue: 'fr-FR' }, tokenInterceptor,
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         provideHttpClient(withInterceptorsFromDi()),
