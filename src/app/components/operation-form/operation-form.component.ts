@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  EventEmitter,
-  Output,
-  Input,
-  Inject,
-} from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, Input, inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Operation } from 'src/app/models/Operation';
 import { MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
@@ -15,16 +8,23 @@ import { forkJoin } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import {faClose} from '@fortawesome/free-solid-svg-icons';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { NgIf, NgFor, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 @Component({
     selector: 'app-operation-form',
     templateUrl: './operation-form.component.html',
     styleUrls: ['./operation-form.component.css'],
-    imports: [FormsModule, ReactiveFormsModule, FaIconComponent, NgIf, MatSlideToggle, NgFor, DatePipe]
+    imports: [FormsModule, ReactiveFormsModule, FaIconComponent, MatSlideToggle, DatePipe]
 })
 export class OperationFormComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private data = inject(MAT_DIALOG_DATA);
+  private operationService = inject(OperationService);
+  dialogRef = inject<MatDialogRef<OperationFormComponent>>(MatDialogRef);
+  compteService = inject(CompteService);
+  private cookieService = inject(CookieService);
+
   @Output() formSubmitted: EventEmitter<Operation>;
   @Input() id!: string;
 
@@ -66,14 +66,9 @@ export class OperationFormComponent implements OnInit {
 
   faClose = faClose;
 
-  constructor(
-    private fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) private data: any,
-    private operationService: OperationService,
-    public dialogRef: MatDialogRef<OperationFormComponent>,
-    public compteService: CompteService,
-    private cookieService: CookieService
-  ) {
+  constructor() {
+    const data = this.data;
+
     this.formSubmitted = new EventEmitter<Operation>();
     this.userId = this.cookieService.get('userId');
     this.compteList = data.compteList;

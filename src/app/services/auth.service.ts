@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -15,15 +15,15 @@ import { map, tap } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class AuthService {
+  private http = inject(HttpClient);
+  private router = inject(Router);
+  private cookieService = inject(CookieService);
+
   // public isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   public isAuthenticatedSubject: BehaviorSubject<boolean>;
   public currentUserSubject = new BehaviorSubject<any>(undefined);
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    private cookieService: CookieService
-  ) {
+  constructor() {
     this.isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
   }
 

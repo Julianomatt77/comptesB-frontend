@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Operation } from '../models/Operation';
@@ -12,7 +12,9 @@ import { CompteService } from './compte.service';
   providedIn: 'root',
 })
 export class OperationService {
-  constructor(private http: HttpClient, private compteService: CompteService) {}
+  private http = inject(HttpClient);
+  private compteService = inject(CompteService);
+
 
   public createOperation(operation: Operation) {
     return this.http.post<Operation>(

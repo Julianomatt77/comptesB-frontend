@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject, Renderer2 } from '@angular/core';
-import { DOCUMENT, NgIf } from '@angular/common';
+import { Component, OnInit, Renderer2, DOCUMENT, inject } from '@angular/core';
+
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -10,19 +10,19 @@ import { RouterLink } from '@angular/router';
     selector: 'app-default',
     templateUrl: './default.component.html',
     styleUrls: ['./default.component.css'],
-    imports: [NgIf, RouterLink]
+    imports: [RouterLink]
 })
 export class DefaultComponent implements OnInit {
+  private document = inject<Document>(DOCUMENT);
+  private renderer = inject(Renderer2);
+  private authService = inject(AuthService);
+  private storageService = inject(StorageService);
+  private compteService = inject(CompteService);
+
   isLoggedIn!: boolean;
   authenticatedSubject!: Subscription;
 
-  constructor(
-    @Inject(DOCUMENT) private document: Document,
-    private renderer: Renderer2,
-    private authService: AuthService,
-    private storageService: StorageService,
-    private compteService: CompteService
-  ) {
+  constructor() {
     this.renderer.addClass(this.document.body, 'bg-light');
   }
 

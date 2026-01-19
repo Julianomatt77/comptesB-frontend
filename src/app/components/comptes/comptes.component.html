@@ -3,254 +3,268 @@
     <h1 class="mb-2">Récapitulatif des opérations</h1>
   </div>
 
-  <div *ngIf="isLoading" class="ring">Loading
-    <span class="loading"></span>
-  </div>
+  @if (isLoading) {
+    <div class="ring">Loading
+      <span class="loading"></span>
+    </div>
+  }
 
   <!--  Filtre par date-->
-  <div *ngIf="!isLoading" class="d-flex align-items-center mb-2 justify-content-center flex-wrap">
-    <div class="mx-2">
-      <button class="btn btn-primary" (click)="resetDateFilters()" title="Enlever le filtre par date">
-        Toutes opérations
-      </button>
-    </div>
-    <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()">
-      <div class="d-flex align-items-center">
-        <mat-form-field class="mx-2">
-          <input
-            matInput
-            type="month"
-            value="{{ todayYear }}-{{ todayMonthString }}"
-            formControlName="rangeDate"
-          />
-        </mat-form-field>
-        <div class="mx-2">
-          <button id="filterButton" type="submit" class="bg-light">
-            <fa-icon
-              [icon]="faFilter"
-              class="text-primary"
-              style="font-size: 20px"
-              title="Filtrer par date"
-            ></fa-icon>
-          </button>
-        </div>
+  @if (!isLoading) {
+    <div class="d-flex align-items-center mb-2 justify-content-center flex-wrap">
+      <div class="mx-2">
+        <button class="btn btn-primary" (click)="resetDateFilters()" title="Enlever le filtre par date">
+          Toutes opérations
+        </button>
       </div>
-    </form>
-  </div>
-
-<!--  Filtres-->
-  <div *ngIf="!isLoading" class="d-flex align-items-center mb-2 justify-content-center gap-3 flex-wrap">
-    <form [formGroup]="formAccountFiltered" (ngSubmit)="onSubmitAccountFilter()" title="Filtrer par compte">
-      <div class="d-flex align-items-center">
-        <mat-form-field>
-          <mat-label>Filtrer par compte</mat-label>
-          <mat-select formControlName="account" (selectionChange)="onSubmitAccountFilter()">
-            <mat-option value="">Tous les comptes</mat-option>
-            <ng-container *ngFor="let type of groupedCompteTypes">
-              <mat-optgroup [label]="type">
-                <mat-option *ngFor="let compte of groupedComptes[type]" [value]="compte.id">
-                  {{ compte.name }}
-                </mat-option>
-              </mat-optgroup>
-            </ng-container>
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </form>
-
-    <form [formGroup]="formCategoryFiltered" (ngSubmit)="onSubmitCategoryFilter()" title="Filtrer par catégorie">
-      <div class="d-flex align-items-center">
-        <mat-form-field>
-          <mat-label>Filtrer par catégorie</mat-label>
-          <mat-select formControlName="category" (selectionChange)="onSubmitCategoryFilter()">
-            <mat-option value="">Toutes les catégories</mat-option>
-            <mat-option *ngFor="let category of categorieList " value="{{ category }}">{{category}}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </form>
-
-    <div>
-      <button class="btn" [ngClass]="{'btn-primary': !selectedType, 'btn-outline-primary': selectedType}" (click)="typeFilter(true)">Crédits</button>
-    </div>
-
-    <div>
-      <button class="btn" [ngClass]="{'btn-danger': selectedType == null || selectedType == true, 'btn-outline-danger': selectedType == false}" (click)="typeFilter(false)">Débits</button>
-    </div>
-
-    <div>
-      <button class="btn btn-outline-dark" (click)="resetAllFilters()">Supprimer les filtres</button>
-    </div>
-  </div>
-
-
-  <div *ngIf="!isLoading" class="row mt-2 pb-5" id="dataToPrint">
-    <div class="col-lg-8">
-      <!--  Recap montants opérations du mois + télécharger-->
-      <div class="row">
-        <div class="text-success col-lg-3 col-6">
-          Crédit = <fa-icon [icon]="faArrowUp"></fa-icon>
-          {{ totalCredit | number: "1.0-2":"fr" }}€
-        </div>
-        <div class="text-danger col-lg-3 col-6">
-          Débit = <fa-icon [icon]="faArrowDown"></fa-icon>
-          {{ totalDebit | number: "1.0-2":"fr" }}€
-        </div>
-        <div
-          *ngIf="totalCredit + totalDebit >= 0"
-          class="text-success col-lg-4 col-6"
-        >
-          Différence = <fa-icon [icon]="faArrowUp"></fa-icon>
-          {{ totalCredit + totalDebit | number: "1.0-2":"fr" }}€
-        </div>
-        <div
-          *ngIf="totalCredit + totalDebit < 0"
-          class="text-danger col-lg-4 col-6"
-        >
-          Différence = <fa-icon [icon]="faArrowDown"></fa-icon>
-          {{ totalCredit + totalDebit | number: "1.0-2":"fr" }}€
-        </div>
-        <div class="col-lg-1 col-5">
-          <a href="javascript:;" (click)="export('operations')" class="">
-            <fa-icon
-              [icon]="faDownload"
-              class="text-primary"
-              style="font-size: 20px"
-              title="Télécharger les opérations"
-            ></fa-icon>
-          </a>
-        </div>
-      </div>
-<!--      Ajouter une opération-->
-      <div class="d-flex justify-content-center">
-        <a href="javascript:;" (click)="AddOperation()" class="">
-          <fa-icon
-            [icon]="faPlus"
-            class="text-primary"
-            style="font-size: 50px"
-            title="Ajouter une opération"
-          ></fa-icon>
-        </a>
-      </div>
-      <!-- Affichage des opérations + paginator -->
-      <div>
-        <!-- Affichage des opérations -->
-        <div class="row d-flex justify-content-evenly">
-          <div
-            class="card my-2 mx-1 col-lg-5 px-0"
-            *ngFor="let card of obs | async"
-          >
-            <h5 class="card-header {{ card.classCSS }} text-center">
-              {{ card.categorie }}
-            </h5>
-            <div class="card-body">
-              <h4 class="card-title text-center">{{ card.description1 }}</h4>
-
-              <div
-                *ngIf="card.montant >= 0"
-                class="text-success d-flex justify-content-center"
-              >
-                <fa-icon [icon]="faArrowUp" class="mx-2"></fa-icon>
-                <span class="badge-montant">{{ card.montant | number: "1.0-2":"fr" }}€</span>
-              </div>
-              <div
-                *ngIf="card.montant < 0"
-                class="text-danger d-flex justify-content-center"
-              >
-                <fa-icon [icon]="faArrowDown" class="mx-2"></fa-icon>
-                <span class="badge-montant">{{ card.montant | number: "1.0-2":"fr" }}€</span>
-              </div>
-
-              <div class="d-flex justify-content-evenly">
-                <div>{{ card.operationDate | date: "d MMMM y" }}</div>
-                <div>{{ card.compteName }}</div>
-              </div>
-              <div class="d-flex justify-content-evenly">
-                <div>
-                  <button (click)="openOperationDetail(card)" class="btn" title="Mettre à jour l'opération">
-                    <fa-icon [icon]="faPen"></fa-icon>
-                  </button>
-                </div>
-                <div>
-                  <button (click)="openConfirmation(card)" class="btn" title="Supprimer l'opération">
-                    <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
-                  </button>
-                </div>
-              </div>
-            </div>
+      <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()">
+        <div class="d-flex align-items-center">
+          <mat-form-field class="mx-2">
+            <input
+              matInput
+              type="month"
+              value="{{ todayYear }}-{{ todayMonthString }}"
+              formControlName="rangeDate"
+              />
+          </mat-form-field>
+          <div class="mx-2">
+            <button id="filterButton" type="submit" class="bg-light">
+              <fa-icon
+                [icon]="faFilter"
+                class="text-primary"
+                style="font-size: 20px"
+                title="Filtrer par date"
+              ></fa-icon>
+            </button>
           </div>
         </div>
+      </form>
+    </div>
+  }
 
-        <mat-paginator
-          [pageSizeOptions]="[6, 12, 50]"
-          showFirstLastButtons
-          aria-label="Select page of operations"
-          class="bg-light"
-        >
-        </mat-paginator>
+  <!--  Filtres-->
+  @if (!isLoading) {
+    <div class="d-flex align-items-center mb-2 justify-content-center gap-3 flex-wrap">
+      <form [formGroup]="formAccountFiltered" (ngSubmit)="onSubmitAccountFilter()" title="Filtrer par compte">
+        <div class="d-flex align-items-center">
+          <mat-form-field>
+            <mat-label>Filtrer par compte</mat-label>
+            <mat-select formControlName="account" (selectionChange)="onSubmitAccountFilter()">
+              <mat-option value="">Tous les comptes</mat-option>
+              @for (type of groupedCompteTypes; track type) {
+                <mat-optgroup [label]="type">
+                  @for (compte of groupedComptes[type]; track compte) {
+                    <mat-option [value]="compte.id">
+                      {{ compte.name }}
+                    </mat-option>
+                  }
+                </mat-optgroup>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </form>
+      <form [formGroup]="formCategoryFiltered" (ngSubmit)="onSubmitCategoryFilter()" title="Filtrer par catégorie">
+        <div class="d-flex align-items-center">
+          <mat-form-field>
+            <mat-label>Filtrer par catégorie</mat-label>
+            <mat-select formControlName="category" (selectionChange)="onSubmitCategoryFilter()">
+              <mat-option value="">Toutes les catégories</mat-option>
+              @for (category of categorieList ; track category) {
+                <mat-option value="{{ category }}">{{category}}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </form>
+      <div>
+        <button class="btn" [ngClass]="{'btn-primary': !selectedType, 'btn-outline-primary': selectedType}" (click)="typeFilter(true)">Crédits</button>
+      </div>
+      <div>
+        <button class="btn" [ngClass]="{'btn-danger': selectedType == null || selectedType == true, 'btn-outline-danger': selectedType == false}" (click)="typeFilter(false)">Débits</button>
+      </div>
+      <div>
+        <button class="btn btn-outline-dark" (click)="resetAllFilters()">Supprimer les filtres</button>
       </div>
     </div>
+  }
 
-    <div class="col-lg-4">
-<!--      Ajout de compte + télécharger comptes-->
-      <div class="d-flex justify-content-evenly">
-        <div>
-          <a href="javascript:;" (click)="AddAccount()" class="">
+
+  @if (!isLoading) {
+    <div class="row mt-2 pb-5" id="dataToPrint">
+      <div class="col-lg-8">
+        <!--  Recap montants opérations du mois + télécharger-->
+        <div class="row">
+          <div class="text-success col-lg-3 col-6">
+            Crédit = <fa-icon [icon]="faArrowUp"></fa-icon>
+            {{ totalCredit | number: "1.0-2":"fr" }}€
+          </div>
+          <div class="text-danger col-lg-3 col-6">
+            Débit = <fa-icon [icon]="faArrowDown"></fa-icon>
+            {{ totalDebit | number: "1.0-2":"fr" }}€
+          </div>
+          @if (totalCredit + totalDebit >= 0) {
+            <div
+              class="text-success col-lg-4 col-6"
+              >
+              Différence = <fa-icon [icon]="faArrowUp"></fa-icon>
+              {{ totalCredit + totalDebit | number: "1.0-2":"fr" }}€
+            </div>
+          }
+          @if (totalCredit + totalDebit < 0) {
+            <div
+              class="text-danger col-lg-4 col-6"
+              >
+              Différence = <fa-icon [icon]="faArrowDown"></fa-icon>
+              {{ totalCredit + totalDebit | number: "1.0-2":"fr" }}€
+            </div>
+          }
+          <div class="col-lg-1 col-5">
+            <a href="javascript:;" (click)="export('operations')" class="">
+              <fa-icon
+                [icon]="faDownload"
+                class="text-primary"
+                style="font-size: 20px"
+                title="Télécharger les opérations"
+              ></fa-icon>
+            </a>
+          </div>
+        </div>
+        <!--      Ajouter une opération-->
+        <div class="d-flex justify-content-center">
+          <a href="javascript:;" (click)="AddOperation()" class="">
             <fa-icon
               [icon]="faPlus"
               class="text-primary"
-              style="font-size: 20px"
-              title="Ajouter un compte"
+              style="font-size: 50px"
+              title="Ajouter une opération"
             ></fa-icon>
           </a>
         </div>
+        <!-- Affichage des opérations + paginator -->
         <div>
-          <a href="javascript:;" (click)="export('comptes')" class="mx-5">
-            <fa-icon
-              [icon]="faDownload"
-              class="text-primary"
-              style="font-size: 20px"
-              title="Télécharger les comptes"
-            ></fa-icon>
-          </a>
+          <!-- Affichage des opérations -->
+          <div class="row d-flex justify-content-evenly">
+            @for (card of obs | async; track card) {
+              <div
+                class="card my-2 mx-1 col-lg-5 px-0"
+                >
+                <h5 class="card-header {{ card.classCSS }} text-center">
+                  {{ card.categorie }}
+                </h5>
+                <div class="card-body">
+                  <h4 class="card-title text-center">{{ card.description1 }}</h4>
+                  @if (card.montant >= 0) {
+                    <div
+                      class="text-success d-flex justify-content-center"
+                      >
+                      <fa-icon [icon]="faArrowUp" class="mx-2"></fa-icon>
+                      <span class="badge-montant">{{ card.montant | number: "1.0-2":"fr" }}€</span>
+                    </div>
+                  }
+                  @if (card.montant < 0) {
+                    <div
+                      class="text-danger d-flex justify-content-center"
+                      >
+                      <fa-icon [icon]="faArrowDown" class="mx-2"></fa-icon>
+                      <span class="badge-montant">{{ card.montant | number: "1.0-2":"fr" }}€</span>
+                    </div>
+                  }
+                  <div class="d-flex justify-content-evenly">
+                    <div>{{ card.operationDate | date: "d MMMM y" }}</div>
+                    <div>{{ card.compteName }}</div>
+                  </div>
+                  <div class="d-flex justify-content-evenly">
+                    <div>
+                      <button (click)="openOperationDetail(card)" class="btn" title="Mettre à jour l'opération">
+                        <fa-icon [icon]="faPen"></fa-icon>
+                      </button>
+                    </div>
+                    <div>
+                      <button (click)="openConfirmation(card)" class="btn" title="Supprimer l'opération">
+                        <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+          <mat-paginator
+            [pageSizeOptions]="[6, 12, 50]"
+            showFirstLastButtons
+            aria-label="Select page of operations"
+            class="bg-light"
+            >
+          </mat-paginator>
         </div>
       </div>
-<!--      Récap des comptes-->
-      <div>
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Compte</th>
-              <th scope="col">Solde</th>
-              <th scope="col">Crédit</th>
-              <th scope="col">Débit</th>
-            </tr>
-          </thead>
-          <tbody>
-            <ng-container *ngFor="let compte of monthlyHistoryPerAccount">
+      <div class="col-lg-4">
+        <!--      Ajout de compte + télécharger comptes-->
+        <div class="d-flex justify-content-evenly">
+          <div>
+            <a href="javascript:;" (click)="AddAccount()" class="">
+              <fa-icon
+                [icon]="faPlus"
+                class="text-primary"
+                style="font-size: 20px"
+                title="Ajouter un compte"
+              ></fa-icon>
+            </a>
+          </div>
+          <div>
+            <a href="javascript:;" (click)="export('comptes')" class="mx-5">
+              <fa-icon
+                [icon]="faDownload"
+                class="text-primary"
+                style="font-size: 20px"
+                title="Télécharger les comptes"
+              ></fa-icon>
+            </a>
+          </div>
+        </div>
+        <!--      Récap des comptes-->
+        <div>
+          <table class="table">
+            <thead>
               <tr>
-                <td>{{ compte.name }}</td>
-                <td *ngIf="!compte.history[0]">
-                  {{ compte.solde | number: "1.0-2":"fr" }}€
-                </td>
-                <ng-container *ngIf="compte.history[0]">
-                  <td *ngFor="let history of compte.history">
-                    {{ history.soldeFinal | number: "1.0-2":"fr" }}€
-                  </td>
-                </ng-container>
-
-                <td *ngIf="compte.history[0]" class="text-success">{{compte.history[0].totalCredit | number: "1.0-2":"fr" }}€</td>
-                <td *ngIf="compte.history[0]" class="text-danger">{{compte.history[0].totalDebit| number: "1.0-2":"fr" }}€</td>
+                <th scope="col">Compte</th>
+                <th scope="col">Solde</th>
+                <th scope="col">Crédit</th>
+                <th scope="col">Débit</th>
               </tr>
-            </ng-container>
-          </tbody>
-        </table>
-      </div>
-
-<!--      Graphique par catégorie-->
-      <div class="mb-5">
-        <!-- <h3 class="text-center">Dépense par catégorie</h3> -->
-        <!-- <div class="mx-2">
+            </thead>
+            <tbody>
+              @for (compte of monthlyHistoryPerAccount; track compte) {
+                <tr>
+                  <td>{{ compte.name }}</td>
+                  @if (!compte.history[0]) {
+                    <td>
+                      {{ compte.solde | number: "1.0-2":"fr" }}€
+                    </td>
+                  }
+                  @if (compte.history[0]) {
+                    @for (history of compte.history; track history) {
+                      <td>
+                        {{ history.soldeFinal | number: "1.0-2":"fr" }}€
+                      </td>
+                    }
+                  }
+                  @if (compte.history[0]) {
+                    <td class="text-success">{{compte.history[0].totalCredit | number: "1.0-2":"fr" }}€</td>
+                  }
+                  @if (compte.history[0]) {
+                    <td class="text-danger">{{compte.history[0].totalDebit| number: "1.0-2":"fr" }}€</td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <!--      Graphique par catégorie-->
+        <div class="mb-5">
+          <!-- <h3 class="text-center">Dépense par catégorie</h3> -->
+          <!-- <div class="mx-2">
           <button class="btn btn-secondary" (click)="exportChart('printChart')">
             Exporter en pdf
           </button>
@@ -264,9 +278,10 @@
           [legendTitle]="'Dépense par catégorie'"
           [view]="[width, 400]"
           [labels]="true"
-        >
+          >
         </ngx-charts-pie-chart>
       </div>
     </div>
   </div>
+}
 </section>

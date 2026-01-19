@@ -8,13 +8,13 @@
       aria-controls="navbarSupportedContent"
       aria-expanded="false"
       aria-label="Toggle navigation"
-    >
+      >
       <span class="navbar-toggler-icon"></span>
     </button>
     <div
       class="collapse navbar-collapse justify-content-evenly align-items-center"
       id="navbarSupportedContent"
-    >
+      >
       <ul class="navbar-nav d-flex justify-content-evenly w-100">
         <li class="nav-item mt-2" title="Page d'accueil">
           <a [routerLink]="['/']">
@@ -23,59 +23,67 @@
         </li>
 
         <li class="nav-item mt-2" title="Liste des opérations">
-          <button
-            mat-raised-button
-            color="primary"
-            *ngIf="isLoggedIn"
-            [routerLink]="['/comptes']"
-          >
-            Opérations
-          </button>
+          @if (isLoggedIn) {
+            <button
+              mat-raised-button
+              color="primary"
+              [routerLink]="['/comptes']"
+              >
+              Opérations
+            </button>
+          }
         </li>
 
         <li class="nav-item mt-2" title="Récapitulatif">
-          <button
-            mat-raised-button
-            color="warn"
-            *ngIf="isLoggedIn"
-            [routerLink]="['/recap']"
-          >
-            Récapitulatif
-          </button>
+          @if (isLoggedIn) {
+            <button
+              mat-raised-button
+              color="warn"
+              [routerLink]="['/recap']"
+              >
+              Récapitulatif
+            </button>
+          }
         </li>
 
-<!--        <li class="nav-item mt-2" title="Dépenses communes">-->
-<!--          <button-->
-<!--            mat-raised-button-->
-<!--            color="accent"-->
-<!--            *ngIf="isLoggedIn"-->
-<!--            [routerLink]="['/depensesCommunes']"-->
-<!--          >-->
-<!--            Dépenses Communes-->
-<!--          </button>-->
-<!--        </li>-->
-        <li class="nav-item mt-2">
-          <a *ngIf="isLoggedIn" [routerLink]="['/gestionUser']" title="Editer le compte utilisateur">
-            <fa-icon [icon]="faUserPen" style="font-size: 30px"></fa-icon>
-          </a>
-        </li>
+        <!--        <li class="nav-item mt-2" title="Dépenses communes">-->
+        <!--          <button-->
+        <!--            mat-raised-button-->
+        <!--            color="accent"-->
+        <!--            *ngIf="isLoggedIn"-->
+        <!--            [routerLink]="['/depensesCommunes']"-->
+        <!--          >-->
+        <!--            Dépenses Communes-->
+      <!--          </button>-->
+    <!--        </li>-->
+    <li class="nav-item mt-2">
+      @if (isLoggedIn) {
+        <a [routerLink]="['/gestionUser']" title="Editer le compte utilisateur">
+          <fa-icon [icon]="faUserPen" style="font-size: 30px"></fa-icon>
+        </a>
+      }
+    </li>
 
-        <li class="nav-item mt-2">
-          <a *ngIf="isLoggedIn" href="" (click)="logout()" title="Se déconnecter">
-            <fa-icon
-              [icon]="faUserSlash"
-              class="text-danger"
-              style="font-size: 30px"
-            ></fa-icon>
-          </a>
-        </li>
+    <li class="nav-item mt-2">
+      @if (isLoggedIn) {
+        <a href="" (click)="logout()" title="Se déconnecter">
+          <fa-icon
+            [icon]="faUserSlash"
+            class="text-danger"
+            style="font-size: 30px"
+          ></fa-icon>
+        </a>
+      }
+    </li>
 
-        <li class="nav-item mt-2">
-          <a *ngIf="!isLoggedIn" [routerLink]="['/login']" title="Se connecter">
-            <fa-icon [icon]="faUser" style="font-size: 30px"></fa-icon>
-          </a>
-        </li>
-      </ul>
-    </div>
-  </div>
+    <li class="nav-item mt-2">
+      @if (!isLoggedIn) {
+        <a [routerLink]="['/login']" title="Se connecter">
+          <fa-icon [icon]="faUser" style="font-size: 30px"></fa-icon>
+        </a>
+      }
+    </li>
+  </ul>
+</div>
+</div>
 </nav>

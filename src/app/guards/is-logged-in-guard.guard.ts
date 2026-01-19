@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { mergeMap, Observable } from 'rxjs';
@@ -9,6 +9,10 @@ import { AuthService } from '../services/auth.service';
   providedIn: 'root',
 })
 export class IsLoggedInGuardGuard  {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private cookieService = inject(CookieService);
+
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
@@ -36,10 +40,4 @@ export class IsLoggedInGuardGuard  {
 
     // return this.router.navigate('');
   }
-
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private cookieService: CookieService
-  ) {}
 }

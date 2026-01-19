@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DOCUMENT, inject } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { HostBinding, Inject, Renderer2 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { HostBinding, Renderer2 } from '@angular/core';
+
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -11,13 +11,13 @@ import { RouterLink } from '@angular/router';
     imports: [RouterLink]
 })
 export class FooterComponent implements OnInit {
+  private cookieService = inject(CookieService);
+  private document = inject<Document>(DOCUMENT);
+  private renderer = inject(Renderer2);
+
   consent: boolean = false;
 
-  constructor(
-    private cookieService: CookieService,
-    @Inject(DOCUMENT) private document: Document,
-    private renderer: Renderer2
-  ) {
+  constructor() {
     this.renderer.addClass(this.document.body, 'bg-light');
     let cookieConsent = this.cookieService.get('cookieConsent');
 

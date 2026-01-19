@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatDialog, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
 import { CdkScrollable } from '@angular/cdk/scrolling';
 import { MatButton } from '@angular/material/button';
@@ -10,9 +10,9 @@ import { MatButton } from '@angular/material/button';
     imports: [MatDialogTitle, CdkScrollable, MatDialogContent, MatDialogActions, MatButton, MatDialogClose]
 })
 export class ConfirmationDialogComponent implements OnInit {
-  public confirmMessage!: string;
+  dialogRef = inject<MatDialogRef<ConfirmationDialogComponent>>(MatDialogRef);
 
-  constructor(public dialogRef: MatDialogRef<ConfirmationDialogComponent>) {}
+  public confirmMessage!: string;
 
   ngOnInit(): void {}
 }

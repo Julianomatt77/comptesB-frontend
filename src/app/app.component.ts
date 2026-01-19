@@ -1,6 +1,6 @@
-import { Component, Inject } from '@angular/core';
+import { Component, DOCUMENT, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { DOCUMENT } from '@angular/common';
+
 import { HeaderComponent } from './components/header/header.component';
 import { RouterOutlet } from '@angular/router';
 import { FooterComponent } from './components/footer/footer.component';
@@ -12,13 +12,13 @@ import { FooterComponent } from './components/footer/footer.component';
     imports: [HeaderComponent, RouterOutlet, FooterComponent]
 })
 export class AppComponent {
+  private titleService = inject(Title);
+  private metaService = inject(Meta);
+  private document = inject<Document>(DOCUMENT);
+
   title = 'JM-comptesB';
 
-  constructor(
-    private titleService: Title,
-    private metaService: Meta,
-    @Inject(DOCUMENT) private document: Document
-  ) {
+  constructor() {
     this.titleService.setTitle('Compty');
 
     this.metaService.addTags([

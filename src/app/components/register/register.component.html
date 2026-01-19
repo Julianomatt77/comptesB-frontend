@@ -1,63 +1,77 @@
 <div class="container d-flex justify-content-center mt-5">
   <div class="col-md-6">
     <div class="card-container">
-      <form
-        *ngIf="!isSuccessful"
-        name="form"
-        (ngSubmit)="f.form.valid && onSubmit()"
-        #f="ngForm"
-        novalidate
-      >
-        <div class="form-group">
-          <label for="username">Nom d'utilisateur</label>
-          <input
-            type="text"
-            class="form-control"
-            name="username"
-            [(ngModel)]="form.username"
-            required
-            minlength="3"
-            maxlength="20"
-            #username="ngModel"
-            [ngClass]="{ 'is-invalid': f.submitted && username.errors }"
-          />
-          <div class="invalid-feedback" *ngIf="username.errors && f.submitted">
-            <div *ngIf="username.errors['required']">
-              Le nom d'utilisateur est obligatoire
-            </div>
-            <div *ngIf="username.errors['minlength']">
-              Le nom d'utilisateur doit avoir au moins 3 caractères
-            </div>
-            <div *ngIf="username.errors['maxlength']">
-              Le nom d'utilisateur doit avoir au maximum 20 caractères
-            </div>
+      @if (!isSuccessful) {
+        <form
+          name="form"
+          (ngSubmit)="f.form.valid && onSubmit()"
+          #f="ngForm"
+          novalidate
+          >
+          <div class="form-group">
+            <label for="username">Nom d'utilisateur</label>
+            <input
+              type="text"
+              class="form-control"
+              name="username"
+              [(ngModel)]="form.username"
+              required
+              minlength="3"
+              maxlength="20"
+              #username="ngModel"
+              [ngClass]="{ 'is-invalid': f.submitted && username.errors }"
+              />
+            @if (username.errors && f.submitted) {
+              <div class="invalid-feedback">
+                @if (username.errors['required']) {
+                  <div>
+                    Le nom d'utilisateur est obligatoire
+                  </div>
+                }
+                @if (username.errors['minlength']) {
+                  <div>
+                    Le nom d'utilisateur doit avoir au moins 3 caractères
+                  </div>
+                }
+                @if (username.errors['maxlength']) {
+                  <div>
+                    Le nom d'utilisateur doit avoir au maximum 20 caractères
+                  </div>
+                }
+              </div>
+            }
           </div>
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input
-            type="email"
-            class="form-control"
-            name="email"
-            [(ngModel)]="form.email"
-            required
-            email
-            #email="ngModel"
-            [ngClass]="{ 'is-invalid': f.submitted && email.errors }"
-          />
-          <div class="invalid-feedback" *ngIf="email.errors && f.submitted">
-            <div *ngIf="email.errors['required']">
-              Une adresse e-mail est obligatoire
-            </div>
-            <div *ngIf="email.errors['email']">
-              L'adresse e-mail doit être valide
-            </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              name="email"
+              [(ngModel)]="form.email"
+              required
+              email
+              #email="ngModel"
+              [ngClass]="{ 'is-invalid': f.submitted && email.errors }"
+              />
+            @if (email.errors && f.submitted) {
+              <div class="invalid-feedback">
+                @if (email.errors['required']) {
+                  <div>
+                    Une adresse e-mail est obligatoire
+                  </div>
+                }
+                @if (email.errors['email']) {
+                  <div>
+                    L'adresse e-mail doit être valide
+                  </div>
+                }
+              </div>
+            }
           </div>
-        </div>
-        <div class="form-group">
-          <label for="password">Mot de passe</label>
-          <div class="row password-field">
-            <div><input
+          <div class="form-group">
+            <label for="password">Mot de passe</label>
+            <div class="row password-field">
+              <div><input
                 [type]="passwordFieldType"
                 class="form-control"
                 name="password"
@@ -66,19 +80,24 @@
                 minlength="6"
                 #password="ngModel"
                 [ngClass]="{ 'is-invalid': f.submitted && password.errors }"
-              />
+                />
             </div>
             <div><fa-icon [icon]="passwordFieldIcon" (click)="togglePasswordVisibility()"></fa-icon></div>
           </div>
-          <div class="invalid-feedback" *ngIf="password.errors && f.submitted">
-            <div *ngIf="password.errors['required']">
-              Le mot de passe est obligatoire
+          @if (password.errors && f.submitted) {
+            <div class="invalid-feedback">
+              @if (password.errors['required']) {
+                <div>
+                  Le mot de passe est obligatoire
+                </div>
+              }
+              @if (password.errors['minlength']) {
+                <div>
+                  Le mot de passe doit avoir au moins 6 caractères
+                </div>
+              }
             </div>
-            <div *ngIf="password.errors['minlength']">
-              Le mot de passe doit avoir au moins 6 caractères
-            </div>
-          </div>
-
+          }
           <div class="form-group">
             <label for="confirmPassword">Confirmer le mot de passe</label>
             <div class="row password-field">
@@ -91,39 +110,48 @@
                   required
                   #confirmPassword="ngModel"
                   [ngClass]="{ 'is-invalid': f.submitted && confirmPassword.errors }"
-                />
+                  />
               </div>
               <div>
                 <fa-icon [icon]="passwordFieldIcon" (click)="togglePasswordVisibility()"></fa-icon>
               </div>
             </div>
-            <div class="invalid-feedback" *ngIf="confirmPassword.errors && f.submitted">
-              <div *ngIf="confirmPassword.errors['required']">La confirmation du mot de passe est obligatoire</div>
-<!--              <div *ngIf="!isPasswordConfirmed">Les mots de passe ne correspondent pas</div>-->
-            </div>
-            <div class="invalid-feedback" *ngIf="f.submitted && !isPasswordConfirmed">
-              Les mots de passe ne correspondent pas
-            </div>
-
+            @if (confirmPassword.errors && f.submitted) {
+              <div class="invalid-feedback">
+                @if (confirmPassword.errors['required']) {
+                  <div>La confirmation du mot de passe est obligatoire</div>
+                }
+                <!--              <div *ngIf="!isPasswordConfirmed">Les mots de passe ne correspondent pas</div>-->
+              </div>
+            }
+            @if (f.submitted && !isPasswordConfirmed) {
+              <div class="invalid-feedback">
+                Les mots de passe ne correspondent pas
+              </div>
+            }
           </div>
-
         </div>
         <div class="form-group">
           <button class="btn btn-primary btn-block mt-3">S'enregistrer</button>
         </div>
-
-        <div class="" *ngIf="f.submitted && isSignUpFailed">
-          <p class="alert alert-danger">L'enregistrement a échoué</p>
-
-          <div *ngFor="let error of errorList" class="alert alert-warning">
-            <p class="pt-2">{{error}}</p>
+        @if (f.submitted && isSignUpFailed) {
+          <div class="">
+            <p class="alert alert-danger">L'enregistrement a échoué</p>
+            @for (error of errorList; track error) {
+              <div class="alert alert-warning">
+                <p class="pt-2">{{error}}</p>
+              </div>
+            }
           </div>
-        </div>
+        }
       </form>
+    }
 
-      <div class="alert alert-success" *ngIf="isSuccessful">
+    @if (isSuccessful) {
+      <div class="alert alert-success">
         Compte crée, vous allez être redirigé vers la page de connexion.
       </div>
-    </div>
+    }
   </div>
+</div>
 </div>

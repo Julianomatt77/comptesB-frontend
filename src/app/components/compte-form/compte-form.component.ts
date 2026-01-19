@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  Output,
-  EventEmitter,
-  Input,
-  Inject,
-} from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, inject } from '@angular/core';
 import { Compte } from 'src/app/models/Compte';
 import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
@@ -13,15 +6,20 @@ import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog
 import { CompteService } from 'src/app/services/compte.service';
 import {faClose} from '@fortawesome/free-solid-svg-icons';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { NgFor } from '@angular/common';
+
 
 @Component({
     selector: 'app-compte-form',
     templateUrl: './compte-form.component.html',
     styleUrls: ['./compte-form.component.css'],
-    imports: [FormsModule, ReactiveFormsModule, FaIconComponent, NgFor]
+    imports: [FormsModule, ReactiveFormsModule, FaIconComponent]
 })
 export class CompteFormComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private data = inject(MAT_DIALOG_DATA);
+  private compteService = inject(CompteService);
+  dialogRef = inject<MatDialogRef<CompteFormComponent>>(MatDialogRef);
+
   @Output() formSubmitted: EventEmitter<Compte>;
   @Input() id!: string;
 
@@ -34,12 +32,9 @@ export class CompteFormComponent implements OnInit {
 
   faClose = faClose;
 
-  constructor(
-    private fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) private data: any,
-    private compteService: CompteService,
-    public dialogRef: MatDialogRef<CompteFormComponent>
-  ) {
+  constructor() {
+    const data = this.data;
+
     this.formSubmitted = new EventEmitter<Compte>();
     if (data.addOrEdit == 'edit') {
       this.addOrEdit = 'edit';

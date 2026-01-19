@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
 import { CookieService } from 'ngx-cookie-service';
@@ -11,16 +11,21 @@ import {
   faUserSlash,
 } from '@fortawesome/free-solid-svg-icons';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { NgIf } from '@angular/common';
+
 import { MatButton } from '@angular/material/button';
 
 @Component({
     selector: 'app-header',
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.css'],
-    imports: [RouterLink, FaIconComponent, NgIf, MatButton]
+    imports: [RouterLink, FaIconComponent, MatButton]
 })
 export class HeaderComponent implements OnInit {
+  private authService = inject(AuthService);
+  private storageService = inject(StorageService);
+  private cookieService = inject(CookieService);
+  private router = inject(Router);
+
   isLoggedIn!: boolean;
   username: string = '';
   authenticatedSubject!: Subscription;
@@ -32,12 +37,7 @@ export class HeaderComponent implements OnInit {
   faUserSlash = faUserSlash;
   faHouseChimney = faHouseChimney;
 
-  constructor(
-    private authService: AuthService,
-    private storageService: StorageService,
-    private cookieService: CookieService,
-    private router: Router
-  ) {
+  constructor() {
     this.userId = this.cookieService.get('userId');
   }
 

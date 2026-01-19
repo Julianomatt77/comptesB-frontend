@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, inject } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { User } from '../../models/User';
@@ -16,16 +16,24 @@ import {
   faPlusCircle,
   faTrashCan,
 } from '@fortawesome/free-solid-svg-icons';
-import { NgIf, NgClass, NgFor } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 
 @Component({
     selector: 'app-gestion-user',
     templateUrl: './gestion-user.component.html',
     styleUrls: ['./gestion-user.component.css'],
-    imports: [NgIf, FormsModule, NgClass, FaIconComponent, NgFor]
+    imports: [FormsModule, NgClass, FaIconComponent]
 })
 export class GestionUserComponent implements OnInit {
+  private cookieService = inject(CookieService);
+  private userService = inject(UserService);
+  private authService = inject(AuthService);
+  private storageService = inject(StorageService);
+  private router = inject(Router);
+  private compteService = inject(CompteService);
+  dialog = inject(MatDialog);
+
   @Output() formSubmitted: EventEmitter<User>;
   @Input() userId: string;
 
@@ -52,15 +60,7 @@ export class GestionUserComponent implements OnInit {
 
   dialogRef!: MatDialogRef<ConfirmationDialogComponent>;
 
-  constructor(
-    private cookieService: CookieService,
-    private userService: UserService,
-    private authService: AuthService,
-    private storageService: StorageService,
-    private router: Router,
-    private compteService: CompteService,
-    public dialog: MatDialog
-  ) {
+  constructor() {
     this.formSubmitted = new EventEmitter<User>();
     this.userId = this.cookieService.get('userId');
   }

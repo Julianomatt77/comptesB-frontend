@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  Output,
-  EventEmitter,
-  Host,
-} from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, DOCUMENT, inject } from '@angular/core';
 import { Operation } from 'src/app/models/Operation';
 import { OperationService } from 'src/app/services/operation.service';
 import { OperationFormComponent } from '../operation-form/operation-form.component';
@@ -33,13 +26,8 @@ import {
 // import * as jsPDF from 'jspdf';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import {
-  HostBinding,
-  Inject,
-  Renderer2,
-  ChangeDetectorRef,
-} from '@angular/core';
-import { DOCUMENT, NgIf, NgFor, NgClass, AsyncPipe, DecimalPipe, DatePipe } from '@angular/common';
+import { HostBinding, Renderer2, ChangeDetectorRef } from '@angular/core';
+import { NgClass, AsyncPipe, DecimalPipe, DatePipe } from '@angular/common';
 import { OnDestroy } from '@angular/core';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import {map} from "rxjs/operators";
@@ -53,9 +41,18 @@ import { PieChartModule } from '@swimlane/ngx-charts';
     selector: 'app-comptes',
     templateUrl: './comptes.component.html',
     styleUrls: ['./comptes.component.css'],
-    imports: [NgIf, FormsModule, ReactiveFormsModule, MatFormField, MatInput, FaIconComponent, MatLabel, MatSelect, MatOption, NgFor, MatOptgroup, NgClass, MatPaginator, PieChartModule, AsyncPipe, DecimalPipe, DatePipe]
+    imports: [FormsModule, ReactiveFormsModule, MatFormField, MatInput, FaIconComponent, MatLabel, MatSelect, MatOption, MatOptgroup, NgClass, MatPaginator, PieChartModule, AsyncPipe, DecimalPipe, DatePipe]
 })
 export class ComptesComponent implements OnInit, OnDestroy {
+  private fb = inject(FormBuilder);
+  private operationService = inject(OperationService);
+  private compteService = inject(CompteService);
+  dialog = inject(MatDialog);
+  private cookieService = inject(CookieService);
+  private changeDetectorRef = inject(ChangeDetectorRef);
+  private document = inject<Document>(DOCUMENT);
+  private renderer = inject(Renderer2);
+
   // @HostBinding('class.bg-light') someClass: Host = true;
   @Output() formSubmitted: EventEmitter<string>;
 
@@ -162,17 +159,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
 
-  constructor(
-    private fb: FormBuilder,
-    private operationService: OperationService,
-    private compteService: CompteService,
-    public dialog: MatDialog,
-    private cookieService: CookieService,
-    private changeDetectorRef: ChangeDetectorRef,
-
-    @Inject(DOCUMENT) private document: Document,
-    private renderer: Renderer2
-  ) {
+  constructor() {
     this.renderer.addClass(this.document.body, 'bg-light');
     this.formSubmitted = new EventEmitter<string>();
     this.userId = this.cookieService.get('userId');

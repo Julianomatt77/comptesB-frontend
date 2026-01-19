@@ -2,178 +2,212 @@
   <div class="text-center">
     <h1 class="mb-2">Gestion du compte</h1>
   </div>
-  <form
-    *ngIf="!isSuccessful"
-    name="form"
-    (ngSubmit)="f.form.valid && onSubmit()"
-    #f="ngForm"
-    novalidate
-  >
-    <div class="form-group">
-      <label for="username">Nom d'utilisateur</label>
-      <input
-        type="text"
-        class="form-control"
-        name="username"
-        [(ngModel)]="form.username"
-        required
-        minlength="3"
-        maxlength="20"
-        #username="ngModel"
-        [ngClass]="{ 'is-invalid': f.submitted && username.errors }"
-      />
-      <div class="invalid-feedback" *ngIf="username.errors && f.submitted">
-        <div *ngIf="username.errors['required']">
-          Le nom d'utilisateur est obligatoire
-        </div>
-        <div *ngIf="username.errors['minlength']">
-          Le nom d'utilisateur doit avoir au moins 3 caractères
-        </div>
-        <div *ngIf="username.errors['maxlength']">
-          Le nom d'utilisateur doit avoir au maximum 20 caractères
-        </div>
+  @if (!isSuccessful) {
+    <form
+      name="form"
+      (ngSubmit)="f.form.valid && onSubmit()"
+      #f="ngForm"
+      novalidate
+      >
+      <div class="form-group">
+        <label for="username">Nom d'utilisateur</label>
+        <input
+          type="text"
+          class="form-control"
+          name="username"
+          [(ngModel)]="form.username"
+          required
+          minlength="3"
+          maxlength="20"
+          #username="ngModel"
+          [ngClass]="{ 'is-invalid': f.submitted && username.errors }"
+          />
+        @if (username.errors && f.submitted) {
+          <div class="invalid-feedback">
+            @if (username.errors['required']) {
+              <div>
+                Le nom d'utilisateur est obligatoire
+              </div>
+            }
+            @if (username.errors['minlength']) {
+              <div>
+                Le nom d'utilisateur doit avoir au moins 3 caractères
+              </div>
+            }
+            @if (username.errors['maxlength']) {
+              <div>
+                Le nom d'utilisateur doit avoir au maximum 20 caractères
+              </div>
+            }
+          </div>
+        }
       </div>
-    </div>
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input
-        type="email"
-        class="form-control"
-        name="email"
-        [(ngModel)]="form.email"
-        required
-        email
-        #email="ngModel"
-        [ngClass]="{ 'is-invalid': f.submitted && email.errors }"
-      />
-      <div class="invalid-feedback" *ngIf="email.errors && f.submitted">
-        <div *ngIf="email.errors['required']">
-          Une adresse e-mail est obligatoire
-        </div>
-        <div *ngIf="email.errors['email']">
-          L'adress e-mail doit être valide
-        </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          name="email"
+          [(ngModel)]="form.email"
+          required
+          email
+          #email="ngModel"
+          [ngClass]="{ 'is-invalid': f.submitted && email.errors }"
+          />
+        @if (email.errors && f.submitted) {
+          <div class="invalid-feedback">
+            @if (email.errors['required']) {
+              <div>
+                Une adresse e-mail est obligatoire
+              </div>
+            }
+            @if (email.errors['email']) {
+              <div>
+                L'adress e-mail doit être valide
+              </div>
+            }
+          </div>
+        }
       </div>
-    </div>
-    <div class="form-group">
-      <label for="password">Mot de passe</label>
-      <input
-        type="password"
-        class="form-control"
-        name="password"
-        [(ngModel)]="form.password"
-        minlength="6"
-        #password="ngModel"
-        [ngClass]="{ 'is-invalid': f.submitted && password.errors }"
-      />
-      <div class="invalid-feedback" *ngIf="password.errors && f.submitted">
-        <div *ngIf="password.errors['minlength']">
-          Le mot de passe doit avoir au moins 6 caractères
-        </div>
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input
+          type="password"
+          class="form-control"
+          name="password"
+          [(ngModel)]="form.password"
+          minlength="6"
+          #password="ngModel"
+          [ngClass]="{ 'is-invalid': f.submitted && password.errors }"
+          />
+        @if (password.errors && f.submitted) {
+          <div class="invalid-feedback">
+            @if (password.errors['minlength']) {
+              <div>
+                Le mot de passe doit avoir au moins 6 caractères
+              </div>
+            }
+          </div>
+        }
       </div>
-    </div>
-    <div
-      class="form-group d-flex justify-content-center"
-      *ngIf="!email.errors || !password.errors || !username.errors"
-    >
-      <button class="btn btn-primary btn-block mt-3">
-        Modifier mes informations
+      @if (!email.errors || !password.errors || !username.errors) {
+        <div
+          class="form-group d-flex justify-content-center"
+          >
+          <button class="btn btn-primary btn-block mt-3">
+            Modifier mes informations
+          </button>
+        </div>
+      }
+      @if (f.submitted && isSignUpFailed) {
+        <div class="alert alert-warning">
+          La modification des informations a échoué<br />{{ errorMessage }}
+        </div>
+      }
+    </form>
+  }
+
+  @if (!isSuccessful) {
+    <div class="d-flex justify-content-center">
+      <button class="btn btn-danger mt-2" (click)="openConfirmation()">
+        Supprimer mon compte utilisateur
       </button>
     </div>
+  }
 
-    <div class="alert alert-warning" *ngIf="f.submitted && isSignUpFailed">
-      La modification des informations a échoué<br />{{ errorMessage }}
+  @if (isSuccessful) {
+    <div class="alert alert-success">
+      Informations modifiées avec succès!
     </div>
-  </form>
+  }
 
-  <div class="d-flex justify-content-center" *ngIf="!isSuccessful">
-    <button class="btn btn-danger mt-2" (click)="openConfirmation()">
-      Supprimer mon compte utilisateur
-    </button>
-  </div>
-
-  <div class="alert alert-success" *ngIf="isSuccessful">
-    Informations modifiées avec succès!
-  </div>
-
-  <div *ngIf="!isSuccessful" class="border-bottom border-5 mt-4"></div>
+  @if (!isSuccessful) {
+    <div class="border-bottom border-5 mt-4"></div>
+  }
 
   <!-- Affichage et suppression des comptes bancaires -->
-  <div *ngIf="!isSuccessful" class="mb-5 pb-5">
-    <h2 class="text-center mt-3">Gestion des comptes bancaires</h2>
-    <div>
-      <div class="d-flex justify-content-center mb-2">
-        <a href="javascript:;" (click)="AddAccount()" class="">
-          <fa-icon
-            [icon]="faPlus"
-            class="text-primary"
-            style="font-size: 40px"
-          ></fa-icon>
-        </a>
-      </div>
-      <div class="row">
-        <div *ngFor="let compte of compteCourantList" class="col-md-3 mt-2">
-          <div class="card">
-            <div class="card-body text-center">
-              <h5 class="card-title">{{ compte.name }}</h5>
-              <h6 class="card-subtitle mb-2 text-muted">
-                {{ compte.typeCompte }}
-              </h6>
-              <p class="card-text">Solde initial : {{ compte.soldeInitial }}</p>
-              <button (click)="openAccountDetail(compte)" class="btn">
-                <fa-icon [icon]="faPen"></fa-icon>
-              </button>
-              <button (click)="deleteAccount(compte)" class="btn">
-                <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
-              </button>
-            </div>
-          </div>
+  @if (!isSuccessful) {
+    <div class="mb-5 pb-5">
+      <h2 class="text-center mt-3">Gestion des comptes bancaires</h2>
+      <div>
+        <div class="d-flex justify-content-center mb-2">
+          <a href="javascript:;" (click)="AddAccount()" class="">
+            <fa-icon
+              [icon]="faPlus"
+              class="text-primary"
+              style="font-size: 40px"
+            ></fa-icon>
+          </a>
         </div>
-      </div>
-      <div class="border-bottom border-3 mt-2"></div>
-      <div class="row">
-        <div *ngFor="let compte of compteEpargneList" class="col-md-3 mt-2">
-          <div class="card">
-            <div class="card-body text-center">
-              <h5 class="card-title">{{ compte.name }}</h5>
-              <h6 class="card-subtitle mb-2 text-muted">
-                {{ compte.typeCompte }}
-              </h6>
-              <p class="card-text">Solde initial : {{ compte.soldeInitial }}</p>
-              <button (click)="openAccountDetail(compte)" class="btn">
-                <fa-icon [icon]="faPen"></fa-icon>
-              </button>
-              <button (click)="deleteAccount(compte)" class="btn">
-                <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="!isSuccessful" class="border-bottom border-5 mt-4"></div>
-
-      <!-- Affichage et réactivation des comptes supprimés -->
-      <div class="mb-5 pb-5">
-        <h2 class="text-center mt-3">Comptes inactifs</h2>
-
         <div class="row">
-          <div *ngFor="let compte of notActiveCompteList" class="col-md-3 mt-2">
-            <div class="card">
-              <div class="card-body text-center">
-                <h5 class="card-title">{{ compte.name }}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">
-                  {{ compte.typeCompte }}
-                </h6>
-                <p class="card-text">Solde initial : {{ compte.soldeInitial }}</p>
-                <button (click)="reactivateAccount(compte)" class="btn btn-primary" title="Réactiver le compte {{ compte.name }}">
-                  Réactiver
-                </button>
+          @for (compte of compteCourantList; track compte) {
+            <div class="col-md-3 mt-2">
+              <div class="card">
+                <div class="card-body text-center">
+                  <h5 class="card-title">{{ compte.name }}</h5>
+                  <h6 class="card-subtitle mb-2 text-muted">
+                    {{ compte.typeCompte }}
+                  </h6>
+                  <p class="card-text">Solde initial : {{ compte.soldeInitial }}</p>
+                  <button (click)="openAccountDetail(compte)" class="btn">
+                    <fa-icon [icon]="faPen"></fa-icon>
+                  </button>
+                  <button (click)="deleteAccount(compte)" class="btn">
+                    <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
+                  </button>
+                </div>
               </div>
             </div>
+          }
+        </div>
+        <div class="border-bottom border-3 mt-2"></div>
+        <div class="row">
+          @for (compte of compteEpargneList; track compte) {
+            <div class="col-md-3 mt-2">
+              <div class="card">
+                <div class="card-body text-center">
+                  <h5 class="card-title">{{ compte.name }}</h5>
+                  <h6 class="card-subtitle mb-2 text-muted">
+                    {{ compte.typeCompte }}
+                  </h6>
+                  <p class="card-text">Solde initial : {{ compte.soldeInitial }}</p>
+                  <button (click)="openAccountDetail(compte)" class="btn">
+                    <fa-icon [icon]="faPen"></fa-icon>
+                  </button>
+                  <button (click)="deleteAccount(compte)" class="btn">
+                    <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+        @if (!isSuccessful) {
+          <div class="border-bottom border-5 mt-4"></div>
+        }
+        <!-- Affichage et réactivation des comptes supprimés -->
+        <div class="mb-5 pb-5">
+          <h2 class="text-center mt-3">Comptes inactifs</h2>
+          <div class="row">
+            @for (compte of notActiveCompteList; track compte) {
+              <div class="col-md-3 mt-2">
+                <div class="card">
+                  <div class="card-body text-center">
+                    <h5 class="card-title">{{ compte.name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                      {{ compte.typeCompte }}
+                    </h6>
+                    <p class="card-text">Solde initial : {{ compte.soldeInitial }}</p>
+                    <button (click)="reactivateAccount(compte)" class="btn btn-primary" title="Réactiver le compte {{ compte.name }}">
+                      Réactiver
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
           </div>
         </div>
+      </div>
     </div>
-    </div>
-  </div>
+  }
 </section>

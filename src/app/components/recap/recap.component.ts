@@ -1,10 +1,4 @@
-import {
-  Component,
-  OnInit,
-  Output,
-  EventEmitter,
-  ViewChild,
-} from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, DOCUMENT, inject } from '@angular/core';
 import { Operation } from 'src/app/models/Operation';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -25,8 +19,8 @@ import {
   faDownload,
   faFilter,
 } from '@fortawesome/free-solid-svg-icons';
-import { Renderer2, Inject } from '@angular/core';
-import { DOCUMENT, NgIf, NgFor, NgClass, DecimalPipe } from '@angular/common';
+import { Renderer2 } from '@angular/core';
+import { NgClass, DecimalPipe } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { LineChartModule } from '@swimlane/ngx-charts';
 
@@ -34,9 +28,17 @@ import { LineChartModule } from '@swimlane/ngx-charts';
     selector: 'app-recap',
     templateUrl: './recap.component.html',
     styleUrls: ['./recap.component.css'],
-    imports: [NgIf, FormsModule, ReactiveFormsModule, NgFor, FaIconComponent, LineChartModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, NgClass, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DecimalPipe]
+    imports: [FormsModule, ReactiveFormsModule, FaIconComponent, LineChartModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, NgClass, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DecimalPipe]
 })
 export class RecapComponent implements OnInit {
+  private cookieService = inject(CookieService);
+  private fb = inject(FormBuilder);
+  private operationService = inject(OperationService);
+  private datePickerService = inject(DatepickerService);
+  private compteService = inject(CompteService);
+  private document = inject<Document>(DOCUMENT);
+  private renderer = inject(Renderer2);
+
   operationList: any[] = [];
   operationEpargneList: any[] = [];
   operationId!: string;
@@ -152,15 +154,7 @@ export class RecapComponent implements OnInit {
 
   private subscriptions: Subscription = new Subscription();
 
-  constructor(
-    private cookieService: CookieService,
-    private fb: FormBuilder,
-    private operationService: OperationService,
-    private datePickerService: DatepickerService,
-    private compteService: CompteService,
-    @Inject(DOCUMENT) private document: Document,
-    private renderer: Renderer2
-  ) {
+  constructor() {
     this.renderer.addClass(this.document.body, 'bg-light');
 
     this.form = this.fb.group({

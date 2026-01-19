@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject, Renderer2 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { Component, OnInit, Renderer2, DOCUMENT, inject } from '@angular/core';
+
 
 @Component({
     selector: 'app-cgu',
@@ -7,10 +7,10 @@ import { DOCUMENT } from '@angular/common';
     styleUrls: ['./cgu.component.css']
 })
 export class CguComponent implements OnInit {
-  constructor(
-    @Inject(DOCUMENT) private document: Document,
-    private renderer: Renderer2
-  ) {
+  private document = inject<Document>(DOCUMENT);
+  private renderer = inject(Renderer2);
+
+  constructor() {
     this.renderer.addClass(this.document.body, 'bg-light');
   }
 

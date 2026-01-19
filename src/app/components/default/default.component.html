@@ -21,15 +21,17 @@
           src="assets/images/JM-comptesB.JPG"
           class="img-fluid"
           alt="JM-comptesB.JPG"
-        />
+          />
       </div>
     </div>
 
-    <div *ngIf="!isLoggedIn" class="mb-5">
-      <button class="btn btn-lg btn-primary" [routerLink]="['/register']">
-        Inscrivez-vous !
-      </button>
-    </div>
+    @if (!isLoggedIn) {
+      <div class="mb-5">
+        <button class="btn btn-lg btn-primary" [routerLink]="['/register']">
+          Inscrivez-vous !
+        </button>
+      </div>
+    }
 
     <div class="mb-5 d-flex justify-content-center">
       <h2 class="col-lg-6">Comment ça marche ?</h2>
@@ -72,7 +74,7 @@
         </div>
         <div
           class="col-md-5 px-5 mt-5 d-flex flex-column justify-content-evenly"
-        >
+          >
           <h5 class="text-start">Voir toutes vos opérations</h5>
           <p class="text-start">
             Affichage de la somme de vos dépenses et revenues et mise à jour du
@@ -165,7 +167,7 @@
             src="assets/images/export.jpg"
             class="img-fluid"
             alt="export.jpg"
-          />
+            />
         </div>
         <div class="col-md-5 px-5 d-flex flex-column justify-content-evenly">
           <h5 class="card-title">Exporter vos opérations</h5>

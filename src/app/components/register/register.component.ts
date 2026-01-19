@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { NgIf, NgClass, NgFor } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 
@@ -10,9 +10,12 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
     selector: 'app-register',
     templateUrl: './register.component.html',
     styleUrls: ['./register.component.css'],
-    imports: [NgIf, FormsModule, NgClass, FaIconComponent, NgFor]
+    imports: [FormsModule, NgClass, FaIconComponent]
 })
 export class RegisterComponent implements OnInit {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   form: any = {
     username: null,
     email: null,
@@ -26,8 +29,6 @@ export class RegisterComponent implements OnInit {
 
   passwordFieldType: string = 'password';
   passwordFieldIcon = faEyeSlash;
-
-  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {}
 
