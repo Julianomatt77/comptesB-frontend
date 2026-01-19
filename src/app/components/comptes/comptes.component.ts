@@ -169,7 +169,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
   constructor() {
     this.renderer.addClass(this.document.body, 'bg-light');
     this.formSubmitted = new EventEmitter<string>();
-    this.userId = this.cookieService.get('userId');
+    this.userId = this.cookieService.get('compty-userId');
     if (innerWidth >= 991) {
       this.width = innerWidth / 3.3;
     } else {
@@ -180,6 +180,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     let year = new Date(Date.now()).getFullYear() - 1;
     this.subscriptions.add(
+
+      //TODO: à remplacer par signals
       this.operationService
         .getOperations(this.allOperations, this.userId)
         .subscribe((operations) => {

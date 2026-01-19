@@ -172,7 +172,7 @@ export class RecapComponent implements OnInit {
       rangeDate: this.todayYear,
     });
 
-    this.userId = this.cookieService.get('userId');
+    this.userId = this.cookieService.get('compty-userId');
     this.width = innerWidth / 1.3;
     Object.assign(this.multi);
   }

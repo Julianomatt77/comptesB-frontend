@@ -4,4 +4,5 @@ export type User = {
   token: string;
   username: string;
   userId?: number;
+  password?: string;
 }

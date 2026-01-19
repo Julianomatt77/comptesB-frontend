@@ -71,7 +71,7 @@ export class OperationFormComponent implements OnInit {
     const data = this.data;
 
     this.formSubmitted = new EventEmitter<Operation>();
-    this.userId = this.cookieService.get('userId');
+    this.userId = this.cookieService.get('compty-userId');
     this.compteList = data.compteList;
 
     // On réorganise l'ordre d'affichage des comptes

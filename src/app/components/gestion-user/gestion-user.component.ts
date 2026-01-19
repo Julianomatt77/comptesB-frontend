@@ -1,6 +1,14 @@
-import {Component, OnInit, Output, EventEmitter, Input, inject, ChangeDetectionStrategy} from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy,
+  signal,
+  input,
+  output,
+} from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { User } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from 'src/app/services/user.service';
@@ -8,7 +16,7 @@ import { StorageService } from '../../services/storage.service';
 import { forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
 import { CompteService } from '../../services/compte.service';
-import { MatDialog, MatDialogRef} from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { CompteFormComponent } from '../compte-form/compte-form.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import {
@@ -20,108 +28,91 @@ import { NgClass } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 
 @Component({
-    selector: 'app-gestion-user',
-    templateUrl: './gestion-user.component.html',
-    styleUrls: ['./gestion-user.component.css'],
+  selector: 'app-gestion-user',
+  templateUrl: './gestion-user.component.html',
+  styleUrls: ['./gestion-user.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [FormsModule, NgClass, FaIconComponent]
+  imports: [ReactiveFormsModule, NgClass, FaIconComponent],
 })
 export class GestionUserComponent implements OnInit {
-  private cookieService = inject(CookieService);
-  private userService = inject(UserService);
-  private authService = inject(AuthService);
-  private storageService = inject(StorageService);
-  private router = inject(Router);
-  private compteService = inject(CompteService);
-  dialog = inject(MatDialog);
+  private readonly cookieService = inject(CookieService);
+  private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
+  private readonly storageService = inject(StorageService);
+  private readonly router = inject(Router);
+  private readonly compteService = inject(CompteService);
+  private readonly dialog = inject(MatDialog);
+  private readonly fb = inject(FormBuilder);
 
-  @Output() formSubmitted: EventEmitter<User>;
-  @Input() userId: string;
+  formSubmitted = output<User>();
+  userId = input<string>(this.cookieService.get('compty-userId'));
 
-  // form!: FormGroup;
+  userForm = this.fb.group({
+    username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.minLength(6)]],
+  });
 
-  form: any = {
-    username: null,
-    email: null,
-    password: null,
-  };
-  isSuccessful = false;
-  isSignUpFailed = false;
-  errorMessage = '';
+  isSuccessful = signal(false);
+  isSignUpFailed = signal(false);
+  errorMessage = signal('');
 
-  user!: User;
+  user = signal<User | null>(null);
 
-  compteList: any[] = [];
-  notActiveCompteList: any[] = [];
-  compteCourantList: any[] = [];
-  compteEpargneList: any[] = [];
+  compteList = signal<any[]>([]);
+  notActiveCompteList = signal<any[]>([]);
+  compteCourantList = signal<any[]>([]);
+  compteEpargneList = signal<any[]>([]);
+
   faPen = faPen;
   faTrashCan = faTrashCan;
   faPlus = faPlusCircle;
 
   dialogRef!: MatDialogRef<ConfirmationDialogComponent>;
 
-  constructor() {
-    this.formSubmitted = new EventEmitter<User>();
-    this.userId = this.cookieService.get('userId');
-  }
-
   ngOnInit(): void {
-    this.isSuccessful = false;
-    this.compteList = [];
-    this.compteCourantList = [];
-    this.userService.getOneUser(this.userId).subscribe((user) => {
-      this.user = user;
+    this.isSuccessful.set(false);
+    this.compteList.set([]);
+    this.compteCourantList.set([]);
 
-      this.form = {
-        username: user.username,
-        email: user.email,
-      };
+    const currentUserId = this.userId();
+    if (currentUserId) {
+      this.userService.getOneUser(currentUserId).subscribe((user) => {
+        this.user.set(user);
 
-      this.showAccounts();
-    });
+        this.userForm.patchValue({
+          username: user.username,
+          email: user.email,
+        });
+
+        this.showAccounts();
+      });
+    }
   }
 
   /* ******************  Gestion des informations du compte utilisateur *****************/
   onSubmit(): void {
-    const { username, email, password } = this.form;
-    let storageData = this.storageService.getUser();
+    if (this.userForm.invalid) {
+      return;
+    }
 
-    let data = {
-      id: this.userId,
+    const { username, email, password } = this.userForm.value;
+
+    const data = {
+      id: this.userId(),
       user: {
-        username: username,
-        email: email,
-        password: null,
+        username: username!,
+        email: email!,
+        password: password || null,
       },
     };
 
-    if (password) {
-      data.user.password = password;
-    }
-    storageData.username = username;
-
     this.userService.updateOneUser(data).subscribe(() => {
-      // Update session storaage data
-      // this.storageService.saveUser(storageData);
-
-      // Update cookie data
-      this.cookieService.set(
-        'username',
-        data.user.username,
-        0.2,
-        '/',
-        undefined,
-        false,
-        'Strict'
-      );
-
-      this.isSuccessful = true;
+      this.isSuccessful.set(true);
       setTimeout(() => {
-        this.isSuccessful = false;
+        this.isSuccessful.set(false);
         this.reloadPage();
       }, 700);
-      // this.reloadPage();
     });
   }
 
@@ -131,7 +122,6 @@ export class GestionUserComponent implements OnInit {
 
   openConfirmation() {
     this.dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      // width: '250px',
       disableClose: false,
     });
     this.dialogRef.componentInstance.confirmMessage =
@@ -139,20 +129,17 @@ export class GestionUserComponent implements OnInit {
 
     this.dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        // do confirmation actions
         this.deleteUser();
       }
-      // this.dialogRef = null;
     });
   }
 
   deleteUser() {
-    this.userService.deleteUser(this.userId).subscribe(() => {
+    this.userService.deleteUser(this.userId()).subscribe(() => {
       alert('Votre compte a été supprimé avec succès');
       this.authService.logout().subscribe();
       sessionStorage.removeItem('auth-user');
 
-      // Redirection après suppression
       setTimeout(() => {
         this.router.navigateByUrl('/');
       }, 1000);
@@ -162,42 +149,42 @@ export class GestionUserComponent implements OnInit {
   /*********** Gestion des comptes bancaires ********* */
 
   showAccounts() {
-    this.compteList = [];
-    this.notActiveCompteList = [];
-    this.compteCourantList = [];
-    this.compteEpargneList = [];
+    this.compteList.set([]);
+    this.notActiveCompteList.set([]);
+    this.compteCourantList.set([]);
+    this.compteEpargneList.set([]);
 
-    const activeAccounts = this.compteService.getAllAccounts()
-    const notActiveAccounts = this.compteService.getAllDeactivatedAccounts()
+    const activeAccounts = this.compteService.getAllAccounts();
+    const notActiveAccounts = this.compteService.getAllDeactivatedAccounts();
 
-    forkJoin([activeAccounts, notActiveAccounts]).subscribe(
-      (data) => {
-        let actives = data[0]
-        let notActives = data[1]
+    forkJoin([activeAccounts, notActiveAccounts]).subscribe((data) => {
+      const actives = data[0];
+      const notActives = data[1];
 
-        // On récupère les comptes actifs
-        actives.forEach((compte) => {
-          if (compte.userId == this.userId) {
-            let temp = Math.round(compte.soldeActuel * 100) / 100;
-            compte.soldeActuel = temp;
-            this.compteList.push(compte);
+      const currentUserId = this.userId();
 
-            if (compte.typeCompte == 'Compte Courant') {
-              this.compteCourantList.push(compte);
-            } else {
-              this.compteEpargneList.push(compte);
-            }
-          }
-        });
-
-        // On récupère les comptes inactifs
-        notActives.forEach((compte) => {
-          let temp = Math.round(compte.soldeActuel * 100) / 100;
+      // On récupère les comptes actifs
+      actives.forEach((compte) => {
+        if (compte.userId == currentUserId) {
+          const temp = Math.round(compte.soldeActuel * 100) / 100;
           compte.soldeActuel = temp;
-          this.notActiveCompteList.push(compte);
-        })
-      }
-    )
+          this.compteList.update((list) => [...list, compte]);
+
+          if (compte.typeCompte == 'Compte Courant') {
+            this.compteCourantList.update((list) => [...list, compte]);
+          } else {
+            this.compteEpargneList.update((list) => [...list, compte]);
+          }
+        }
+      });
+
+      // On récupère les comptes inactifs
+      notActives.forEach((compte) => {
+        const temp = Math.round(compte.soldeActuel * 100) / 100;
+        compte.soldeActuel = temp;
+        this.notActiveCompteList.update((list) => [...list, compte]);
+      });
+    });
   }
 
   AddAccount() {
@@ -211,7 +198,6 @@ export class GestionUserComponent implements OnInit {
       .afterClosed()
       .subscribe(() => {
         this.showAccounts();
-        // this.getSoldePerAccount(this.allOperations);
       });
   }
 
@@ -230,20 +216,18 @@ export class GestionUserComponent implements OnInit {
       });
   }
 
-
   deleteAccount(compte: any) {
     this.compteService.getAllAccounts().subscribe((data) => {
-      let compteIndex = data.findIndex((p) => p.id == compte.id);
+      const compteIndex = data.findIndex((p) => p.id == compte.id);
       this.compteService.deleteAccount(data[compteIndex].id).subscribe(() => {
         this.showAccounts();
-        // this.getSoldePerAccount(this.allOperations);
       });
     });
   }
 
   reactivateAccount(compte: any) {
-    this.compteService.reactivateAccount(compte.id).subscribe(()=>{
+    this.compteService.reactivateAccount(compte.id).subscribe(() => {
       this.showAccounts();
-    })
+    });
   }
 }
