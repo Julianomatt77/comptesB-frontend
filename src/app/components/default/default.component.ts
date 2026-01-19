@@ -1,4 +1,4 @@
-import { Component, OnInit, Renderer2, DOCUMENT, inject } from '@angular/core';
+import {Component, OnInit, Renderer2, DOCUMENT, inject, ChangeDetectionStrategy} from '@angular/core';
 
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
@@ -10,6 +10,7 @@ import { RouterLink } from '@angular/router';
     selector: 'app-default',
     templateUrl: './default.component.html',
     styleUrls: ['./default.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [RouterLink]
 })
 export class DefaultComponent implements OnInit {

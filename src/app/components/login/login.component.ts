@@ -1,4 +1,4 @@
-import { Component, OnInit, Renderer2, DOCUMENT, inject } from '@angular/core';
+import {Component, OnInit, Renderer2, DOCUMENT, inject, ChangeDetectionStrategy} from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
@@ -12,6 +12,7 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
     selector: 'app-login',
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [FormsModule, NgClass, FaIconComponent, RouterLink]
 })
 export class LoginComponent implements OnInit {

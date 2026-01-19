@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output, Input, inject } from '@angular/core';
+import {Component, OnInit, EventEmitter, Output, Input, inject, ChangeDetectionStrategy} from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Operation } from 'src/app/models/Operation';
 import { MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
@@ -15,6 +15,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
     selector: 'app-operation-form',
     templateUrl: './operation-form.component.html',
     styleUrls: ['./operation-form.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [FormsModule, ReactiveFormsModule, FaIconComponent, MatSlideToggle, DatePipe]
 })
 export class OperationFormComponent implements OnInit {

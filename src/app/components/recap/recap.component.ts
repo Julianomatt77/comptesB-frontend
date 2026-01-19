@@ -1,4 +1,13 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild, DOCUMENT, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Output,
+  EventEmitter,
+  ViewChild,
+  DOCUMENT,
+  inject,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { Operation } from 'src/app/models/Operation';
 import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -28,6 +37,7 @@ import { LineChartModule } from '@swimlane/ngx-charts';
     selector: 'app-recap',
     templateUrl: './recap.component.html',
     styleUrls: ['./recap.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [FormsModule, ReactiveFormsModule, FaIconComponent, LineChartModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, NgClass, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DecimalPipe]
 })
 export class RecapComponent implements OnInit {

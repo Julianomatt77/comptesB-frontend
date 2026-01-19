@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {Component, OnInit, inject, ChangeDetectionStrategy} from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
 import { CookieService } from 'ngx-cookie-service';
@@ -18,6 +18,7 @@ import { MatButton } from '@angular/material/button';
     selector: 'app-header',
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [RouterLink, FaIconComponent, MatButton]
 })
 export class HeaderComponent implements OnInit {

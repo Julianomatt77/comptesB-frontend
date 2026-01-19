@@ -1,4 +1,13 @@
-import { Component, OnInit, ViewChild, Output, EventEmitter, DOCUMENT, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  Output,
+  EventEmitter,
+  DOCUMENT,
+  inject,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { Operation } from 'src/app/models/Operation';
 import { OperationService } from 'src/app/services/operation.service';
 import { OperationFormComponent } from '../operation-form/operation-form.component';
@@ -41,6 +50,7 @@ import { PieChartModule } from '@swimlane/ngx-charts';
     selector: 'app-comptes',
     templateUrl: './comptes.component.html',
     styleUrls: ['./comptes.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [FormsModule, ReactiveFormsModule, MatFormField, MatInput, FaIconComponent, MatLabel, MatSelect, MatOption, MatOptgroup, NgClass, MatPaginator, PieChartModule, AsyncPipe, DecimalPipe, DatePipe]
 })
 export class ComptesComponent implements OnInit, OnDestroy {

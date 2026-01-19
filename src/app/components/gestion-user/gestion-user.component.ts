@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, inject } from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, Input, inject, ChangeDetectionStrategy} from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { User } from '../../models/User';
@@ -23,6 +23,7 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
     selector: 'app-gestion-user',
     templateUrl: './gestion-user.component.html',
     styleUrls: ['./gestion-user.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [FormsModule, NgClass, FaIconComponent]
 })
 export class GestionUserComponent implements OnInit {

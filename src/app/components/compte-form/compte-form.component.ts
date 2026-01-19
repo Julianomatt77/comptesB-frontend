@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, inject } from '@angular/core';
+import {Component, OnInit, Output, EventEmitter, Input, inject, ChangeDetectionStrategy} from '@angular/core';
 import { Compte } from 'src/app/models/Compte';
 import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
@@ -12,6 +12,7 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
     selector: 'app-compte-form',
     templateUrl: './compte-form.component.html',
     styleUrls: ['./compte-form.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [FormsModule, ReactiveFormsModule, FaIconComponent]
 })
 export class CompteFormComponent implements OnInit {

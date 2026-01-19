@@ -1,4 +1,4 @@
-import { Component, OnInit, DOCUMENT, inject } from '@angular/core';
+import {Component, OnInit, DOCUMENT, inject, ChangeDetectionStrategy} from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { HostBinding, Renderer2 } from '@angular/core';
 
@@ -8,7 +8,8 @@ import { RouterLink } from '@angular/router';
     selector: 'app-footer',
     templateUrl: './footer.component.html',
     styleUrls: ['./footer.component.css'],
-    imports: [RouterLink]
+    imports: [RouterLink],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FooterComponent implements OnInit {
   private cookieService = inject(CookieService);

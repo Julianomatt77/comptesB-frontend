@@ -1,4 +1,4 @@
-import { Component, DOCUMENT, inject } from '@angular/core';
+import {ChangeDetectionStrategy, Component, DOCUMENT, inject} from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 
 import { HeaderComponent } from './components/header/header.component';
@@ -9,6 +9,7 @@ import { FooterComponent } from './components/footer/footer.component';
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: ['./app.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [HeaderComponent, RouterOutlet, FooterComponent]
 })
 export class AppComponent {
