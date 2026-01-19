@@ -82,7 +82,7 @@ export class OperationFormComponent implements OnInit {
     if (data.addOrEdit == 'edit') {
       this.addOrEdit = 'edit';
       this.buttonLabel = 'Mettre à jour';
-      this.id = data.operation._id;
+      this.id = data.operation.id;
       this.operation = data.operation;
       this.operation.operationDate = new Date(
         this.operation.operationDate.toString()
@@ -166,12 +166,12 @@ export class OperationFormComponent implements OnInit {
   onSubmitOperationForm(): void {
     this.submitted = true;
     if (this.form.valid){
-      const compte = this.compteList.find(compte => compte._id === this.operation.compte)
+      const compte = this.compteList.find(compte => compte.id === this.operation.compte)
 
       this.operation.solde =
         compte.soldeActuel + (this.operation.montant - this.tempMontant);
 
-      this.compteId = compte._id;
+      this.compteId = compte.id;
       compte.soldeActuel = this.operation.solde;
 
       this.operation.montant = this.isCredit(
@@ -193,9 +193,9 @@ export class OperationFormComponent implements OnInit {
         this.operationReceveur.operationDate = this.operation.operationDate
         this.operationReceveur.type = true
 
-        const compteReceveur = this.compteList.find(compte => compte._id === this.operation.compteReceveur)
+        const compteReceveur = this.compteList.find(compte => compte.id === this.operation.compteReceveur)
         this.operationReceveur.solde = compteReceveur.soldeActuel + (this.operationReceveur.montant - this.tempMontantReceveur);
-        this.compteReceveurId = compteReceveur._id;
+        this.compteReceveurId = compteReceveur.id;
         compteReceveur.soldeActuel = this.operationReceveur.solde
         this.operationReceveur.montant = -this.operation.montant
 

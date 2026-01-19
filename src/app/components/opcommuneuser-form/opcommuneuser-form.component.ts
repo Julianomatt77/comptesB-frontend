@@ -35,7 +35,7 @@ export class OpcommuneuserFormComponent implements OnInit {
     if (data.addOrEdit == 'edit') {
       this.addOrEdit = 'edit';
       this.buttonLabel = 'Mettre à jour';
-      this.id = data.user._id;
+      this.id = data.user.id;
       this.user = data.user;
     } else {
       this.addOrEdit = 'add';

@@ -48,7 +48,7 @@
             <mat-option value="">Tous les comptes</mat-option>
             <ng-container *ngFor="let type of groupedCompteTypes">
               <mat-optgroup [label]="type">
-                <mat-option *ngFor="let compte of groupedComptes[type]" [value]="compte._id">
+                <mat-option *ngFor="let compte of groupedComptes[type]" [value]="compte.id">
                   {{ compte.name }}
                 </mat-option>
               </mat-optgroup>

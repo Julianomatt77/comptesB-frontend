@@ -268,7 +268,7 @@ export class RecapComponent implements OnInit {
         //Récupération des opérations de l'utilisateur
         data[1].forEach((operation) => {
           let matchCompteId = this.compteList.findIndex(
-            (el) => el._id == operation.compte
+            (el) => el.id == operation.compte
           );
           let matchCompteName = this.compteList.findIndex(
             (el) => el.name == operation.compte
@@ -282,7 +282,7 @@ export class RecapComponent implements OnInit {
         //Récupération des opérations d'épargne de l'utilisateur
         data[1].forEach((operation) => {
           let matchCompteId = this.compteEpargneList.findIndex(
-            (el) => el._id == operation.compte
+            (el) => el.id == operation.compte
           );
           let matchCompteName = this.compteEpargneList.findIndex(
             (el) => el.name == operation.compte
@@ -466,7 +466,7 @@ export class RecapComponent implements OnInit {
 
         this.compteEpargneList.forEach((compte) => {
           if (
-            ((compte.name == monthData.compte)  || (compte._id == monthData.compte)) &&
+            ((compte.name == monthData.compte)  || (compte.id == monthData.compte)) &&
             compte.typeCompte != 'Compte Courant' &&
             monthData.userId == this.userId &&
             monthData.categorie != 'Transfert'

@@ -304,7 +304,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
             if (index != -1){
               operation.classCSS = this.categorieClass[index][1];
-            } 
+            }
 
             if ((this.selectedAccount == "" || this.selectedAccount == operation.compte) &&
               (this.selectedCategory == "" || this.selectedCategory == operation.categorie) &&
@@ -407,7 +407,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
   }
 
   deleteOperation(operation: any) {
-    this.operationId = operation._id;
+    this.operationId = operation.id;
     let montantRestitue = -operation.montant;
 
     // On met à jour le solde du compte
@@ -446,7 +446,6 @@ export class ComptesComponent implements OnInit, OnDestroy {
   showAccounts(): Observable<any> {
     this.compteList = [];
     this.compteCourantList = [];
-
     return this.compteService.getAllAccounts().pipe(
       map((data) => {
         data.forEach((compte) => {
@@ -522,7 +521,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
       this.compteService.getAllAccounts().subscribe((data) => {
         let compteIndex = data.findIndex((p) => p.name == compte.name);
         this.subscriptions.add(
-          this.compteService.deleteAccount(data[compteIndex]._id).subscribe(() => {
+          this.compteService.deleteAccount(data[compteIndex].id).subscribe(() => {
             this.showAccountsObservable().subscribe(() => {
               this.isLoading = false;
               this.getMonthlySolde(this.todayMonthString, this.todayYear);

@@ -40,7 +40,7 @@ export class CompteFormComponent implements OnInit {
     if (data.addOrEdit == 'edit') {
       this.addOrEdit = 'edit';
       this.buttonLabel = 'Mettre à jour';
-      this.id = data.compte._id;
+      this.id = data.compte.id;
       this.compte = data.compte;
     } else {
       this.addOrEdit = 'add';

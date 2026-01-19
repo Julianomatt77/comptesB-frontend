@@ -28,11 +28,11 @@ const routes: Routes = [
     canActivate: [IsLoggedInGuardGuard],
     component: RecapComponent,
   },
-  {
-    path: 'depensesCommunes',
-    canActivate: [IsLoggedInGuardGuard],
-    component: DepensesCommunesComponent,
-  },
+  // {
+  //   path: 'depensesCommunes',
+  //   canActivate: [IsLoggedInGuardGuard],
+  //   component: DepensesCommunesComponent,
+  // },
   {
     path: 'gestionUser',
     canActivate: [IsLoggedInGuardGuard],

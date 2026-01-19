@@ -48,7 +48,7 @@ export class OpcommuneFormComponent implements OnInit {
     if (data.addOrEdit == 'edit') {
       this.addOrEdit = 'edit';
       this.buttonLabel = 'Mettre à jour';
-      this.id = data.operation._id;
+      this.id = data.operation.id;
       this.operation = data.operation;
       this.operation.operationDate = new Date(
         this.operation.operationDate.toString()

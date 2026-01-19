@@ -43,7 +43,7 @@ export class OperationService {
 
   public updateOneOperation(value: { id: string; operation: Operation }) {
     return this.http.post<Operation>(
-      `${environment.baseUrl}/operations/updateOneOperation/${value.id}`,
+      `${environment.baseUrl}/operations/updateOneOperation/${value.operation.id}`,
       value
     );
   }

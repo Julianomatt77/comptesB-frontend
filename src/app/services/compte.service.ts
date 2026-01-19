@@ -36,7 +36,7 @@ export class CompteService {
 
   public updateOneAccount(value: { id: string; compte: Compte }) {
     return this.http.post<Compte>(
-      `${environment.baseUrl}/comptes/updateOneAccount/${value.id}`,
+      `${environment.baseUrl}/comptes/updateOneAccount/${value.compte.id}`,
       value
     );
   }

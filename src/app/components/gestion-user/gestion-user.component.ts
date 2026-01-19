@@ -212,28 +212,25 @@ export class GestionUserComponent implements OnInit {
   }
 
   openAccountDetail(compte: any) {
-    this.compteService.getAllAccounts().subscribe((data) => {
-      let compteIndex = data.findIndex((p) => p._id == compte._id);
-      this.dialog
-        .open(CompteFormComponent, {
-          data: {
-            compte: data[compteIndex],
-            addOrEdit: 'edit',
-          },
-          width: '60%',
-        })
-        .afterClosed()
-        .subscribe(() => {
-          this.showAccounts();
-          // this.getSoldePerAccount(this.allOperations);
-        });
-    });
+    this.dialog
+      .open(CompteFormComponent, {
+        data: {
+          compte: compte,
+          addOrEdit: 'edit',
+        },
+        width: '60%',
+      })
+      .afterClosed()
+      .subscribe(() => {
+        this.showAccounts();
+      });
   }
+
 
   deleteAccount(compte: any) {
     this.compteService.getAllAccounts().subscribe((data) => {
-      let compteIndex = data.findIndex((p) => p._id == compte._id);
-      this.compteService.deleteAccount(data[compteIndex]._id).subscribe(() => {
+      let compteIndex = data.findIndex((p) => p.id == compte.id);
+      this.compteService.deleteAccount(data[compteIndex].id).subscribe(() => {
         this.showAccounts();
         // this.getSoldePerAccount(this.allOperations);
       });
@@ -241,7 +238,7 @@ export class GestionUserComponent implements OnInit {
   }
 
   reactivateAccount(compte: any) {
-    this.compteService.reactivateAccount(compte._id).subscribe(()=>{
+    this.compteService.reactivateAccount(compte.id).subscribe(()=>{
       this.showAccounts();
     })
   }

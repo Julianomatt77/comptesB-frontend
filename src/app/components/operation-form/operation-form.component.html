@@ -79,7 +79,7 @@
     >
       <ng-container *ngFor="let type of groupedCompteTypes">
         <optgroup [label]="type">
-          <option *ngFor="let compte of groupedComptes[type]" [ngValue]="compte._id">
+          <option *ngFor="let compte of groupedComptes[type]" [ngValue]="compte.id">
             {{ compte.name }}
           </option>
         </optgroup>
@@ -100,7 +100,7 @@
     >
       <ng-container *ngFor="let type of groupedCompteTypes">
         <optgroup [label]="type">
-          <option *ngFor="let compte of groupedComptes[type]" [ngValue]="compte._id">
+          <option *ngFor="let compte of groupedComptes[type]" [ngValue]="compte.id">
             {{ compte.name }}
           </option>
         </optgroup>

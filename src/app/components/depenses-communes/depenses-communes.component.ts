@@ -219,7 +219,7 @@ export class DepensesCommunesComponent implements OnInit {
   }
 
   deleteOperation(operation: any) {
-    this.opCommuneService.deleteOperation(operation._id).subscribe(() => {
+    this.opCommuneService.deleteOperation(operation.id).subscribe(() => {
       this.updateUsers(this.todayMonthString, this.todayYear);
       this.showOperationsFiltered(this.todayMonthString, this.todayYear);
     });
@@ -310,7 +310,7 @@ export class DepensesCommunesComponent implements OnInit {
 
   deleteUser(user: any) {
     this.opCommuneService.getOneUserByName(user.name).subscribe((data) => {
-      this.opCommuneService.deleteUser(data._id).subscribe(() => {
+      this.opCommuneService.deleteUser(data.id).subscribe(() => {
         this.updateUsers(this.todayMonthString, this.todayYear);
       });
     });
@@ -357,7 +357,7 @@ export class DepensesCommunesComponent implements OnInit {
       data[0].forEach((user, userIndex) => {
         if (user.userId == this.userId) {
           let userBDD = new OpCommuneUser('', '', []);
-          this.opCommuneService.getOneUser(user._id).subscribe((data) => {
+          this.opCommuneService.getOneUser(user.id).subscribe((data) => {
             userBDD = data;
           });
 
@@ -376,7 +376,7 @@ export class DepensesCommunesComponent implements OnInit {
           userBDD.history = operationsHistory;
 
           let userdata = {
-            id: user._id,
+            id: user.id,
             user: userBDD,
           };
 
