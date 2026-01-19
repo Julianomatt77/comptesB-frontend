@@ -6,14 +6,14 @@ import {
   signal,
   input,
   output,
+  computed,
+  effect,
 } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { User } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from 'src/app/services/user.service';
-import { StorageService } from '../../services/storage.service';
-import { forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
 import { CompteService } from '../../services/compte.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -24,7 +24,6 @@ import {
   faPlusCircle,
   faTrashCan,
 } from '@fortawesome/free-solid-svg-icons';
-import { NgClass } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 
 @Component({
@@ -32,13 +31,12 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
   templateUrl: './gestion-user.component.html',
   styleUrls: ['./gestion-user.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, NgClass, FaIconComponent],
+  imports: [ReactiveFormsModule, FaIconComponent],
 })
 export class GestionUserComponent implements OnInit {
   private readonly cookieService = inject(CookieService);
   private readonly userService = inject(UserService);
   private readonly authService = inject(AuthService);
-  private readonly storageService = inject(StorageService);
   private readonly router = inject(Router);
   private readonly compteService = inject(CompteService);
   private readonly dialog = inject(MatDialog);
@@ -56,13 +54,42 @@ export class GestionUserComponent implements OnInit {
   isSuccessful = signal(false);
   isSignUpFailed = signal(false);
   errorMessage = signal('');
-
   user = signal<User | null>(null);
 
-  compteList = signal<any[]>([]);
-  notActiveCompteList = signal<any[]>([]);
-  compteCourantList = signal<any[]>([]);
-  compteEpargneList = signal<any[]>([]);
+  // Computed signals pour les listes de comptes filtrées
+  compteList = computed(() => {
+    const accounts = this.compteService.allAccounts.value() ?? [];
+    const currentUserId = this.userId();
+
+    return accounts
+      .map(compte => ({
+        ...compte,
+        soldeActuel: Math.round(compte.soldeActuel * 100) / 100,
+      }));
+  });
+
+  compteCourantList = computed(() =>
+    this.compteList().filter(compte => compte.typeCompte === 'Compte Courant')
+  );
+
+  compteEpargneList = computed(() =>
+    this.compteList().filter(compte => compte.typeCompte !== 'Compte Courant')
+  );
+
+  notActiveCompteList = computed(() => {
+    const accounts = this.compteService.deactivatedAccounts.value() ?? [];
+
+    return accounts.map(compte => ({
+      ...compte,
+      soldeActuel: Math.round(compte.soldeActuel * 100) / 100,
+    }));
+  });
+
+  // Computed pour vérifier si les données sont en cours de chargement
+  isLoading = computed(() =>
+    this.compteService.allAccounts.isLoading() ||
+    this.compteService.deactivatedAccounts.isLoading()
+  );
 
   faPen = faPen;
   faTrashCan = faTrashCan;
@@ -70,24 +97,24 @@ export class GestionUserComponent implements OnInit {
 
   dialogRef!: MatDialogRef<ConfirmationDialogComponent>;
 
+  constructor() {
+    // Effect pour charger les données utilisateur
+    effect(() => {
+      const currentUserId = this.userId();
+      if (currentUserId) {
+        this.userService.getOneUser(currentUserId).subscribe((user) => {
+          this.user.set(user);
+          this.userForm.patchValue({
+            username: user.username,
+            email: user.email,
+          });
+        });
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.isSuccessful.set(false);
-    this.compteList.set([]);
-    this.compteCourantList.set([]);
-
-    const currentUserId = this.userId();
-    if (currentUserId) {
-      this.userService.getOneUser(currentUserId).subscribe((user) => {
-        this.user.set(user);
-
-        this.userForm.patchValue({
-          username: user.username,
-          email: user.email,
-        });
-
-        this.showAccounts();
-      });
-    }
   }
 
   /* ******************  Gestion des informations du compte utilisateur *****************/
@@ -120,7 +147,7 @@ export class GestionUserComponent implements OnInit {
     window.location.reload();
   }
 
-  openConfirmation() {
+  openConfirmation(): void {
     this.dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       disableClose: false,
     });
@@ -134,7 +161,7 @@ export class GestionUserComponent implements OnInit {
     });
   }
 
-  deleteUser() {
+  deleteUser(): void {
     this.userService.deleteUser(this.userId()).subscribe(() => {
       alert('Votre compte a été supprimé avec succès');
       this.authService.logout().subscribe();
@@ -148,46 +175,7 @@ export class GestionUserComponent implements OnInit {
 
   /*********** Gestion des comptes bancaires ********* */
 
-  showAccounts() {
-    this.compteList.set([]);
-    this.notActiveCompteList.set([]);
-    this.compteCourantList.set([]);
-    this.compteEpargneList.set([]);
-
-    const activeAccounts = this.compteService.getAllAccounts();
-    const notActiveAccounts = this.compteService.getAllDeactivatedAccounts();
-
-    forkJoin([activeAccounts, notActiveAccounts]).subscribe((data) => {
-      const actives = data[0];
-      const notActives = data[1];
-
-      const currentUserId = this.userId();
-
-      // On récupère les comptes actifs
-      actives.forEach((compte) => {
-        if (compte.userId == currentUserId) {
-          const temp = Math.round(compte.soldeActuel * 100) / 100;
-          compte.soldeActuel = temp;
-          this.compteList.update((list) => [...list, compte]);
-
-          if (compte.typeCompte == 'Compte Courant') {
-            this.compteCourantList.update((list) => [...list, compte]);
-          } else {
-            this.compteEpargneList.update((list) => [...list, compte]);
-          }
-        }
-      });
-
-      // On récupère les comptes inactifs
-      notActives.forEach((compte) => {
-        const temp = Math.round(compte.soldeActuel * 100) / 100;
-        compte.soldeActuel = temp;
-        this.notActiveCompteList.update((list) => [...list, compte]);
-      });
-    });
-  }
-
-  AddAccount() {
+  AddAccount(): void {
     this.dialog
       .open(CompteFormComponent, {
         data: {
@@ -197,11 +185,11 @@ export class GestionUserComponent implements OnInit {
       })
       .afterClosed()
       .subscribe(() => {
-        this.showAccounts();
+        this.compteService.refresh();
       });
   }
 
-  openAccountDetail(compte: any) {
+  openAccountDetail(compte: any): void {
     this.dialog
       .open(CompteFormComponent, {
         data: {
@@ -212,22 +200,19 @@ export class GestionUserComponent implements OnInit {
       })
       .afterClosed()
       .subscribe(() => {
-        this.showAccounts();
+        this.compteService.refresh();
       });
   }
 
-  deleteAccount(compte: any) {
-    this.compteService.getAllAccounts().subscribe((data) => {
-      const compteIndex = data.findIndex((p) => p.id == compte.id);
-      this.compteService.deleteAccount(data[compteIndex].id).subscribe(() => {
-        this.showAccounts();
-      });
+  deleteAccount(compte: any): void {
+    this.compteService.deleteAccount(compte.id).subscribe(() => {
+      this.compteService.refresh();
     });
   }
 
-  reactivateAccount(compte: any) {
+  reactivateAccount(compte: any): void {
     this.compteService.reactivateAccount(compte.id).subscribe(() => {
-      this.showAccounts();
+      this.compteService.refresh();
     });
   }
 }

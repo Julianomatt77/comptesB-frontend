@@ -1,20 +1,77 @@
-import { Injectable, inject } from '@angular/core';
+import {Injectable, inject, signal} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+// import { Compte } from '../models/Compte';
 import { Compte } from '../models/Compte';
 import { tap } from 'rxjs/operators';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { catchError, of } from 'rxjs';
+import {CompteV2} from "../models/compte.model";
+import {StorageService} from "./storage.service";
 
 @Injectable({
   providedIn: 'root',
 })
 export class CompteService {
   private http = inject(HttpClient);
+  private readonly refreshTrigger = signal(0);
+  private storageService = inject(StorageService);
 
+  // Resource pour tous les comptes actifs
+  readonly allAccounts = rxResource({
+    params: this.refreshTrigger,
+    stream: () =>
+      this.http
+        .get<CompteV2[]>(`${environment.baseUrl}/comptes/getAllAccounts`)
+        .pipe(catchError(() => of([]))),
+  });
 
-  public createAccount(compte: Compte) {
-    return this.http.post<Compte>(
+  // Resource pour tous les comptes désactivés
+  readonly deactivatedAccounts = rxResource({
+    params: this.refreshTrigger,
+    stream: () =>
+      this.http
+        .get<CompteV2[]>(`${environment.baseUrl}/comptes/getAllDeactivatedAccounts`)
+        .pipe(catchError(() => of([]))),
+  });
+
+  // Méthode pour forcer le rechargement des données
+  refresh(): void {
+    this.refreshTrigger.update((v) => v + 1);
+  }
+
+  // Pour un compte spécifique, on peut utiliser une fonction qui retourne un resource
+  // Pour un compte spécifique, on peut utiliser une fonction qui retourne un resource
+  createAccountResource(idSignal: () => string | undefined) {
+    return rxResource({
+      params: idSignal,
+      stream: ({ params: id }) => {
+        if (!id) return of(null);
+        return this.http
+          .get<CompteV2>(`${environment.baseUrl}/comptes/getOneAccount/${id}`)
+          .pipe(catchError(() => of(null)));
+      },
+    });
+  }
+
+  // Pour un compte par nom, même principe
+  createAccountByNameResource(nameSignal: () => string, userIdSignal: () => string) {
+    return rxResource({
+      params: () => ({ name: nameSignal(), userId: userIdSignal() }),
+      stream: ({ params }) =>
+        this.http
+          .get<Compte>(`${environment.baseUrl}/comptes/getOneAccountByName/${params.name}`)
+          .pipe(catchError(() => of(null))),
+    });
+  }
+
+  public createAccount(compte: CompteV2) {
+    const userId = this.storageService.getUser()
+    const data = {...compte, userId: userId}
+
+    return this.http.post<CompteV2>(
       `${environment.baseUrl}/comptes/createAccount`,
-      compte
+      data
     );
   }
 
@@ -35,8 +92,8 @@ export class CompteService {
     );
   }
 
-  public updateOneAccount(value: { id: string; compte: Compte }) {
-    return this.http.post<Compte>(
+  public updateOneAccount(value: { id: string; compte: CompteV2 }) {
+    return this.http.post<CompteV2>(
       `${environment.baseUrl}/comptes/updateOneAccount/${value.compte.id}`,
       value
     );

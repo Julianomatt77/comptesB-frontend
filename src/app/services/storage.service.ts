@@ -20,8 +20,8 @@ export class StorageService {
   // }
 
   public getUser(): any {
-    if (this.cookieService.check('compty-auth-tok')) {
-      this.userId.set(this.cookieService.get('compty-auth-tok'))
+    if (this.cookieService.check('compty-userId')) {
+      this.userId.set(this.cookieService.get('compty-userId'))
       return this.userId();
     }
 
@@ -37,8 +37,8 @@ export class StorageService {
   }
 
   public isLoggedIn(): boolean {
-    if (this.cookieService.check('compty-userId')) {
-      this.userId.set(this.cookieService.get('compty-userId'))
+    if (this.cookieService.check('compty-auth-tok')) {
+      this.userId.set(this.cookieService.get('compty-auth-tok'))
       return true;
     }
 

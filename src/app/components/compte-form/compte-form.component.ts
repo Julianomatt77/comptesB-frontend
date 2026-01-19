@@ -6,6 +6,7 @@ import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog
 import { CompteService } from 'src/app/services/compte.service';
 import {faClose} from '@fortawesome/free-solid-svg-icons';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import {CompteV2} from "../../models/compte.model";
 
 
 @Component({
@@ -21,11 +22,11 @@ export class CompteFormComponent implements OnInit {
   private compteService = inject(CompteService);
   dialogRef = inject<MatDialogRef<CompteFormComponent>>(MatDialogRef);
 
-  @Output() formSubmitted: EventEmitter<Compte>;
+  @Output() formSubmitted: EventEmitter<CompteV2>;
   @Input() id!: string;
 
   form!: FormGroup;
-  compte!: Compte;
+  compte!: CompteV2;
   addOrEdit!: string;
   buttonLabel!: string;
 
@@ -36,7 +37,7 @@ export class CompteFormComponent implements OnInit {
   constructor() {
     const data = this.data;
 
-    this.formSubmitted = new EventEmitter<Compte>();
+    this.formSubmitted = new EventEmitter<CompteV2>();
     if (data.addOrEdit == 'edit') {
       this.addOrEdit = 'edit';
       this.buttonLabel = 'Mettre à jour';
@@ -45,7 +46,13 @@ export class CompteFormComponent implements OnInit {
     } else {
       this.addOrEdit = 'add';
       this.buttonLabel = 'Ajouter';
-      this.compte = new Compte('', '', '', 0, 0);
+      this.compte = {
+        id: '',
+        name: '',
+        typeCompte: '',
+        soldeInitial: 0,
+        soldeActuel: 0
+      }
     }
   }
 
