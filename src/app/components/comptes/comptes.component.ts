@@ -19,7 +19,7 @@ import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog
 import { MatTable, MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { CookieService } from 'ngx-cookie-service';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormGroup, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   faArrowDown,
   faArrowUp,
@@ -39,15 +39,21 @@ import {
   Renderer2,
   ChangeDetectorRef,
 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, NgIf, NgFor, NgClass, AsyncPipe, DecimalPipe, DatePipe } from '@angular/common';
 import { OnDestroy } from '@angular/core';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import {map} from "rxjs/operators";
+import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { MatSelect } from '@angular/material/select';
+import { MatOption, MatOptgroup } from '@angular/material/autocomplete';
+import { PieChartModule } from '@swimlane/ngx-charts';
 
 @Component({
-  selector: 'app-comptes',
-  templateUrl: './comptes.component.html',
-  styleUrls: ['./comptes.component.css'],
+    selector: 'app-comptes',
+    templateUrl: './comptes.component.html',
+    styleUrls: ['./comptes.component.css'],
+    imports: [NgIf, FormsModule, ReactiveFormsModule, MatFormField, MatInput, FaIconComponent, MatLabel, MatSelect, MatOption, NgFor, MatOptgroup, NgClass, MatPaginator, PieChartModule, AsyncPipe, DecimalPipe, DatePipe]
 })
 export class ComptesComponent implements OnInit, OnDestroy {
   // @HostBinding('class.bg-light') someClass: Host = true;

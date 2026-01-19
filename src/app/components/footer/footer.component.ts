@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { HostBinding, Inject, Renderer2 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-footer',
-  templateUrl: './footer.component.html',
-  styleUrls: ['./footer.component.css'],
+    selector: 'app-footer',
+    templateUrl: './footer.component.html',
+    styleUrls: ['./footer.component.css'],
+    imports: [RouterLink]
 })
 export class FooterComponent implements OnInit {
   consent: boolean = false;

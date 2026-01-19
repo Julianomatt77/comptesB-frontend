@@ -1,14 +1,16 @@
 import { Component, OnInit, Inject, Renderer2 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, NgIf } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { CompteService } from 'src/app/services/compte.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
-  selector: 'app-default',
-  templateUrl: './default.component.html',
-  styleUrls: ['./default.component.css'],
+    selector: 'app-default',
+    templateUrl: './default.component.html',
+    styleUrls: ['./default.component.css'],
+    imports: [NgIf, RouterLink]
 })
 export class DefaultComponent implements OnInit {
   isLoggedIn!: boolean;

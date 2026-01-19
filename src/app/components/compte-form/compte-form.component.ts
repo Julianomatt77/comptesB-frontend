@@ -7,16 +7,19 @@ import {
   Inject,
 } from '@angular/core';
 import { Compte } from 'src/app/models/Compte';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 // import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { CompteService } from 'src/app/services/compte.service';
 import {faClose} from '@fortawesome/free-solid-svg-icons';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { NgFor } from '@angular/common';
 
 @Component({
-  selector: 'app-compte-form',
-  templateUrl: './compte-form.component.html',
-  styleUrls: ['./compte-form.component.css'],
+    selector: 'app-compte-form',
+    templateUrl: './compte-form.component.html',
+    styleUrls: ['./compte-form.component.css'],
+    imports: [FormsModule, ReactiveFormsModule, FaIconComponent, NgFor]
 })
 export class CompteFormComponent implements OnInit {
   @Output() formSubmitted: EventEmitter<Compte>;

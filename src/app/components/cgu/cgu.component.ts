@@ -2,9 +2,9 @@ import { Component, OnInit, Inject, Renderer2 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 
 @Component({
-  selector: 'app-cgu',
-  templateUrl: './cgu.component.html',
-  styleUrls: ['./cgu.component.css'],
+    selector: 'app-cgu',
+    templateUrl: './cgu.component.html',
+    styleUrls: ['./cgu.component.css']
 })
 export class CguComponent implements OnInit {
   constructor(

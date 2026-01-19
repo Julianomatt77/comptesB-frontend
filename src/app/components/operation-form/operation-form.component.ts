@@ -6,7 +6,7 @@ import {
   Input,
   Inject,
 } from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Operation } from 'src/app/models/Operation';
 import { MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import { OperationService } from 'src/app/services/operation.service';
@@ -14,11 +14,15 @@ import { CompteService } from 'src/app/services/compte.service';
 import { forkJoin } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import {faClose} from '@fortawesome/free-solid-svg-icons';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { NgIf, NgFor, DatePipe } from '@angular/common';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 @Component({
-  selector: 'app-operation-form',
-  templateUrl: './operation-form.component.html',
-  styleUrls: ['./operation-form.component.css'],
+    selector: 'app-operation-form',
+    templateUrl: './operation-form.component.html',
+    styleUrls: ['./operation-form.component.css'],
+    imports: [FormsModule, ReactiveFormsModule, FaIconComponent, NgIf, MatSlideToggle, NgFor, DatePipe]
 })
 export class OperationFormComponent implements OnInit {
   @Output() formSubmitted: EventEmitter<Operation>;

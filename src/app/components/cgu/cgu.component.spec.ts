@@ -8,8 +8,8 @@ describe('CguComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CguComponent ]
-    })
+    imports: [CguComponent]
+})
     .compileComponents();
 
     fixture = TestBed.createComponent(CguComponent);

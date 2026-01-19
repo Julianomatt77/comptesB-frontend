@@ -6,11 +6,11 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Operation } from 'src/app/models/Operation';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
+import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { CookieService } from 'ngx-cookie-service';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { OperationService } from 'src/app/services/operation.service';
 import { DatepickerService } from 'src/app/services/datepicker.service';
 import { Recap } from '../../interfaces/recap';
@@ -26,12 +26,15 @@ import {
   faFilter,
 } from '@fortawesome/free-solid-svg-icons';
 import { Renderer2, Inject } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, NgIf, NgFor, NgClass, DecimalPipe } from '@angular/common';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { LineChartModule } from '@swimlane/ngx-charts';
 
 @Component({
-  selector: 'app-recap',
-  templateUrl: './recap.component.html',
-  styleUrls: ['./recap.component.css'],
+    selector: 'app-recap',
+    templateUrl: './recap.component.html',
+    styleUrls: ['./recap.component.css'],
+    imports: [NgIf, FormsModule, ReactiveFormsModule, NgFor, FaIconComponent, LineChartModule, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, NgClass, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow, DecimalPipe]
 })
 export class RecapComponent implements OnInit {
   operationList: any[] = [];
@@ -256,7 +259,7 @@ export class RecapComponent implements OnInit {
           if (
             compte.userId == this.userId &&
             compte.typeCompte == 'Compte Courant' &&
-            compte.name !== ("Compte joint" || "Compte Joint")
+            compte.name.toLowerCase() !== "compte joint"
           ) {
             this.compteList.push(compte);
           } else if (compte.userId == this.userId &&

@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { User } from '../../models/User';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from 'src/app/services/user.service';
@@ -16,11 +16,14 @@ import {
   faPlusCircle,
   faTrashCan,
 } from '@fortawesome/free-solid-svg-icons';
+import { NgIf, NgClass, NgFor } from '@angular/common';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 
 @Component({
-  selector: 'app-gestion-user',
-  templateUrl: './gestion-user.component.html',
-  styleUrls: ['./gestion-user.component.css'],
+    selector: 'app-gestion-user',
+    templateUrl: './gestion-user.component.html',
+    styleUrls: ['./gestion-user.component.css'],
+    imports: [NgIf, FormsModule, NgClass, FaIconComponent, NgFor]
 })
 export class GestionUserComponent implements OnInit {
   @Output() formSubmitted: EventEmitter<User>;

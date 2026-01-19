@@ -2,14 +2,17 @@ import { Component, OnInit, Inject, Renderer2 } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
-import { Router } from '@angular/router';
-import { DOCUMENT } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { DOCUMENT, NgIf, NgClass } from '@angular/common';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { FormsModule } from '@angular/forms';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.css'],
+    imports: [NgIf, FormsModule, NgClass, FaIconComponent, RouterLink]
 })
 export class LoginComponent implements OnInit {
   form: any = {
