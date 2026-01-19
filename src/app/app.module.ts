@@ -26,9 +26,6 @@ import { RegisterComponent } from './components/register/register.component';
 import { tokenInterceptor } from './token.interceptor';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { RecapComponent } from './components/recap/recap.component';
-import { DepensesCommunesComponent } from './components/depenses-communes/depenses-communes.component';
-import { OpcommuneFormComponent } from './components/opcommune-form/opcommune-form.component';
-import { OpcommuneuserFormComponent } from './components/opcommuneuser-form/opcommuneuser-form.component';
 import { MaterialExampleModule } from '../material.module';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { FooterComponent } from './components/footer/footer.component';
@@ -49,9 +46,6 @@ import { ConfirmationDialogComponent } from './components/confirmation-dialog/co
     DatePickerComponent,
     RegisterComponent,
     RecapComponent,
-    DepensesCommunesComponent,
-    OpcommuneFormComponent,
-    OpcommuneuserFormComponent,
     FooterComponent,
     GestionUserComponent,
     CguComponent,
