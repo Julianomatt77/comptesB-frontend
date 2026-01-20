@@ -45,6 +45,10 @@ h6 {
   font-family: "Prata", serif;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 /****************************************** LOADING ANIMATION  ************/
 .ring {
   position:absolute;

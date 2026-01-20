@@ -25,7 +25,6 @@ bootstrapApplication(AppComponent, {
         { provide: LOCALE_ID, useValue: 'fr-FR' }, tokenInterceptor,
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         provideHttpClient(withInterceptorsFromDi()),
-
     ]
 })
   .catch(err => console.error(err));

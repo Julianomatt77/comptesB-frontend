@@ -1,19 +1,17 @@
 <section class="container mt-2" id="operationsPage">
-  <div class="text-center">
+  <header class="text-center">
     <h1 class="mb-2">Récapitulatif des opérations</h1>
-  </div>
+  </header>
 
   @if (isLoading()) {
     <div class="ring">Loading
       <span class="loading"></span>
     </div>
-  }
-
-  <!--  Filtre par date-->
-  @if (!isLoading()) {
-    <div class="d-flex align-items-center mb-2 justify-content-center flex-wrap">
+  } @else {
+  <!--  Filtres-->
+    <section id="operations-date-filter" class="d-flex align-items-center mb-2 justify-content-center flex-wrap">
       <div class="mx-2">
-        <button class="btn btn-primary" (click)="resetDateFilters()" title="Enlever le filtre par date">
+        <button role="button" class="btn btn-primary" (click)="resetDateFilters()" title="Enlever le filtre par date">
           Toutes opérations
         </button>
       </div>
@@ -28,7 +26,7 @@
             />
           </mat-form-field>
           <div class="mx-2">
-            <button id="filterButton" type="submit" class="bg-light">
+            <button id="filterButton" role="button" type="submit" class="bg-light">
               <fa-icon
                 [icon]="faFilter"
                 class="text-primary"
@@ -39,12 +37,9 @@
           </div>
         </div>
       </form>
-    </div>
-  }
+    </section>
 
-  <!--  Filtres-->
-  @if (!isLoading()) {
-    <div class="d-flex align-items-center mb-2 justify-content-center gap-3 flex-wrap">
+    <section id="operations-filters" class="d-flex align-items-center mb-2 justify-content-center gap-3 flex-wrap">
       <form [formGroup]="formAccountFiltered" (ngSubmit)="onSubmitAccountFilter()" title="Filtrer par compte">
         <div class="d-flex align-items-center">
           <mat-form-field>
@@ -83,6 +78,7 @@
           [class.btn-primary]="selectedType() !== true"
           [class.btn-outline-primary]="selectedType() === true"
           (click)="typeFilter(true)"
+          role="button"
         >
           Crédits
         </button>
@@ -93,21 +89,20 @@
           [class.btn-danger]="selectedType() === null || selectedType() === true"
           [class.btn-outline-danger]="selectedType() === false"
           (click)="typeFilter(false)"
+          role="button"
         >
           Débits
         </button>
       </div>
       <div>
-        <button class="btn btn-outline-dark" (click)="resetAllFilters()">Supprimer les filtres</button>
+        <button class="btn btn-outline-dark" (click)="resetAllFilters()" role="button">Supprimer les filtres</button>
       </div>
-    </div>
-  }
+    </section>
 
-  @if (!isLoading()) {
-    <div class="row mt-2 pb-5" id="dataToPrint">
-      <div class="col-lg-8">
+    <section class="row mt-2 pb-5" id="dataToPrint">
+      <main class="col-lg-8">
         <!--  Recap montants opérations du mois + télécharger-->
-        <div class="row">
+        <summary id="operations-summary" class="row">
           <div class="text-success col-lg-3 col-6">
             Crédit = <fa-icon [icon]="faArrowUp"></fa-icon>
             {{ totalCredit() | number: "1.0-2":"fr" }}€
@@ -137,24 +132,24 @@
               ></fa-icon>
             </a>
           </div>
-        </div>
-
-        <!--  Ajouter une opération-->
-        <div class="d-flex justify-content-center">
-          <a href="javascript:;" (click)="AddOperation()">
-            <fa-icon
-              [icon]="faPlus"
-              class="text-primary"
-              style="font-size: 50px"
-              title="Ajouter une opération"
-            ></fa-icon>
-          </a>
-        </div>
+        </summary>
 
         <!-- Affichage des opérations -->
-        <div>
+        <article id="liste-operations">
+          <!--  Ajouter une opération-->
+          <div class="d-flex justify-content-center">
+            <a href="javascript:;" (click)="AddOperation()">
+              <fa-icon
+                [icon]="faPlus"
+                class="text-primary"
+                style="font-size: 50px"
+                title="Ajouter une opération"
+              ></fa-icon>
+            </a>
+          </div>
+
           <div class="row d-flex justify-content-evenly">
-            @for (card of filteredOperations(); track card.id) {
+            @for (card of paginatedOperations(); track card.id) {
               <div class="card my-2 mx-1 col-lg-5 px-0">
                 <h5 class="card-header text-center" [class]="card.classCSS">
                   {{ card.categorie }}
@@ -178,12 +173,12 @@
                   </div>
                   <div class="d-flex justify-content-evenly">
                     <div>
-                      <button (click)="openOperationDetail(card)" class="btn" title="Mettre à jour l'opération">
+                      <button (click)="openOperationDetail(card)" class="btn" title="Mettre à jour l'opération" role="button">
                         <fa-icon [icon]="faPen"></fa-icon>
                       </button>
                     </div>
                     <div>
-                      <button (click)="openConfirmation(card)" class="btn" title="Supprimer l'opération">
+                      <button (click)="openConfirmation(card)" class="btn" title="Supprimer l'opération" role="button">
                         <fa-icon [icon]="faTrashCan" style="color: red"></fa-icon>
                       </button>
                     </div>
@@ -192,17 +187,49 @@
               </div>
             }
           </div>
-          <mat-paginator
-            [pageSizeOptions]="[6, 12, 50]"
-            showFirstLastButtons
-            aria-label="Select page of operations"
-            class="bg-light"
-          >
-          </mat-paginator>
-        </div>
-      </div>
+        </article>
 
-      <div class="col-lg-4">
+        <section id="pagination" class="my-2">
+          <div class="d-flex justify-content-center my-2">
+            <label>
+              Opérations par page :
+              <select [value]="pageSize()" (change)="setPageSize($event)" class="rounded p-2">
+                @for (size of [6,12,50]; track size) {
+                  <option [value]="size">{{ size }}</option>
+                }
+              </select>
+              / {{ totalItems()}}
+            </label>
+          </div>
+
+          <div class="d-flex justify-content-center">
+            @if (currentPage() > 0) {
+              <button (click)="goToFirstPage()" [disabled]="currentPage() <= 0" class="mx-2 rounded" role="button" title="Aller à la première page">
+                <fa-icon [icon]="faAnglesLeft" class="cursor-pointer"></fa-icon>
+              </button>
+
+              <button (click)="prevPage()" [disabled]="currentPage() <= 0" class="mx-2 rounded" role="button" title="Aller à la page précédente">
+                <fa-icon [icon]="faAngleLeft" class="cursor-pointer"></fa-icon>
+              </button>
+            }
+
+            <span class="mx-2">Page {{ currentPage() + 1 }} / {{ totalPages() }}</span>
+
+            @if (currentPage() + 1 < totalPages()) {
+              <button (click)="nextPage()" [disabled]="currentPage() + 1 >= totalPages()" class="mx-2 rounded" role="button" title="Aller à la page suivante">
+                <fa-icon [icon]="faAngleRight" class="cursor-pointer"></fa-icon>
+              </button>
+
+              <button (click)="goToLastPage()" [disabled]="currentPage() + 1 >= totalPages()" class="mx-2 rounded" role="button" title="Aller à la dernière page">
+                <fa-icon [icon]="faAnglesRight" class="cursor-pointer"></fa-icon>
+              </button>
+            }
+          </div>
+        </section>
+
+      </main>
+
+      <aside class="col-lg-4">
         <!--  Ajout de compte + télécharger comptes-->
         <div class="d-flex justify-content-evenly">
           <div>
@@ -265,7 +292,7 @@
           >
           </ngx-charts-pie-chart>
         </div>
-      </div>
-    </div>
+      </aside>
+    </section>
   }
 </section>

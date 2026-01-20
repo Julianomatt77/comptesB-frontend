@@ -1,7 +1,6 @@
 import {
   Component,
   OnInit,
-  ViewChild,
   Output,
   EventEmitter,
   DOCUMENT,
@@ -20,10 +19,8 @@ import { OperationService } from 'src/app/services/operation.service';
 import { OperationFormComponent } from '../operation-form/operation-form.component';
 import { CompteFormComponent } from '../compte-form/compte-form.component';
 import { CompteService } from 'src/app/services/compte.service';
-import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
 import { CookieService } from 'ngx-cookie-service';
 import { FormGroup, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
@@ -34,11 +31,15 @@ import {
   faPen,
   faPlusCircle,
   faTrashCan,
-  faClose
+  faClose,
+  faAngleRight,
+  faAnglesRight,
+  faAngleLeft,
+  faAnglesLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { NgClass, DecimalPipe, DatePipe } from '@angular/common';
+import { DecimalPipe, DatePipe } from '@angular/common';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
@@ -73,7 +74,6 @@ interface MonthlyHistory {
     MatSelect,
     MatOption,
     MatOptgroup,
-    MatPaginator,
     PieChartModule,
     DecimalPipe,
     DatePipe
@@ -90,10 +90,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
   private renderer = inject(Renderer2);
 
   @Output() formSubmitted = new EventEmitter<string>();
-  @ViewChild(MatSort) sort?: MatSort;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  // Local state signals
   readonly userId = signal<number>(0);
   readonly todayMonth = signal(new Date().getMonth() + 1);
   readonly todayYear = signal(new Date().getFullYear().toString());
@@ -102,6 +99,16 @@ export class ComptesComponent implements OnInit, OnDestroy {
   readonly selectedType = signal<boolean | null>(null);
   readonly dateFiltered = signal(true);
   readonly width = signal(0);
+
+  readonly pageSize = signal(6);
+  readonly currentPage = signal(0);
+  readonly paginatedOperations = computed(() => {
+    const data = this.filteredOperations();
+    const start = this.currentPage() * this.pageSize();
+    return data.slice(start, start + this.pageSize());
+  });
+  readonly totalItems = computed(() => this.filteredOperations().length);
+  readonly totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize()));
 
   // Computed from services
   readonly isLoading = computed(() =>
@@ -227,12 +234,6 @@ export class ComptesComponent implements OnInit, OnDestroy {
   // DataSource avec signal
   dataSource = new MatTableDataSource<OperationDisplay>([]);
 
-  // Effect pour mettre à jour le dataSource
-  private updateDataSourceEffect = effect(() => {
-    this.dataSource.data = this.filteredOperations();
-    this.updatePaginator();
-  });
-
   categorieList: string[] = [
     'Courses',
     'Divers',
@@ -287,6 +288,10 @@ export class ComptesComponent implements OnInit, OnDestroy {
   faPlus = faPlusCircle;
   faFilter = faFilter;
   faClose = faClose;
+  faAngleRight= faAngleRight
+  faAnglesRight= faAnglesRight
+  faAngleLeft= faAngleLeft
+  faAnglesLeft= faAnglesLeft
 
   constructor() {
     this.renderer.addClass(this.document.body, 'bg-light');
@@ -301,7 +306,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
     await this.loadInitialData();
   }
 
-  private initializeForms(): void {
+    private initializeForms(): void {
     this.form = this.fb.group({
       rangeDate: `${this.todayYear()}-${this.todayMonthString()}`,
     });
@@ -501,10 +506,30 @@ export class ComptesComponent implements OnInit, OnDestroy {
     }
   }
 
-  private updatePaginator(): void {
-    this.changeDetectorRef.detectChanges();
-    if (this.paginator) {
-      this.dataSource.paginator = this.paginator;
+  goToFirstPage(): void {
+    this.currentPage.set(0);
+  }
+
+  goToLastPage(): void {
+    this.currentPage.set(this.totalPages() - 1);
+  }
+
+  prevPage(): void {
+    if (this.currentPage() > 0) {
+      this.currentPage.set(this.currentPage() - 1);
     }
   }
+
+  nextPage(): void {
+    if (this.currentPage() + 1 < this.totalPages()) {
+      this.currentPage.set(this.currentPage() + 1);
+    }
+  }
+
+  setPageSize(event: Event) {
+    const value = (event.target as HTMLSelectElement).value;
+    this.pageSize.set(parseInt(value, 10));
+    this.currentPage.set(0); // reset à la première page
+  }
+
 }
