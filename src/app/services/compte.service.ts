@@ -4,6 +4,7 @@ import { environment } from 'src/environments/environment';
 import { CompteV2 } from '../models/compte.model';
 import { StorageService } from './storage.service';
 import { firstValueFrom } from 'rxjs';
+import {CurrentAccountsRecap, SavingsAccountsRecap, YearlyAccountRecap} from "../interfaces/recap";
 
 @Injectable({
   providedIn: 'root',
@@ -323,6 +324,51 @@ export class CompteService {
         { params: { year, month } }
       )
     );
+  }
+
+  async getAnnualRecapCurrentAccounts(year: string): Promise<CurrentAccountsRecap | null> {
+    try {
+      const result = await firstValueFrom(
+        this.http.get<CurrentAccountsRecap>(
+          `${environment.baseUrl}/comptes/annual-recap/current-accounts`,
+          { params: { year } }
+        )
+      );
+      return result || null;
+    } catch (error) {
+      console.error('Error getting annual recap for current accounts:', error);
+      return null;
+    }
+  }
+
+  async getAnnualRecapSavingsAccounts(year: string): Promise<SavingsAccountsRecap | null> {
+    try {
+      const result = await firstValueFrom(
+        this.http.get<SavingsAccountsRecap>(
+          `${environment.baseUrl}/comptes/annual-recap/savings-accounts`,
+          { params: { year } }
+        )
+      );
+      return result || null;
+    } catch (error) {
+      console.error('Error getting annual recap for savings accounts:', error);
+      return null;
+    }
+  }
+
+  async getAnnualRecapSavingsByAccount(year: string): Promise<YearlyAccountRecap[] | null> {
+    try {
+      const result = await firstValueFrom(
+        this.http.get<YearlyAccountRecap[]>(
+          `${environment.baseUrl}/comptes/annual-recap/savings-by-account`,
+          { params: { year } }
+        )
+      );
+      return result || null;
+    } catch (error) {
+      console.error('Error getting annual recap by account:', error);
+      return null;
+    }
   }
 
 }

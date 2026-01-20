@@ -490,8 +490,11 @@ export class ComptesComponent implements OnInit, OnDestroy {
       filename = `${this.todayYear()}-${this.todayMonthString()}_operations.csv`;
     } else if (type === 'comptes') {
       arrayToExport = this.monthlyHistoryPerAccount().map(data => ({
+        Date: `${this.todayYear()}-${this.todayMonthString()}`,
         Compte: data.name,
-        'Solde Actuel': data.solde,
+        'Solde initial': Math.round(data.soldeDebut * 100) / 100,
+        'Différence': Math.round((data.totalCredit - data.totalDebit )* 100) / 100,
+        'Solde final': Math.round(data.soldeFin * 100) / 100,
       }));
 
       filename = `${this.todayYear()}-${this.todayMonthString()}_comptes.csv`;
