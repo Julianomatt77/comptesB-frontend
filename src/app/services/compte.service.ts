@@ -315,4 +315,14 @@ export class CompteService {
   findAccountByName(name: string): CompteV2 | undefined {
     return this.accounts().find(c => c.name === name);
   }
+
+  async getMonthlyRecap(year: string, month: string) {
+    return firstValueFrom(
+      this.http.get<any[]>(
+        `${environment.baseUrl}/comptes/monthly-recap`,
+        { params: { year, month } }
+      )
+    );
+  }
+
 }

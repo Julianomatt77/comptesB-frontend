@@ -113,6 +113,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
   readonly groupedComptes = computed(() => this.compteService.groupedComptes());
   readonly groupedCompteTypes = computed(() => this.compteService.groupedCompteTypes());
   readonly operationsYears = computed(() => this.operationService.operationYears());
+  readonly monthlyHistoryPerAccount = signal<any[]>([]);
 
   // Filtered operations based on current filters
   readonly filteredOperations = computed(() => {
@@ -189,50 +190,14 @@ export class ComptesComponent implements OnInit, OnDestroy {
     return month < 10 ? `0${month}` : `${month}`;
   });
 
-  readonly monthlyHistoryPerAccount = computed(() => {
-    const month = this.todayMonthString();
-    const year = this.todayYear();
-    const targetDate = `${year}-${month}`;
+  private monthlyRecapEffect = effect(async () => {
+    this.filteredOperations()
+    const data = await this.compteService.getMonthlyRecap(
+      this.todayYear(),
+      this.todayMonthString()
+    );
 
-    return this.accounts()
-      .filter(compte => compte.typeCompte === 'Compte Courant')
-      .map(compte => {
-        const operations = this.allOperations().filter(op => {
-          const opDate = new Date(op.operationDate).toISOString().substring(0, 7);
-          return (
-            opDate === targetDate &&
-            op.compteId === compte.id &&
-            op.categorie !== 'Transfert'
-          );
-        });
-
-        const totalCredit = operations
-          .filter(op => op.type)
-          .reduce((sum, op) => sum + op.montant, 0);
-
-        const totalDebit = operations
-          .filter(op => !op.type)
-          .reduce((sum, op) => sum + Math.abs(op.montant), 0);
-
-        const solde = this.allOperations()
-          .filter(op => {
-            const opDate = new Date(op.operationDate).toISOString().substring(0, 7);
-            return (
-              op.compteId === compte.id &&
-              opDate <= targetDate
-            );
-          })
-          .reduce((sum, op) => sum + op.montant, compte.soldeInitial);
-
-        return {
-          name: compte.name,
-          solde,
-          history: [{
-            totalCredit,
-            totalDebit
-          }]
-        };
-      });
+    this.monthlyHistoryPerAccount.set(data);
   });
 
   readonly spendByCategory = computed(() => {

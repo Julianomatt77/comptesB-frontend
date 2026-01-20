@@ -242,14 +242,9 @@
               @for (compte of monthlyHistoryPerAccount(); track compte.name) {
                 <tr>
                   <td>{{ compte.name }}</td>
-                  <td>{{ compte.solde | number: "1.0-2":"fr" }}€</td>
-                  @if (compte.history[0]) {
-                    <td class="text-success">{{ compte.history[0].totalCredit | number: "1.0-2":"fr" }}€</td>
-                    <td class="text-danger">{{ compte.history[0].totalDebit | number: "1.0-2":"fr" }}€</td>
-                  } @else {
-                    <td>-</td>
-                    <td>-</td>
-                  }
+                  <td>{{ compte.soldeFin | number:"1.0-2":"fr" }}€</td>
+                  <td class="text-success">{{ compte.totalCredit | number:"1.0-2":"fr" }}€</td>
+                  <td class="text-danger">{{ compte.totalDebit | number:"1.0-2":"fr" }}€</td>
                 </tr>
               }
             </tbody>
