@@ -204,6 +204,20 @@ export class GestionUserComponent implements OnInit {
       });
   }
 
+  openConfirmationAccountDeletion(compte: any): void {
+    this.dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      disableClose: false,
+    });
+    this.dialogRef.componentInstance.confirmMessage =
+      'Etes vous sur de vouloir supprimer ce compte ?';
+
+    this.dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.deleteAccount(compte);
+      }
+    });
+  }
+
   deleteAccount(compte: any): void {
     this.compteService.deleteAccount(compte.id).subscribe(() => {
       this.compteService.refresh();
