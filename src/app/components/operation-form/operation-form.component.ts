@@ -10,6 +10,7 @@ import {faClose} from '@fortawesome/free-solid-svg-icons';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { DatePipe } from '@angular/common';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
+import {OperationV2} from "../../models/operation.model";
 
 @Component({
     selector: 'app-operation-form',
@@ -26,12 +27,12 @@ export class OperationFormComponent implements OnInit {
   compteService = inject(CompteService);
   private cookieService = inject(CookieService);
 
-  @Output() formSubmitted: EventEmitter<Operation>;
+  @Output() formSubmitted: EventEmitter<OperationV2>;
   @Input() id!: string;
 
   form!: FormGroup;
-  operation!: Operation;
-  operationReceveur!: Operation;
+  operation!: OperationV2;
+  operationReceveur!: OperationV2;
   addOrEdit!: string;
   buttonLabel!: string;
   categorieList: string[] = [
@@ -70,7 +71,7 @@ export class OperationFormComponent implements OnInit {
   constructor() {
     const data = this.data;
 
-    this.formSubmitted = new EventEmitter<Operation>();
+    this.formSubmitted = new EventEmitter<OperationV2>();
     this.userId = this.cookieService.get('compty-userId');
     this.compteList = data.compteList;
 
@@ -90,36 +91,40 @@ export class OperationFormComponent implements OnInit {
     } else {
       this.addOrEdit = 'add';
       this.buttonLabel = 'Ajouter';
-      this.operation = new Operation(
-        '',
-        0,
-        false,
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        new Date(Date.now()),
-        0,
-        false,
-        ''
-      );
-      this.operationReceveur = new Operation(
-        '',
-        0,
-        false,
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        new Date(Date.now()),
-        0,
-        false,
-        ''
-      );
+      this.operation = {} as OperationV2
+      this.operation.operationDate = new Date(Date.now());
+      this.operationReceveur = {} as OperationV2
+      this.operationReceveur.operationDate = new Date(Date.now());
+      // this.operation = new Operation(
+      //   '',
+      //   0,
+      //   false,
+      //   '',
+      //   '',
+      //   '',
+      //   '',
+      //   '',
+      //   '',
+      //   new Date(Date.now()),
+      //   0,
+      //   false,
+      //   ''
+      // );
+      // this.operationReceveur = new Operation(
+      //   '',
+      //   0,
+      //   false,
+      //   '',
+      //   '',
+      //   '',
+      //   '',
+      //   '',
+      //   '',
+      //   new Date(Date.now()),
+      //   0,
+      //   false,
+      //   ''
+      // );
     }
   }
 
@@ -166,7 +171,9 @@ export class OperationFormComponent implements OnInit {
   onSubmitOperationForm(): void {
     this.submitted = true;
     if (this.form.valid){
-      const compte = this.compteList.find(compte => compte.id === this.operation.compte)
+      const compte = this.compteList.find(compte => compte.id === this.operation.compteId)
+
+      this.operation.type = this.form.get('type')?.value ?? false;
 
       this.operation.solde =
         compte.soldeActuel + (this.operation.montant - this.tempMontant);
@@ -187,7 +194,7 @@ export class OperationFormComponent implements OnInit {
       let updateSolde = this.compteService.updateOneAccount(compteData);
 
       if (this.transfertBetweenAccount && this.form.get('compteReceveur')?.value) {
-        this.operationReceveur.compte = this.operation.compteReceveur
+        this.operationReceveur.compteId = Number(this.operation.compteReceveur);
         this.operationReceveur.description1 = this.operation.description1
         this.operationReceveur.categorie = this.operation.categorie
         this.operationReceveur.operationDate = this.operation.operationDate
@@ -197,7 +204,7 @@ export class OperationFormComponent implements OnInit {
         this.operationReceveur.solde = compteReceveur.soldeActuel + (this.operationReceveur.montant - this.tempMontantReceveur);
         this.compteReceveurId = compteReceveur.id;
         compteReceveur.soldeActuel = this.operationReceveur.solde
-        this.operationReceveur.montant = -this.operation.montant
+        this.operationReceveur.montant = -(this.operation.montant ?? 0);
 
         const compteDataReceveur = {
           id: this.compteReceveurId,
@@ -217,7 +224,7 @@ export class OperationFormComponent implements OnInit {
             id: this.id,
             operation: this.operation,
           };
-          let updateOperation = this.operationService.updateOneOperation(data);
+          let updateOperation = this.operationService.updateOperation(Number(this.id), this.operation);
 
           forkJoin([updateSolde, updateOperation]).subscribe(() => {
             this.dialogRef.close();

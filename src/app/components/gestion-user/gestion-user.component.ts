@@ -58,7 +58,7 @@ export class GestionUserComponent implements OnInit {
 
   // Computed signals pour les listes de comptes filtrées
   compteList = computed(() => {
-    const accounts = this.compteService.allAccounts.value() ?? [];
+    const accounts = this.compteService.accounts();
     const currentUserId = this.userId();
 
     return accounts
@@ -69,15 +69,17 @@ export class GestionUserComponent implements OnInit {
   });
 
   compteCourantList = computed(() =>
-    this.compteList().filter(compte => compte.typeCompte === 'Compte Courant')
+    this.compteService.compteCourantList()
+    // this.compteList().filter(compte => compte.typeCompte === 'Compte Courant')
   );
 
   compteEpargneList = computed(() =>
-    this.compteList().filter(compte => compte.typeCompte !== 'Compte Courant')
+    this.compteService.compteEpargneList()
+    // this.compteList().filter(compte => compte.typeCompte !== 'Compte Courant')
   );
 
   notActiveCompteList = computed(() => {
-    const accounts = this.compteService.deactivatedAccounts.value() ?? [];
+    const accounts = this.compteService.deactivatedAccounts();
 
     return accounts.map(compte => ({
       ...compte,
@@ -87,8 +89,8 @@ export class GestionUserComponent implements OnInit {
 
   // Computed pour vérifier si les données sont en cours de chargement
   isLoading = computed(() =>
-    this.compteService.allAccounts.isLoading() ||
-    this.compteService.deactivatedAccounts.isLoading()
+    this.compteService.accountsLoading() ||
+    this.compteService.deactivatedAccountsLoading()
   );
 
   faPen = faPen;
@@ -102,19 +104,23 @@ export class GestionUserComponent implements OnInit {
     effect(() => {
       const currentUserId = this.userId();
       if (currentUserId) {
-        this.userService.getOneUser(currentUserId).subscribe((user) => {
-          this.user.set(user);
-          this.userForm.patchValue({
-            username: user.username,
-            email: user.email,
-          });
-        });
+        this.getUser()
       }
     });
   }
 
   ngOnInit(): void {
     this.isSuccessful.set(false);
+  }
+
+  getUser(): void {
+    this.userService.getOneUser(this.userId()).subscribe((user) => {
+      this.user.set(user);
+      this.userForm.patchValue({
+        username: user.username,
+        email: user.email,
+      });
+    });
   }
 
   /* ******************  Gestion des informations du compte utilisateur *****************/
@@ -136,15 +142,11 @@ export class GestionUserComponent implements OnInit {
 
     this.userService.updateOneUser(data).subscribe(() => {
       this.isSuccessful.set(true);
+      this.getUser()
       setTimeout(() => {
         this.isSuccessful.set(false);
-        this.reloadPage();
       }, 700);
     });
-  }
-
-  reloadPage(): void {
-    window.location.reload();
   }
 
   openConfirmation(): void {
@@ -185,7 +187,7 @@ export class GestionUserComponent implements OnInit {
       })
       .afterClosed()
       .subscribe(() => {
-        this.compteService.refresh();
+        this.compteService.loadAccounts();
       });
   }
 
@@ -200,7 +202,7 @@ export class GestionUserComponent implements OnInit {
       })
       .afterClosed()
       .subscribe(() => {
-        this.compteService.refresh();
+        this.compteService.loadAccounts();
       });
   }
 
@@ -220,13 +222,13 @@ export class GestionUserComponent implements OnInit {
 
   deleteAccount(compte: any): void {
     this.compteService.deleteAccount(compte.id).subscribe(() => {
-      this.compteService.refresh();
+      this.compteService.loadAccounts();
     });
   }
 
   reactivateAccount(compte: any): void {
     this.compteService.reactivateAccount(compte.id).subscribe(() => {
-      this.compteService.refresh();
+      this.compteService.loadAccounts();
     });
   }
 }

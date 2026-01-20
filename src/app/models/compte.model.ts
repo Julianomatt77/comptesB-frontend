@@ -1,5 +1,5 @@
 export type CompteV2 = {
-  id: string;
+  id: number;
   name: string;
   typeCompte: string;
   soldeInitial: number;

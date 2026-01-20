@@ -1,12 +1,13 @@
-import { Injectable, inject } from '@angular/core';
+import {Injectable, inject, signal, computed} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Operation } from '../models/Operation';
 import { tap } from 'rxjs/operators';
 import { SoldeHistory } from '../interfaces/soldeHistory';
 import { Recap } from '../interfaces/recap';
-import { forkJoin } from 'rxjs';
+import {firstValueFrom, forkJoin} from 'rxjs';
 import { CompteService } from './compte.service';
+import {OperationV2} from "../models/operation.model";
 
 @Injectable({
   providedIn: 'root',
@@ -15,14 +16,308 @@ export class OperationService {
   private http = inject(HttpClient);
   private compteService = inject(CompteService);
 
+  readonly operations = signal<OperationV2[]>([]);
+  readonly operationsLoading = signal(false);
+  readonly operationsError = signal<string | null>(null);
 
+  readonly currentOperation = signal<OperationV2 | null>(null);
+  readonly currentOperationLoading = signal(false);
+  readonly currentOperationError = signal<string | null>(null);
+
+  readonly operationYears = computed(() => {
+    const ops = this.operations();
+    if (ops.length === 0) return [new Date().getFullYear()];
+
+    const years = new Set<number>();
+    ops.forEach(op => {
+      const year = new Date(op.operationDate).getFullYear();
+      years.add(year);
+    });
+
+    return Array.from(years).sort((a, b) => a - b);
+  });
+
+  async loadAllOperations(userId?: number): Promise<void> {
+    this.operationsLoading.set(true);
+    this.operationsError.set(null);
+
+    try {
+      const data = await firstValueFrom(
+        this.http.get<OperationV2[]>(`${environment.baseUrl}/operations/getAllOperations`)
+      );
+
+      let filtered = data || [];
+
+      if (userId) {
+        filtered = filtered.filter(op => op.userId === userId);
+      }
+
+      // Sort by date descending (most recent first)
+      filtered.sort((a, b) =>
+        new Date(b.operationDate).getTime() - new Date(a.operationDate).getTime()
+      );
+
+      this.operations.set(filtered);
+    } catch (error: any) {
+      this.operationsError.set(error?.message || 'Erreur lors du chargement des opérations');
+      console.error('Error loading operations:', error);
+    } finally {
+      this.operationsLoading.set(false);
+    }
+  }
+
+  // Load filtered operations
+  async loadOperationsFiltered(month: string, year: string, userId?: number): Promise<void> {
+    this.operationsLoading.set(true);
+    this.operationsError.set(null);
+
+    try {
+      const data = await firstValueFrom(
+        this.http.post<OperationV2[]>(
+          `${environment.baseUrl}/operations/getOperationsFiltered`,
+          { month, year }
+        )
+      );
+
+      let filtered = data || [];
+
+      if (userId) {
+        filtered = filtered.filter(op => op.userId === userId);
+      }
+
+      // Sort by date descending
+      filtered.sort((a, b) =>
+        new Date(b.operationDate).getTime() - new Date(a.operationDate).getTime()
+      );
+
+      this.operations.set(filtered);
+    } catch (error: any) {
+      this.operationsError.set(error?.message || 'Erreur lors du chargement des opérations filtrées');
+      console.error('Error loading filtered operations:', error);
+    } finally {
+      this.operationsLoading.set(false);
+    }
+  }
+
+  // Get one operation
+  async loadOperation(id: number): Promise<void> {
+    this.currentOperationLoading.set(true);
+    this.currentOperationError.set(null);
+
+    try {
+      const operation = await firstValueFrom(
+        this.http.get<OperationV2>(`${environment.baseUrl}/operations/getOneOperation/${id}`)
+      );
+
+      this.currentOperation.set(operation || null);
+    } catch (error: any) {
+      this.currentOperationError.set(error?.message || 'Erreur lors du chargement de l\'opération');
+      console.error('Error loading operation:', error);
+      this.currentOperation.set(null);
+    } finally {
+      this.currentOperationLoading.set(false);
+    }
+  }
+
+  // Create operation
+  async createOperation(operation: Omit<OperationV2, 'id'>, userId?: number): Promise<OperationV2 | null> {
+    try {
+      const created = await firstValueFrom(
+        this.http.post<OperationV2>(
+          `${environment.baseUrl}/operations/createOperation`,
+          operation
+        )
+      );
+
+      if (created && userId) {
+        // Refresh operations list
+        await this.loadAllOperations(userId);
+      }
+
+      return created || null;
+    } catch (error) {
+      console.error('Error creating operation:', error);
+      return null;
+    }
+  }
+
+  // Update operation
+  async updateOperation(id: number, operation: OperationV2, userId?: number): Promise<OperationV2 | null> {
+    try {
+      const updated = await firstValueFrom(
+        this.http.post<OperationV2>(
+          `${environment.baseUrl}/operations/updateOneOperation/${id}`,
+          { id: id.toString(), operation }
+        )
+      );
+
+      if (updated && userId) {
+        // Refresh operations list
+        await this.loadAllOperations(userId);
+      }
+
+      return updated || null;
+    } catch (error) {
+      console.error('Error updating operation:', error);
+      return null;
+    }
+  }
+
+  // Delete operation
+  async deleteOperation(id: number, userId?: number): Promise<boolean> {
+    try {
+      await firstValueFrom(
+        this.http.delete<OperationV2>(`${environment.baseUrl}/operations/deleteOperation/${id}`)
+      );
+
+      if (userId) {
+        // Refresh operations list
+        await this.loadAllOperations(userId);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error deleting operation:', error);
+      return false;
+    }
+  }
+
+  async uploadAccountHistory(soldeAllArray: any[], type: string): Promise<any[] | null> {
+    try {
+      const result = await firstValueFrom(
+        this.http.post<any[]>(
+          `${environment.baseUrl}/operations/uploadAccountHistory`,
+          { soldeAllArray, type }
+        )
+      );
+
+      return result || null;
+    } catch (error) {
+      console.error('Error uploading account history:', error);
+      return null;
+    }
+  }
+
+  // Get account history
+  async getAccountHistory(): Promise<any | null> {
+    try {
+      const result = await firstValueFrom(
+        this.http.get(`${environment.baseUrl}/operations/getAccountHistory`)
+      );
+
+      return result || null;
+    } catch (error) {
+      console.error('Error getting account history:', error);
+      return null;
+    }
+  }
+
+  // Get epargne history
+  async getEpargneHistory(): Promise<any | null> {
+    try {
+      const result = await firstValueFrom(
+        this.http.get(`${environment.baseUrl}/operations/getEpargneHistory`)
+      );
+
+      return result || null;
+    } catch (error) {
+      console.error('Error getting epargne history:', error);
+      return null;
+    }
+  }
+
+  // Utility: Export to CSV
+  exportToCSV(array: any[], filename: string): void {
+    const csvData = this.ConvertToCSV(array);
+    const a = document.createElement('a');
+
+    // Pour encodage avec accents
+    const BOM = '\uFEFF';
+    const finalData = BOM + csvData;
+
+    a.setAttribute('style', 'display:none;');
+    document.body.appendChild(a);
+    const blob = new Blob([finalData], { type: 'text/csv;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    // Cleanup
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
+
+  private ConvertToCSV(objArray: any[]): string {
+    const array = typeof objArray !== 'object' ? JSON.parse(objArray) : objArray;
+    let str = '';
+
+    if (array.length === 0) {
+      return str;
+    }
+
+    // Header row
+    let row = '';
+    for (const index in objArray[0]) {
+      row += index + ';';
+    }
+    row = row.slice(0, -1);
+    str += row + '\r\n';
+
+    // Data rows
+    for (let i = 0; i < array.length; i++) {
+      let line = '';
+      for (const index in array[i]) {
+        if (line !== '') line += ';';
+
+        // On transforme les . des nombres par des virgules
+        const value = array[i][index];
+        const newValue = typeof value === 'number' ? value.toString().replace(/\./g, ',') : value;
+
+        line += newValue;
+      }
+      str += line + '\r\n';
+    }
+    return str;
+  }
+
+  // Find operation by ID in current state (no API call)
+  findOperationById(id: number): OperationV2 | undefined {
+    return this.operations().find(op => op.id === id);
+  }
+
+  // Filter operations by date range
+  filterByDateRange(startDate: Date, endDate: Date): OperationV2[] {
+    return this.operations().filter(op => {
+      const opDate = new Date(op.operationDate);
+      return opDate >= startDate && opDate <= endDate;
+    });
+  }
+
+  // Filter operations by account
+  filterByAccount(compteId: number): OperationV2[] {
+    return this.operations().filter(op => op.compteId === compteId);
+  }
+
+  // Filter operations by category
+  filterByCategory(category: string): OperationV2[] {
+    return this.operations().filter(op => op.categorie === category);
+  }
+
+  // Filter operations by type (credit/debit)
+  filterByType(type: boolean): OperationV2[] {
+    return this.operations().filter(op => op.type === type);
+  }
+
+  /* =================== Before v21 refactorisation with signals ====================== */
+  /*
   public createOperation(operation: Operation) {
     return this.http.post<Operation>(
       `${environment.baseUrl}/operations/createOperation`,
       operation
     );
   }
-
+*/
   public getAllOperations() {
     return this.http.get<any[]>(
       `${environment.baseUrl}/operations/getAllOperations`
@@ -48,13 +343,14 @@ export class OperationService {
       value
     );
   }
-
+/*
   public deleteOperation(id: string) {
     return this.http.delete<Operation>(
       `${environment.baseUrl}/operations/deleteOperation/${id}`
     );
   }
-
+*/
+  /*
   public uploadAccountHistory(soldeAllArray: any[], type: string) {
     return this.http.post<any[]>(
       `${environment.baseUrl}/operations/uploadAccountHistory`,
@@ -68,7 +364,7 @@ export class OperationService {
   public getEpargneHistory() {
     return this.http.get(`${environment.baseUrl}/operations/getEpargneHistory`);
   }
-
+*/
   public getOperations(operationList: any[], userId: string) {
     let operationsObservable = this.getAllOperations().pipe(
       tap((data) => {
@@ -210,7 +506,7 @@ export class OperationService {
       });
     });
   }
-
+/*
   public exportToCSV(array: any[], filename: string) {
     var csvData = this.ConvertToCSV(array);
     var a = document.createElement('a');
@@ -256,4 +552,6 @@ export class OperationService {
     }
     return str;
   }
+
+ */
 }

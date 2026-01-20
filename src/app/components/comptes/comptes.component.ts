@@ -8,21 +8,21 @@ import {
   inject,
   ChangeDetectionStrategy,
   signal,
-  computed
+  computed,
+  effect,
+  OnDestroy,
+  Renderer2,
+  ChangeDetectorRef
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Operation } from 'src/app/models/Operation';
+import { OperationV2 } from 'src/app/models/operation.model';
+import { CompteV2 } from 'src/app/models/compte.model';
 import { OperationService } from 'src/app/services/operation.service';
 import { OperationFormComponent } from '../operation-form/operation-form.component';
-
-// import { ConfirmationDialogComponent } from '../operation-form/operation-form.component';
 import { CompteFormComponent } from '../compte-form/compte-form.component';
 import { CompteService } from 'src/app/services/compte.service';
-import { forkJoin, Observable, Subscription, firstValueFrom } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { MatSort } from '@angular/material/sort';
-import {MatDialog, MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { CookieService } from 'ngx-cookie-service';
 import { FormGroup, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -36,61 +36,211 @@ import {
   faTrashCan,
   faClose
 } from '@fortawesome/free-solid-svg-icons';
-// import * as jsPDF from 'jspdf';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { Renderer2, ChangeDetectorRef } from '@angular/core';
 import { NgClass, DecimalPipe, DatePipe } from '@angular/common';
-import { OnDestroy } from '@angular/core';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { MatSelect } from '@angular/material/select';
 import { MatOption, MatOptgroup } from '@angular/material/autocomplete';
 import { PieChartModule } from '@swimlane/ngx-charts';
+import { firstValueFrom } from 'rxjs';
+
+interface OperationDisplay extends OperationV2 {
+  classCSS?: string;
+  compteName?: string;
+}
+
+interface MonthlyHistory {
+  name: string;
+  solde: number;
+  history: any[];
+}
 
 @Component({
-    selector: 'app-comptes',
-    templateUrl: './comptes.component.html',
-    styleUrls: ['./comptes.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [FormsModule, ReactiveFormsModule, MatFormField, MatInput, FaIconComponent, MatLabel, MatSelect, MatOption, MatOptgroup, NgClass, MatPaginator, PieChartModule, DecimalPipe, DatePipe]
+  selector: 'app-comptes',
+  templateUrl: './comptes.component.html',
+  styleUrls: ['./comptes.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormField,
+    MatInput,
+    FaIconComponent,
+    MatLabel,
+    MatSelect,
+    MatOption,
+    MatOptgroup,
+    MatPaginator,
+    PieChartModule,
+    DecimalPipe,
+    DatePipe
+  ]
 })
 export class ComptesComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
-  private operationService = inject(OperationService);
-  private compteService = inject(CompteService);
-  dialog = inject(MatDialog);
+  readonly operationService = inject(OperationService);
+  readonly compteService = inject(CompteService);
+  private dialog = inject(MatDialog);
   private cookieService = inject(CookieService);
   private changeDetectorRef = inject(ChangeDetectorRef);
   private document = inject<Document>(DOCUMENT);
   private renderer = inject(Renderer2);
 
-  // @HostBinding('class.bg-light') someClass: Host = true;
-  @Output() formSubmitted: EventEmitter<string>;
+  @Output() formSubmitted = new EventEmitter<string>();
+  @ViewChild(MatSort) sort?: MatSort;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  operationList: any[] = [];
-  allOperations: any[] = [];
-  operationId!: string;
-  operation!: Operation;
-  totalCredit = signal(0);
-  totalDebit = signal(0);
-  userId!: string;
-  isLoading = signal(true);
+  // Local state signals
+  readonly userId = signal<number>(0);
+  readonly todayMonth = signal(new Date().getMonth() + 1);
+  readonly todayYear = signal(new Date().getFullYear().toString());
+  readonly selectedAccount = signal('');
+  readonly selectedCategory = signal('');
+  readonly selectedType = signal<boolean | null>(null);
+  readonly dateFiltered = signal(true);
+  readonly width = signal(0);
 
-  compteList: any[] = [];
-  compteId = '';
-  compteCourantList: any[] = [];
-  compteEpargneList: any[] = [];
-  groupedComptes: { [key: string]: any[] } = {};
-  groupedCompteTypes: string[] = [];
+  // Computed from services
+  readonly isLoading = computed(() =>
+    this.operationService.operationsLoading() || this.compteService.accountsLoading()
+  );
 
-  soldeAllAccounts: any[] = [];
-  soldePerAccount: any[] = [];
-  monthlysoldeHistory: any[] = [];
-  monthlyHistoryPerAccount: any[] = [];
+  readonly allOperations = computed(() => this.operationService.operations());
+  readonly accounts = computed(() => this.compteService.accounts());
+  readonly groupedComptes = computed(() => this.compteService.groupedComptes());
+  readonly groupedCompteTypes = computed(() => this.compteService.groupedCompteTypes());
+  readonly operationsYears = computed(() => this.operationService.operationYears());
 
-  spendByCategory: any[] = [];
+  // Filtered operations based on current filters
+  readonly filteredOperations = computed(() => {
+    const month = this.todayMonthString();
+    const year = this.todayYear();
+    const allOps = this.allOperations();
+    const selectedAccount = this.selectedAccount();
+    const selectedCategory = this.selectedCategory();
+    const selectedType = this.selectedType();
+    const dateFiltered = this.dateFiltered();
+
+    let filtered = allOps;
+
+    // Filtre par date
+    if (dateFiltered) {
+      const targetDate = `${year}-${month}`;
+      filtered = filtered.filter(op => {
+        const opDate = new Date(op.operationDate).toISOString().substring(0, 7);
+        return opDate === targetDate;
+      });
+    }
+
+    // Filtre par compte
+    if (selectedAccount) {
+      const accountId = parseInt(selectedAccount, 10);
+      filtered = filtered.filter(op => op.compteId === accountId);
+    }
+
+    // Filtre par catégorie
+    if (selectedCategory) {
+      filtered = filtered.filter(op => op.categorie === selectedCategory);
+    }
+
+    // Filtre par type
+    if (selectedType !== null) {
+      filtered = filtered.filter(op => op.type === selectedType);
+    }
+
+    // Ajouter les informations d'affichage
+    const displayOps: OperationDisplay[] = filtered.map(op => {
+      const compte = this.accounts().find(c => c.id === op.compteId);
+      const categorieIndex = this.categorieClass.findIndex(c => c[0] === op.categorie);
+
+      return {
+        ...op,
+        compteName: compte?.name || 'Compte inconnu',
+        classCSS: categorieIndex !== -1 ? this.categorieClass[categorieIndex][1] : ''
+      };
+    });
+
+    return displayOps;
+  });
+
+  readonly totalCredit = computed(() => {
+    return this.filteredOperations().reduce((sum, op) => {
+      if (op.categorie !== 'Transfert' && op.type) {
+        return sum + op.montant;
+      }
+      return sum;
+    }, 0);
+  });
+
+  readonly totalDebit = computed(() => {
+    return this.filteredOperations().reduce((sum, op) => {
+      if (op.categorie !== 'Transfert' && !op.type) {
+        return sum + Math.abs(op.montant);
+      }
+      return sum;
+    }, 0);
+  });
+
+  readonly todayMonthString = computed(() => {
+    const month = this.todayMonth();
+    return month < 10 ? `0${month}` : `${month}`;
+  });
+
+  readonly monthlyHistoryPerAccount = computed(() => {
+    const month = this.todayMonthString();
+    const year = this.todayYear();
+    const result: MonthlyHistory[] = [];
+    const targetDate = `${year}-${month}`;
+
+    this.accounts().forEach(compte => {
+      if (compte.typeCompte === 'Compte Courant') {
+        result.push({
+          name: compte.name,
+          solde: compte.soldeActuel,
+          history: []
+        });
+      }
+    });
+
+    return result;
+  });
+
+  readonly spendByCategory = computed(() => {
+    const result: any[] = [];
+
+    this.categorieList.forEach(categorie => {
+      if (categorie !== 'Transfert' && categorie !== 'Salaire' && categorie !== 'Remboursement') {
+        result.push({ name: categorie, value: 0 });
+      }
+    });
+
+    this.filteredOperations().forEach(operation => {
+      if (operation.categorie !== 'Transfert' &&
+        operation.categorie !== 'Salaire' &&
+        operation.categorie !== 'Remboursement') {
+        const index = result.findIndex(x => x.name === operation.categorie);
+
+        if (index !== -1 && operation.montant < 0) {
+          result[index].value += Math.abs(operation.montant);
+        }
+      }
+    });
+
+    return result;
+  });
+
+  // DataSource avec signal
+  dataSource = new MatTableDataSource<OperationDisplay>([]);
+
+  // Effect pour mettre à jour le dataSource
+  private updateDataSourceEffect = effect(() => {
+    this.dataSource.data = this.filteredOperations();
+    this.updatePaginator();
+  });
+
   categorieList: string[] = [
     'Courses',
     'Divers',
@@ -105,7 +255,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
     'Transfert',
     'Voyage',
   ];
-  categorieClass: any[] = [
+
+  categorieClass: [string, string][] = [
     ['Courses', 'courses'],
     ['Divers', 'divers'],
     ['Essence', 'essence'],
@@ -120,11 +271,6 @@ export class ComptesComponent implements OnInit, OnDestroy {
     ['Voyage', 'voyage'],
   ];
 
-  dataSource = new MatTableDataSource(this.operationList);
-  obs = toSignal(this.dataSource.connect(), {initialValue: [] as any[]});
-  @ViewChild(MatSort) sort!: MatSort | undefined;
-  @ViewChild('table') table!: MatTable<any> | undefined;
-  childRevelancy = { displayColumns: [], hideColumns: [], data: [] };
   columnsToDisplay = [
     'operationDate',
     'compte',
@@ -135,22 +281,12 @@ export class ComptesComponent implements OnInit, OnDestroy {
     'edition',
     'suppression',
   ];
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   form!: FormGroup;
   formAccountFiltered!: FormGroup;
   formCategoryFiltered!: FormGroup;
-  todayMonth = new Date(Date.now()).getMonth() + 1;
-  todayYear = new Date(Date.now()).getFullYear().toString();
-  todayMonthString = this.todayMonth.toString();
-  dateFiltered = true;
-  selectedAccount = "";
-  selectedCategory = "";
-  selectedType = null;
 
-  firstOperationYear = 0;
-  operationsYears: number[] = [];
-
+  // Icons
   faPen = faPen;
   faTrashCan = faTrashCan;
   faArrowUp = faArrowUp;
@@ -160,621 +296,223 @@ export class ComptesComponent implements OnInit, OnDestroy {
   faFilter = faFilter;
   faClose = faClose;
 
-  width = 0;
-
-  dialogRef!: MatDialogRef<ConfirmationDialogComponent>;
-
-  private subscriptions: Subscription = new Subscription();
-
   constructor() {
     this.renderer.addClass(this.document.body, 'bg-light');
-    this.formSubmitted = new EventEmitter<string>();
-    this.userId = this.cookieService.get('compty-userId');
-    if (innerWidth >= 991) {
-      this.width = innerWidth / 3.3;
-    } else {
-      this.width = innerWidth / 1.3;
-    }
+    const userIdFromCookie = this.cookieService.get('compty-userId');
+    this.userId.set(parseInt(userIdFromCookie, 10) || 0);
+
+    this.width.set(innerWidth >= 991 ? innerWidth / 3.3 : innerWidth / 1.3);
   }
 
-  ngOnInit(): void {
-    let year = new Date(Date.now()).getFullYear() - 1;
-    this.subscriptions.add(
+  async ngOnInit(): Promise<void> {
+    this.initializeForms();
+    await this.loadInitialData();
+  }
 
-      //TODO: à remplacer par signals
-      this.operationService
-        .getOperations(this.allOperations, this.userId)
-        .subscribe((operations) => {
-          if (operations && operations.length > 0){
-            // Menu déroulant pour années avec data
-            operations.reverse();
-            this.firstOperationYear = operations[0].operationDate.split('-')[0];
-            for (let i = 0; i <= year - this.firstOperationYear; i++) {
-              this.operationsYears.push(year - i);
-            }
-            this.operationsYears.unshift(new Date(Date.now()).getFullYear());
-            this.operationsYears.reverse();
-
-            this.dataSource = new MatTableDataSource(this.operationList);
-            if ((new Date(Date.now()).getMonth() + 1).toString().length < 2) {
-              this.todayMonthString =
-                '0' + (new Date(Date.now()).getMonth() + 1).toString();
-            }
-
-            this.subscriptions.add(
-              forkJoin([
-                // this.operationList + dataSource, obs, paginator
-                this.showOperationsFilteredObservable(),
-                // this.compteList, this.compteCourantList, this.compteEpargneList
-                this.showAccountsObservable()
-              ]).subscribe(() => {
-                // this.soldePerAccount puis this.monthlyHistoryPerAccount (affichage du solde de chaque compte à droite) -> a besoin du service allAccounts (donc de comptesList)
-                // + de operationYears + d'une boucle des opérations
-                // this.getSoldePerAccount(this.operationList);
-                this.isLoading.set(false);
-                // this.getSoldePerAccount(operations);
-                this.getMonthlySolde(this.todayMonthString, this.todayYear);
-                // this.spendByCategory (camembert) -> a besoin du service operationsFiltered (donc operationList)
-                this.getDepenseByCategory(this.todayMonthString, this.todayYear);
-                // console.log(this.soldePerAccount)
-                this.updatePaginator();
-              })
-            )
-          } else {
-            this.operationsYears.push(new Date(Date.now()).getFullYear());
-            this.isLoading.set(false);
-          }
-
-        })
-    );
-
-    if (this.todayMonthString.length < 2) {
-      this.todayMonthString = 0 + this.todayMonthString;
-    }
-
+  private initializeForms(): void {
     this.form = this.fb.group({
-      rangeDate: this.todayYear + '-' + this.todayMonthString,
+      rangeDate: `${this.todayYear()}-${this.todayMonthString()}`,
     });
 
     this.formAccountFiltered = this.fb.group({
-      account: this.selectedAccount
+      account: this.selectedAccount()
     });
 
     this.formCategoryFiltered = this.fb.group({
-      category: this.selectedCategory
+      category: this.selectedCategory()
     });
   }
 
-  private showOperationsFilteredObservable(): Observable<any> {
-    this.isLoading.set(true);
-    return this.showOperationsFiltered(this.todayMonthString, this.todayYear).pipe(
-      map(() => {
-        return;
-      })
-    );
+  private async loadInitialData(): Promise<void> {
+    const userId = this.userId();
+
+    // Load accounts and operations in parallel
+    await Promise.all([
+      this.compteService.loadAccounts(userId),
+      this.operationService.loadAllOperations(userId)
+    ]);
   }
 
-  private showAccountsObservable(): Observable<any> {
-    this.isLoading.set(true);
-    return this.showAccounts().pipe(
-      map(() => {
-        return;
-      })
-    );
+  async onSubmitChangeDate(): Promise<void> {
+    const [year, month] = this.form.value.rangeDate.split('-');
+    this.todayYear.set(year);
+    this.todayMonth.set(parseInt(month, 10));
+    this.dateFiltered.set(true);
   }
 
-  totalOperations(montant: number, type: boolean, categorie: string) {
-    if (categorie != 'Transfert') {
-      if (type == false) {
-        this.totalDebit.update(v => v + montant);
-      } else {
-        this.totalCredit.update(v => v + montant);
-      }
-
-      this.totalDebit.update(v => Math.round(v * 100) / 100);
-      this.totalCredit.update(v => Math.round(v * 100) / 100);
-    }
+  resetDateFilters(): void {
+    const now = new Date();
+    this.todayMonth.set(now.getMonth() + 1);
+    this.todayYear.set(now.getFullYear().toString());
+    this.dateFiltered.set(false);
   }
 
-  /* ************************* Opêrations *********** */
+  onSubmitAccountFilter(): void {
+    this.selectedAccount.set(this.formAccountFiltered.value.account);
+  }
 
-  showOperationsFiltered(month: string, year: string): Observable<any> {
-    this.operationList = [];
-    this.totalCredit.set(0);
-    this.totalDebit.set(0);
-    let service: any = null;
+  onSubmitCategoryFilter(): void {
+    this.selectedCategory.set(this.formCategoryFiltered.value.category);
+  }
 
-    if (this.dateFiltered) {
-      service = this.operationService.getOperationsFiltered(month, year);
-    } else {
-      service = this.operationService.getAllOperations();
-    }
+  typeFilter(type: boolean): void {
+    const currentType = this.selectedType();
+    this.selectedType.set(currentType === type ? null : type);
+  }
 
-    return new Observable(observer => {
-      this.subscriptions.add(
-        service.subscribe((data: any) => {
-        data.forEach((operation: any) => {
-          if (operation.userId == this.userId) {
-            // Ajout d'une class CSS par type d'opération
-            let index = this.categorieClass.findIndex(
-              (p) => p[0] == operation.categorie
-            );
+  resetAllFilters(): void {
+    this.selectedType.set(null);
+    this.selectedCategory.set('');
+    this.selectedAccount.set('');
+    this.formCategoryFiltered.get('category')?.setValue('');
+    this.formAccountFiltered.get('account')?.setValue('');
+  }
 
-            if (index != -1){
-              operation.classCSS = this.categorieClass[index][1];
-            }
-
-            if ((this.selectedAccount == "" || this.selectedAccount == operation.compte) &&
-              (this.selectedCategory == "" || this.selectedCategory == operation.categorie) &&
-              (this.selectedType === null || this.selectedType == operation.type)){ //Prise en compte des filtres
-              this.operationList.push(operation);
-
-              this.totalOperations(
-                operation.montant,
-                operation.type,
-                operation.categorie
-              );
-            }
-          }
-        });
-
-        this.dataSource = new MatTableDataSource(this.operationList);
-        this.updatePaginator();
-
-        observer.next();
-        observer.complete();
-      })
-      );
+  async AddOperation(): Promise<void> {
+    const dialogRef = this.dialog.open(OperationFormComponent, {
+      data: {
+        addOrEdit: 'add',
+        compteList: this.accounts()
+      },
+      width: '60%',
     });
+
+    await firstValueFrom(dialogRef.afterClosed());
+    await this.loadInitialData();
   }
 
-  AddOperation() {
-    this.dialog
-      .open(OperationFormComponent, {
-        data: {
-          addOrEdit: 'add',
-          compteList: this.compteList
-        },
-        width: '60%',
-      })
-      .afterClosed()
-      .subscribe(() => {
-        this.subscriptions.add(
-          forkJoin([
-            this.showOperationsFilteredObservable(),
-            this.showAccountsObservable()
-          ]).subscribe(() => {
-            this.isLoading.set(false);
-            this.getMonthlySolde(this.todayMonthString, this.todayYear);
-            this.getDepenseByCategory(this.todayMonthString, this.todayYear);
+  async openOperationDetail(operation: OperationDisplay): Promise<void> {
+    const dialogRef = this.dialog.open(OperationFormComponent, {
+      data: {
+        operation,
+        addOrEdit: 'edit',
+        compteList: this.accounts(),
+      },
+      width: '60%',
+    });
 
-            this.updatePaginator();
-          })
-        )
-
-      });
+    await firstValueFrom(dialogRef.afterClosed());
+    await this.loadInitialData();
   }
 
-  // Edit operation
-  openOperationDetail(operation: any) {
-    this.dialog
-      .open(OperationFormComponent, {
-        data: {
-          operation: operation,
-          addOrEdit: 'edit',
-          compteList: this.compteList,
-        },
-        width: '60%',
-      })
-      .afterClosed()
-      .subscribe(() => {
-        this.subscriptions.add(
-          forkJoin([
-            this.showOperationsFilteredObservable(),
-            this.showAccountsObservable()
-          ]).subscribe(() => {
-            this.isLoading.set(false);
-            this.getMonthlySolde(this.todayMonthString, this.todayYear);
-            this.getDepenseByCategory(this.todayMonthString, this.todayYear);
-
-            // Maj du paginator
-            this.updatePaginator();
-          })
-        )
-      });
-  }
-
-  // Delete operation
-  openConfirmation(operation: any) {
-    this.dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      // width: '250px',
+  async openConfirmation(operation: OperationDisplay): Promise<void> {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       disableClose: false,
     });
-    this.dialogRef.componentInstance.confirmMessage =
+
+    dialogRef.componentInstance.confirmMessage =
       'Etes vous sûr de vouloir supprimer cette opération ?';
 
-    this.subscriptions.add(
-      this.dialogRef.afterClosed().subscribe((result) => {
-        if (result) {
-          // do confirmation actions
-          this.deleteOperation(operation);
-        }
-        // this.dialogRef = null;
-      })
-    );
-  }
+    const result = await firstValueFrom(dialogRef.afterClosed());
 
-  deleteOperation(operation: any) {
-    this.operationId = operation.id;
-    let montantRestitue = -operation.montant;
-
-    // On met à jour le solde du compte
-    this.subscriptions.add(
-      this.compteService.getOneAccount(operation.compte).subscribe((compte) => {
-        compte.soldeActuel = compte.soldeActuel + montantRestitue;
-        const compteData = {
-          id: operation.compte,
-          compte: compte,
-        };
-
-        let updateSolde = this.compteService.updateOneAccount(compteData);
-        let deleteOperation = this.operationService.deleteOperation(
-          this.operationId
-        );
-        // On met à jour l'affichage
-        forkJoin([updateSolde, deleteOperation]).subscribe(() => {
-          forkJoin([
-            this.showOperationsFilteredObservable(),
-            this.showAccountsObservable()
-          ]).subscribe(() => {
-            this.isLoading.set(false);
-            this.getMonthlySolde(this.todayMonthString, this.todayYear);
-            this.getDepenseByCategory(this.todayMonthString, this.todayYear);
-
-            // Maj du paginator
-            this.updatePaginator();
-          })
-        })
-      })
-    );
-  }
-
-  /* ************************* Accounts *********** */
-
-  showAccounts(): Observable<any> {
-    this.compteList = [];
-    this.compteCourantList = [];
-    return this.compteService.getAllAccounts().pipe(
-      map((data) => {
-        data.forEach((compte) => {
-          if (compte.userId == this.userId) {
-            let temp = Math.round(compte.soldeActuel * 100) / 100;
-            compte.soldeActuel = temp;
-            this.compteList.push(compte);
-
-            if (compte.typeCompte == 'Compte Courant') {
-              this.compteCourantList.push(compte);
-            } else {
-              this.compteEpargneList.push(compte);
-            }
-          }
-        });
-
-        // On réorganise l'ordre d'affichage des comptes
-        this.compteList = this.compteService.sortCompteListByType(this.compteList);
-        this.groupedComptes = this.compteService.groupComptesByType(this.compteList);
-        this.groupedCompteTypes = Object.keys(this.groupedComptes);
-
-        return this.compteList;
-      })
-    );
-  }
-
-  AddAccount() {
-    this.dialog
-      .open(CompteFormComponent, {
-        data: {
-          addOrEdit: 'add',
-        },
-        width: '60%',
-      })
-      .afterClosed()
-      .subscribe(() => {
-        this.subscriptions.add(
-          this.showAccountsObservable().subscribe(() => {
-            this.isLoading.set(false);
-            this.getMonthlySolde(this.todayMonthString, this.todayYear);
-          })
-        )
-      });
-  }
-
-  openAccountDetail(compte: any) {
-    this.subscriptions.add(
-      this.compteService.getAllAccounts().subscribe((data) => {
-        let compteIndex = data.findIndex((p) => p.name == compte.name);
-        this.dialog
-          .open(CompteFormComponent, {
-            data: {
-              compte: data[compteIndex],
-              addOrEdit: 'edit',
-            },
-            width: '60%',
-          })
-          .afterClosed()
-          .subscribe(() => {
-            this.subscriptions.add(
-              this.showAccountsObservable().subscribe(() => {
-                this.isLoading.set(false);
-                this.getMonthlySolde(this.todayMonthString, this.todayYear);
-              })
-            )
-          });
-      })
-    );
-  }
-
-  deleteAccount(compte: any) {
-    this.subscriptions.add(
-      this.compteService.getAllAccounts().subscribe((data) => {
-        let compteIndex = data.findIndex((p) => p.name == compte.name);
-        this.subscriptions.add(
-          this.compteService.deleteAccount(data[compteIndex].id).subscribe(() => {
-            this.showAccountsObservable().subscribe(() => {
-              this.isLoading.set(false);
-              this.getMonthlySolde(this.todayMonthString, this.todayYear);
-            })
-          })
-        )
-      })
-    );
-  }
-
-  getMonthlySolde(month: string, year: string) {
-    this.monthlyHistoryPerAccount = [];
-    let filteredmonthlyHistory = [];
-
-    // this.soldePerAccount.forEach((compte) => {
-    this.compteList.forEach((compte) => {
-      if (compte.userId == this.userId && compte.typeCompte == 'Compte Courant'
-      ) {
-
-        filteredmonthlyHistory = [];
-        filteredmonthlyHistory = compte.history.filter((element: any) =>
-          element.dateSolde.includes(year + '-' + month)
-        );
-
-        this.monthlyHistoryPerAccount.push({
-          name: compte.name,
-          solde: compte.soldeActuel,
-          history: filteredmonthlyHistory,
-        });
-      }
-    });
-    return this.monthlyHistoryPerAccount;
-  }
-
-  /************** Date picker ***********/
-  onSubmitChangeDate() {
-    // Récupération de la date depuis le formulaire html
-    this.todayMonthString = this.form.value.rangeDate.split('-')[1];
-    this.todayYear = this.form.value.rangeDate.split('-')[0];
-
-    this.dateFiltered = true;
-    this.isLoading.set(true);
-
-    this.subscriptions.add(
-      forkJoin([
-        this.showOperationsFilteredObservable(),
-        this.showAccountsObservable()
-      ]).subscribe(() => {
-        this.isLoading.set(false);
-        this.getMonthlySolde(this.todayMonthString, this.todayYear);
-        this.getDepenseByCategory(this.todayMonthString, this.todayYear);
-
-        this.updatePaginator();
-      })
-    )
-  }
-
-  resetDateFilters() {
-    this.todayMonth = new Date(Date.now()).getMonth() + 1;
-    this.todayYear = new Date(Date.now()).getFullYear().toString();
-    this.todayMonthString = this.todayMonth.toString();
-    if (this.todayMonthString.length < 2) {
-      this.todayMonthString = 0 + this.todayMonthString;
+    if (result) {
+      await this.deleteOperation(operation);
     }
-    this.dateFiltered = false;
-
-    this.subscriptions.add(
-      forkJoin([
-        this.showOperationsFilteredObservable(),
-        this.showAccountsObservable()
-      ]).subscribe(() => {
-        this.isLoading.set(false);
-        this.getMonthlySolde('12', new Date(Date.now()).getFullYear().toString());
-        this.getDepenseByCategory(
-          '12',
-          new Date(Date.now()).getFullYear().toString()
-        );
-        this.updatePaginator();
-      })
-    )
-
   }
 
-  /************** Account filter ***********/
-  onSubmitAccountFilter(){
-    // compte id
-    this.selectedAccount = this.formAccountFiltered.value.account;
+  private async deleteOperation(operation: OperationDisplay): Promise<void> {
+    const compte = this.compteService.findAccountById(operation.compteId);
 
-    this.subscriptions.add(
-      this.showOperationsFilteredObservable().subscribe(() => {
-        this.isLoading.set(false);
-        this.updatePaginator();
-      })
-    )
-  }
+    if (compte) {
+      const montantRestitue = -operation.montant;
+      const updatedCompte: CompteV2 = {
+        ...compte,
+        soldeActuel: compte.soldeActuel + montantRestitue
+      };
 
-  /************** Category filter ***********/
-  onSubmitCategoryFilter(){
-    this.selectedCategory = this.formCategoryFiltered.value.category;
-    this.subscriptions.add(
-      this.showOperationsFilteredObservable().subscribe(() => {
-        this.isLoading.set(false);
-        this.updatePaginator();
-      })
-    )
-  }
-
-  /************** Crédit / débit filter ***********/
-  typeFilter(type: any){
-    if (this.selectedType == null || this.selectedType !== type){
-        this.selectedType = type
-    } else {
-      this.selectedType = null
+      await this.compteService.updateAccountAsync(compte.id, updatedCompte);
+      await this.operationService.deleteOperation(operation.id, this.userId());
     }
-
-    this.subscriptions.add(
-      this.showOperationsFilteredObservable().subscribe(() => {
-        this.isLoading.set(false);
-        this.updatePaginator();
-      })
-    )
   }
 
-  resetAllFilters(){
-    this.selectedType = null;
-
-    this.selectedCategory = "";
-    this.formCategoryFiltered.get('category')?.setValue('');
-
-    this.selectedAccount = "";
-    this.formAccountFiltered.get('account')?.setValue('');
-
-    this.subscriptions.add(
-      this.showOperationsFilteredObservable().subscribe(() => {
-        this.isLoading.set(false);
-        this.updatePaginator();
-      })
-    )
-  }
-
-  /*********** GRAPHIQUE ************* */
-  getDepenseByCategory(month: string, year: string) {
-    this.spendByCategory = [];
-    let tempArray: any[] = [];
-    this.categorieList.forEach((categorie) => {
-      if (
-        categorie != 'Transfert' &&
-        categorie != 'Salaire' &&
-        categorie != 'Remboursement'
-      ) {
-        tempArray.push({ name: categorie, value: 0 });
-      }
+  async AddAccount(): Promise<void> {
+    const dialogRef = this.dialog.open(CompteFormComponent, {
+      data: {
+        addOrEdit: 'add',
+      },
+      width: '60%',
     });
 
-    this.operationList.forEach((operation) => {
-      let montant = 0;
-      if (
-        operation.userId == this.userId &&
-        operation.categorie != 'Transfert' &&
-        operation.categorie != 'Salaire' &&
-        operation.categorie != 'Remboursement'
-      ) {
-        let index = tempArray.findIndex(
-          (x) => x.name == operation.categorie
-        );
-
-        if (operation.montant < 0) {
-          montant = -operation.montant;
-        } else {
-          montant = 0;
-        }
-        tempArray[index].value += montant;
-      }
-    })
-
-    this.spendByCategory = tempArray;
+    await firstValueFrom(dialogRef.afterClosed());
+    await this.compteService.loadAccounts(this.userId());
   }
 
-  /* ---- Auto resize chart ---- */
+  async openAccountDetail(compte: CompteV2): Promise<void> {
+    const dialogRef = this.dialog.open(CompteFormComponent, {
+      data: {
+        compte,
+        addOrEdit: 'edit',
+      },
+      width: '60%',
+    });
+
+    await firstValueFrom(dialogRef.afterClosed());
+    await this.compteService.loadAccounts(this.userId());
+  }
+
+  async deleteAccount(compte: CompteV2): Promise<void> {
+    await this.compteService.deleteAccountAsync(compte.id, this.userId());
+  }
+
   onResize(event: any): void {
-    if (event.target.innerWidth >= 991) {
-      this.width = event.target.innerWidth / 3.3;
-    } else {
-      this.width = event.target.innerWidth / 1.3;
-    }
+    this.width.set(event.target.innerWidth >= 991
+      ? event.target.innerWidth / 3.3
+      : event.target.innerWidth / 1.3);
   }
 
-  /*********** EXPORT TO PDF *************** */
-  htmltoPDF() {
-    // printChartis the html element which has to be converted to PDF
-    html2canvas(document.querySelector('#dataToPrint')!).then((canvas) => {
-      let fileWidth = 208;
-      let fileHeight = (canvas.height * fileWidth) / canvas.width;
-      let position = 0;
+  htmltoPDF(): void {
+    const element = this.document.querySelector('#dataToPrint');
+    if (!element) return;
 
+    html2canvas(element as HTMLElement).then(canvas => {
+      const fileWidth = 208;
+      const fileHeight = (canvas.height * fileWidth) / canvas.width;
       const imgData = canvas.toDataURL('image/png');
       const pdfFile = new jsPDF('p', 'mm', 'a4');
 
-      pdfFile.addImage(imgData, 'PNG', position, 0, fileWidth, fileHeight);
-      pdfFile.save(
-        this.todayYear + '-' + this.todayMonthString + ' operations.pdf'
-      );
+      pdfFile.addImage(imgData, 'PNG', 0, 0, fileWidth, fileHeight);
+      pdfFile.save(`${this.todayYear()}-${this.todayMonthString()} operations.pdf`);
     });
   }
 
-  export(type: string) {
+  export(type: string): void {
     let arrayToExport: any[] = [];
     let filename = '';
 
-    if (type == 'operations') {
-      arrayToExport = [];
-      this.operationList.forEach((data) => {
-        arrayToExport.unshift({
-          Date: data.operationDate.split('T')[0],
-          Crédit: data.type ? data.montant : '',
-          Débit: !data.type ? -data.montant : '',
-          Catégorie: data.categorie,
-          Compte: data.compteName,
-          'Description 1': data.description1,
-          'Description 2': data.description2,
-        });
-      });
+    if (type === 'operations') {
+      arrayToExport = this.filteredOperations().map(data => ({
+        Date: new Date(data.operationDate).toISOString().split('T')[0],
+        Crédit: data.type ? data.montant : '',
+        Débit: !data.type ? Math.abs(data.montant) : '',
+        Catégorie: data.categorie,
+        Compte: data.compteName,
+        'Description 1': data.description1,
+        'Description 2': data.description2 || '',
+      }));
 
-      filename =
-        this.todayYear + '-' + this.todayMonthString + '_operations.csv';
-    } else if (type == 'comptes') {
-      arrayToExport = [];
-      this.monthlyHistoryPerAccount.forEach((data) => {
-        arrayToExport.push({
-          Date: data.history[0].dateSolde,
-          Compte: data.name,
-          'Solde Initial': data.history[0].soldeInitial,
-          Différence: data.history[0].montant,
-          'Solde Final': data.history[0].soldeFinal,
-        });
-      });
+      filename = `${this.todayYear()}-${this.todayMonthString()}_operations.csv`;
+    } else if (type === 'comptes') {
+      arrayToExport = this.monthlyHistoryPerAccount().map(data => ({
+        Compte: data.name,
+        'Solde Actuel': data.solde,
+      }));
 
-      filename = this.todayYear + '-' + this.todayMonthString + '_comptes.csv';
+      filename = `${this.todayYear()}-${this.todayMonthString()}_comptes.csv`;
     }
 
     this.operationService.exportToCSV(arrayToExport, filename);
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     if (this.dataSource) {
       this.dataSource.disconnect();
     }
-
-    this.subscriptions.unsubscribe();
   }
 
-  /*********** GLOBAL *************** */
-
-  updatePaginator() {
+  private updatePaginator(): void {
     this.changeDetectorRef.detectChanges();
-    this.dataSource.paginator = this.paginator;
+    if (this.paginator) {
+      this.dataSource.paginator = this.paginator;
+    }
   }
 }

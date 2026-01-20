@@ -60,7 +60,7 @@ export class RecapComponent implements OnInit {
   totalCreditEpargne = signal(0);
   totalDebitEpargne = signal(0);
   totaldifferenceEpargne = signal(0);
-  userId!: string;
+  userId!: number;
   compteList: any[] = [];
   compteEpargneList: any[] = [];
   compteId = '';
@@ -172,7 +172,7 @@ export class RecapComponent implements OnInit {
       rangeDate: this.todayYear,
     });
 
-    this.userId = this.cookieService.get('compty-userId');
+    this.userId = Number(this.cookieService.get('compty-userId'));
     this.width = innerWidth / 1.3;
     Object.assign(this.multi);
   }
@@ -185,7 +185,7 @@ export class RecapComponent implements OnInit {
     // Définition de la 1ere année affichée
     this.subscriptions.add(
       this.operationService
-        .getOperations(this.operationList, this.userId)
+        .getOperations(this.operationList, this.userId.toString())
         .subscribe((operation) => {
           if (operation && operation.length > 0){
             operation.reverse();
@@ -306,14 +306,14 @@ export class RecapComponent implements OnInit {
           this.compteList,
           'Compte Courant',
           this.soldeAllAccounts,
-          this.userId
+          this.userId.toString()
         );
 
         // Ajout des opérations courantes pour chaque compte dans le tableau soldeAllAccount
         this.operationService.fillOperations(
           this.operationList,
           this.soldeAllAccounts,
-          this.userId
+          this.userId.toString()
         );
 
         // Ajout des comptes épargne dans un tableau soldeAllEpargne
@@ -321,20 +321,20 @@ export class RecapComponent implements OnInit {
           this.compteEpargneList,
           'Epargne',
           this.soldeAllEpargne,
-          this.userId
+          this.userId.toString()
         );
         this.operationService.fillSoldeAllAccounts(
           this.compteEpargneList,
           'Bourse',
           this.soldeAllEpargne,
-          this.userId
+          this.userId.toString()
         );
 
         // Ajout des opérations d'épargne pour chaque compte dans le tableau soldeAllEpargne
         this.operationService.fillOperations(
           this.operationEpargneList,
           this.soldeAllEpargne,
-          this.userId
+          this.userId.toString()
         );
 
         // HISTORIQUE des comptes courant
