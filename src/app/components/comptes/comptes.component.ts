@@ -192,20 +192,47 @@ export class ComptesComponent implements OnInit, OnDestroy {
   readonly monthlyHistoryPerAccount = computed(() => {
     const month = this.todayMonthString();
     const year = this.todayYear();
-    const result: MonthlyHistory[] = [];
     const targetDate = `${year}-${month}`;
 
-    this.accounts().forEach(compte => {
-      if (compte.typeCompte === 'Compte Courant') {
-        result.push({
-          name: compte.name,
-          solde: compte.soldeActuel,
-          history: []
+    return this.accounts()
+      .filter(compte => compte.typeCompte === 'Compte Courant')
+      .map(compte => {
+        const operations = this.allOperations().filter(op => {
+          const opDate = new Date(op.operationDate).toISOString().substring(0, 7);
+          return (
+            opDate === targetDate &&
+            op.compteId === compte.id &&
+            op.categorie !== 'Transfert'
+          );
         });
-      }
-    });
 
-    return result;
+        const totalCredit = operations
+          .filter(op => op.type)
+          .reduce((sum, op) => sum + op.montant, 0);
+
+        const totalDebit = operations
+          .filter(op => !op.type)
+          .reduce((sum, op) => sum + Math.abs(op.montant), 0);
+
+        const solde = this.allOperations()
+          .filter(op => {
+            const opDate = new Date(op.operationDate).toISOString().substring(0, 7);
+            return (
+              op.compteId === compte.id &&
+              opDate <= targetDate
+            );
+          })
+          .reduce((sum, op) => sum + op.montant, compte.soldeInitial);
+
+        return {
+          name: compte.name,
+          solde,
+          history: [{
+            totalCredit,
+            totalDebit
+          }]
+        };
+      });
   });
 
   readonly spendByCategory = computed(() => {
