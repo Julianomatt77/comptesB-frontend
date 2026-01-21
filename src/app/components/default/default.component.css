@@ -2,17 +2,7 @@
   width: 200px;
 } */
 
-.card {
-  min-height: 360px !important;
-  border: none !important;
-  box-shadow: 10px 10px 8px 0 rgba(0, 0, 0, 0.2),
-    0 6px 20px 0 rgba(0, 0, 0, 0.19);
-}
-
-.card h5 {
-  margin-top: 20px;
-}
-
+/* Card and logo helpers removed: styles are provided by global theme (theme.css) */
 .logo {
   width: 100px;
   margin-left: 20px;

@@ -4,13 +4,14 @@ import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { CompteService } from 'src/app/services/compte.service';
 import { RouterLink } from '@angular/router';
+import {HomeCardComponent} from "../../ui/home-card/home-card.component";
 
 @Component({
     selector: 'app-default',
     templateUrl: './default.component.html',
     styleUrls: ['./default.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [RouterLink]
+  imports: [RouterLink, HomeCardComponent]
 })
 export class DefaultComponent implements OnInit {
   private document = inject<Document>(DOCUMENT);

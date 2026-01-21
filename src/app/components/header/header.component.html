@@ -24,7 +24,7 @@
         <button role="button">
           <a [routerLink]="['/comptes']"
              title="Aller aux opérations"
-             class="items-center px-3 py-2 rounded-md font-medium bg-primary text-white hover:bg-primary-400 text-md"
+             class="items-center px-3 py-2 rounded-md font-medium bg-primary hover:bg-primary-400 text-md"
              aria-label="Opérations"
              (click)="mobileMenuOpen() && toggleMenu()"
           >Opérations</a>
@@ -34,7 +34,7 @@
         <button role="button">
           <a [routerLink]="['/recap']"
              title="Aller au récapitulatif des comptes"
-             class=" items-center px-3 py-2 rounded-md font-medium bg-secondary text-white hover:bg-secondary-400 text-md"
+             class=" items-center px-3 py-2 rounded-md font-medium bg-secondary hover:bg-secondary-400 text-md"
              aria-label="Récapitulatif"
              (click)="mobileMenuOpen() && toggleMenu()"
           >Récapitulatif</a>
@@ -43,7 +43,7 @@
     </div>
     <div class="flex gap-8 sm:flex-row flex-col">
       @if (isLoggedIn()) {
-        <button role="button">
+        <button role="button" >
           <a [routerLink]="['/gestionUser']"
              title="Editer le compte utilisateur"
              class=" items-center px-3 py-2 rounded-md text-sm font-medium text-text"
