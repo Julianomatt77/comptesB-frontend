@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, ChangeDetectionStrategy, computed} from '@angular/core';
+import {Component, inject, ChangeDetectionStrategy, computed, signal} from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
 import { CookieService } from 'ngx-cookie-service';
@@ -8,17 +8,16 @@ import {
   faUser,
   faUserPen,
   faUserSlash,
+  faBars, faXmark
 } from '@fortawesome/free-solid-svg-icons';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-
-import { MatButton } from '@angular/material/button';
 
 @Component({
     selector: 'app-header',
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [RouterLink, FaIconComponent, MatButton]
+    imports: [RouterLink, FaIconComponent]
 })
 export class HeaderComponent {
   authService = inject(AuthService);
@@ -33,8 +32,16 @@ export class HeaderComponent {
   faUserPen = faUserPen;
   faUserSlash = faUserSlash;
   faHouseChimney = faHouseChimney;
+  faBars = faBars;
+  faXmark = faXmark;
 
   isLoggedIn = this.authService.isAuthenticated;
+
+  readonly mobileMenuOpen = signal(false);
+
+  toggleMenu(): void {
+    this.mobileMenuOpen.update((mobileMenuOpen) => !mobileMenuOpen);
+  }
 
   ngOnInit(): void {
     this.authService.initFromCookies();

@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-xs: 390px;
+
+  --radius: 0.5rem;
+  --screenH: calc(100dvh - 20rem);
+
+  --font-text: "Montserrat", sans-serif;
+  --font-title: "Prata", serif;
+
+  /* color tokens aligned with existing CSS vars in src/styles.css if available */
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-primary-50: hsl(5, 100%, 95%);
+  /* Fallbacks kept in case app doesn't define color vars yet */
+  --color-surface: #ffffff;
+  --color-warning: #f59e0b;
+  --color-warning-dark: #d97706;
+  --color-border: #e5e7eb;
+  --color-primary-dark: #1d4ed8;
+
+  --color-background: #f7f7f7;
+  --color-text: #231F27;
+  --color-primary: hsl(268, 39%, 48%); /*    --primary: #774baa;*/
+  --color-secondary: hsl(269, 48%, 28%); /*    --secondary: #46256a;*/
+  --color-accent: hsl(268, 58%, 38%); /*    --accent: #5d2999;*/
+  --color-secondary-30: hsl(269, 48%, 28%, 30%);
+  --color-primary-40: hsl(268, 39%, 48%, 40%);
+  --color-primary-39: hsl(268, 39%, 48%, 39%);
+}
+@layer base {
+  * {
+    @apply m-0 p-0 box-border;
+  }
+
+  html, body {
+    @apply font-text h-full w-full bg-background text-text;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-title font-bold
+  }
+
+  h1 {
+    @apply text-3xl ml-2 py-5;
+  }
+
+  h2 {
+    @apply text-2xl py-4;
+  }
+
+  h3 {
+    @apply text-xl py-3;
+  }
+
+  h4 {
+    @apply text-lg py-2;
+  }
+
+  h5 {
+    @apply text-base py-2;
+  }
+
+  h6 {
+    @apply text-sm py-2;
+  }
+
+  p {
+    @apply text-xs my-1 mx-2;
+  }
+}
+
+@layer components {
+  .btn { @apply inline-flex items-center justify-center px-4 py-2 rounded-md font-medium; }
+  .btn-primary { @apply bg-primary text-white; }
+  .btn-primary:hover { @apply bg-primary-dark; }
+  .card { @apply bg-surface border border-border rounded-lg shadow-sm p-4; }
+  .input { @apply border border-border rounded-md p-2; }
+}
