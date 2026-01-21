@@ -1,69 +1,60 @@
 import {Component, OnInit, inject, ChangeDetectionStrategy} from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { Router, RouterLink } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { firstValueFrom } from 'rxjs';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-    selector: 'app-register',
-    templateUrl: './register.component.html',
-    styleUrls: ['./register.component.css'],
+  selector: 'app-register',
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [FormsModule, NgClass, FaIconComponent]
+  imports: [FormsModule, NgClass, FaIconComponent, RouterLink]
 })
 export class RegisterComponent implements OnInit {
-  private authService = inject(AuthService);
+  authService = inject(AuthService);
   private router = inject(Router);
-
   form: any = {
-    username: null,
-    email: null,
-    password: null,
-    confirmPassword: null
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
   };
-  isSuccessful = false;
-  isSignUpFailed = false;
-  isPasswordConfirmed = false;
-  errorList: Array<string> = [];
-
+  isLoggedIn = false;
+  isRegistered = false;
+  errorMessage = '';
   passwordFieldType: string = 'password';
   passwordFieldIcon = faEyeSlash;
 
-  ngOnInit(): void {}
+  constructor() {}
 
-  onSubmit(): void {
-    this.errorList = []
+  ngOnInit(): void {
+    // Estimation: use AuthService to know if user is logged in (via local storage/session)
+    // If storage service exists in the app context, you can check it similarly to LoginComponent
+    // For now, rely on auth status through subscribe/endpoint after login/signup; keep simple
+  }
+
+  async onSubmit(): Promise<void> {
     const username = this.form.username.toLowerCase();
-    const email = this.form.email.toLowerCase();
+    const email = this.form.email;
     const password = this.form.password;
-    // const { username, email, password } = this.form;
-
-    this.validatePasswordsMatch()
-
-    if (this.isPasswordConfirmed){
-      console.log(this.isPasswordConfirmed)
-      this.authService.register(username, email, password).subscribe({
-        next: (data) => {
-          this.isSuccessful = true;
-          this.isSignUpFailed = false;
-
-          // Redirection après register
-          setTimeout(() => {
-            this.router.navigateByUrl('/login');
-          }, 1000);
-        },
-        error: (err) => {
-          const errors = err.error.error.errors;
-          for (let key in errors) {
-            if (errors[key].message) {
-              this.errorList.push(errors[key].message);
-            }
-          }
-          this.isSignUpFailed = true;
-        },
-      });
+    if (password !== this.form.confirmPassword) {
+      this.errorMessage = 'Les mots de passe ne correspondent pas';
+      return;
+    }
+    try {
+      const data = await firstValueFrom(this.authService.register(username, email, password));
+      if (data) {
+        this.isRegistered = true;
+        setTimeout(() => {
+          this.router.navigateByUrl('/login');
+        }, 1500);
+      }
+    } catch (e: any) {
+      this.errorMessage = e?.error?.message ?? 'Erreur d’enregistrement';
     }
   }
 
@@ -74,19 +65,6 @@ export class RegisterComponent implements OnInit {
     } else {
       this.passwordFieldType = 'password';
       this.passwordFieldIcon = faEyeSlash;
-    }
-  }
-
-  validatePasswordsMatch(): void {
-    const passwordControl = this.form.password;
-    const confirmPasswordControl = this.form.confirmPassword;
-
-    if (passwordControl && confirmPasswordControl) {
-      if (passwordControl !== confirmPasswordControl) {
-        this.isPasswordConfirmed = false
-      } else {
-        this.isPasswordConfirmed = true
-      }
     }
   }
 }

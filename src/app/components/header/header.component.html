@@ -16,7 +16,7 @@
          aria-label="Home"
          (click)="mobileMenuOpen() && toggleMenu()"
       >
-        <fa-icon [icon]="faHouseChimney" class="h-7 w-7 text-indigo-600 text-4xl"></fa-icon>
+        <fa-icon [icon]="faHouseChimney" class="text-indigo-600 text-4xl hover:text-indigo-400"></fa-icon>
       </a>
     </button>
     <div class="flex gap-8 sm:flex-row flex-col">
@@ -24,7 +24,7 @@
         <button role="button">
           <a [routerLink]="['/comptes']"
              title="Aller aux opérations"
-             class="items-center px-3 py-2 rounded-md font-medium bg-primary text-white hover:bg-primary-dark text-md"
+             class="items-center px-3 py-2 rounded-md font-medium bg-primary text-white hover:bg-primary-400 text-md"
              aria-label="Opérations"
              (click)="mobileMenuOpen() && toggleMenu()"
           >Opérations</a>
@@ -34,7 +34,7 @@
         <button role="button">
           <a [routerLink]="['/recap']"
              title="Aller au récapitulatif des comptes"
-             class=" items-center px-3 py-2 rounded-md font-medium bg-warning text-white hover:bg-warning-dark text-md"
+             class=" items-center px-3 py-2 rounded-md font-medium bg-secondary text-white hover:bg-secondary-400 text-md"
              aria-label="Récapitulatif"
              (click)="mobileMenuOpen() && toggleMenu()"
           >Récapitulatif</a>
@@ -50,14 +50,14 @@
              aria-label="Editer le compte utilisateur"
              (click)="mobileMenuOpen() && toggleMenu()"
           >
-            <fa-icon [icon]="faUserPen" class="text-primary-dark text-4xl"></fa-icon>
+            <fa-icon [icon]="faUserPen" class="text-primary-dark text-4xl hover:text-indigo-400"></fa-icon>
           </a>
         </button>
       }
       @if (isLoggedIn()) {
         <button role="button">
           <a href="" (click)="logout()" title="Se déconnecter" class="items-center px-3 py-2 rounded-md text-sm font-medium text-text" aria-label="Se déconnecter">
-            <fa-icon [icon]="faUserSlash" class="text-destructive text-4xl"></fa-icon>
+            <fa-icon [icon]="faUserSlash" class="text-destructive text-4xl hover:text-red-300"></fa-icon>
           </a>
         </button>
       }
