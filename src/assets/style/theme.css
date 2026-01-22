@@ -10,7 +10,10 @@
   --font-title: "Prata", serif;
 
   /* color tokens aligned with existing CSS vars in src/styles.css if available */
-  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive: hsl(0 84% 60%);
+  --color-destructive-dark: hsl(0 84% 30%);
+  --color-destructive-light: hsl(0 84% 80%);
+
   /*--color-primary-50: hsl(5, 100%, 95%);*/
   /* Fallbacks kept in case app doesn't define color vars yet */
   --color-surface: #ffffff;
@@ -93,9 +96,8 @@
   --color-accent-800: hsl(248, 61%, 20%);
   --color-accent-900: hsl(248, 61%, 10%);
   --color-accent-950: hsl(248, 62%, 5%);
-
-
 }
+
 @layer base {
   * {
     @apply m-0 p-0 box-border;
@@ -143,6 +145,9 @@
     border border-border
     rounded-lg;
   }
+  select {
+    @apply cursor-pointer;
+  }
 
   input::placeholder, textarea::placeholder {
     @apply text-gray-500;
@@ -156,6 +161,9 @@
     disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0
     px-4 py-2 mx-2
   }
+  button:hover {
+    @apply  -outline-offset-3 decoration-4 underline underline-offset-2
+  }
 }
 
 @layer components {
@@ -163,14 +171,21 @@
     @apply bg-primary border-primary;
   }
   .btn-primary:hover {
-    @apply bg-primary-300 outline-primary-300 outline-3 -outline-offset-3 decoration-4 underline underline-offset-2;
+    @apply bg-primary-300 outline-primary-300 outline-3;
   }
 
   .btn-secondary {
     @apply bg-secondary border-secondary;
   }
   .btn-secondary:hover {
-    @apply bg-secondary-200 outline-secondary-200 outline-3 -outline-offset-3 decoration-4 underline underline-offset-2;
+    @apply bg-secondary-200 outline-secondary-200 outline-3;
+  }
+
+  .btn-destructive {
+    @apply bg-destructive text-white border border-destructive
+  }
+  .btn-destructive:hover {
+    @apply bg-destructive-light outline-destructive-light text-text outline-3;
   }
 
   .card {

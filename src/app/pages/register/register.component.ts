@@ -1,7 +1,6 @@
 import {Component, OnInit, inject, ChangeDetectionStrategy} from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router, RouterLink } from '@angular/router';
-import { NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { firstValueFrom } from 'rxjs';
@@ -12,7 +11,7 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, NgClass, FaIconComponent, RouterLink]
+  imports: [FormsModule, FaIconComponent, RouterLink]
 })
 export class RegisterComponent implements OnInit {
   authService = inject(AuthService);
