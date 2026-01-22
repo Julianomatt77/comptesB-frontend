@@ -1,166 +1,164 @@
-<form [formGroup]="form" (ngSubmit)="onSubmitOperationForm()">
-  <div class="d-flex justify-content-end">
-    <div>
-      <a href="javascript:;" (click)="closePopup()" class="">
-        <fa-icon
-          [icon]="faClose"
-          class="text-black"
-          style="font-size: 30px"
-        ></fa-icon>
-      </a>
-    </div>
-  </div>
+<div class="flex justify-center">
+  <div class="w-full m-5">
+    <div class="card p-6">
+      <form [formGroup]="form" (ngSubmit)="onSubmitOperationForm()">
 
-  <div class="form-group mt-2">
-    <label for="montant">Montant</label>
-    <input
-      id="montant"
-      class="form-control"
-      formControlName="montant"
-      type="number"
-      [(ngModel)]="operation.montant"
-      />
-  </div>
-  @if (!form.get('montant')?.valid && submitted) {
-    <div class="alert alert-danger">
-      <p>Un montant supérieur ou égal 0,01 € est obligatoire.</p>
-    </div>
-  }
+        <!-- Close button -->
+        <div class="flex justify-end mb-4">
+          <a href="javascript:;" (click)="closePopup()" class="text-black text-2xl">
+            <fa-icon [icon]="faClose"></fa-icon>
+          </a>
+        </div>
 
-  <div class="form-group mt-2">
-    <label for="operationDate">Date de l'opération</label>
-    <input
-      id="operationDate"
-      type="date"
-      class="form-control"
-      formControlName="operationDate"
-      [ngModel]="operation.operationDate | date: 'yyyy-MM-dd'"
-      (change)="changeFn($event)"
-      />
-  </div>
-  @if (!form.get('operationDate')?.valid && submitted) {
-    <div class="alert alert-danger">
-      <p>Une date est obligatoire.</p>
-    </div>
-  }
-
-  @if (!transfertBetweenAccount) {
-    <div class="mt-2">
-      Dépense
-      <mat-slide-toggle
-        class="example-margin"
-        color="primary"
-        formControlName="type"
-        [(ngModel)]="operation.type"
-        >
-      </mat-slide-toggle>
-      Entrée d'argent
-    </div>
-  }
-
-  @if (!transfertBetweenAccount) {
-    <div class="form-group mt-2">
-      <label for="categorie">Catégorie</label>
-      <select
-        id="categorie"
-        class="form-control"
-        formControlName="categorie"
-        [(ngModel)]="operation.categorie"
-        >
-        @for (categorie of categorieList; track categorie) {
-          <option [ngValue]="categorie">
-            {{ categorie }}
-          </option>
-        }
-      </select>
-    </div>
-  }
-  @if (!form.get('categorie')?.valid && submitted && !transfertBetweenAccount) {
-    <div class="alert alert-danger">
-      <p>Une catégorie de dépense est obligatoire.</p>
-    </div>
-  }
-
-  <div class="form-group mt-2">
-    <label for="compte">{{ transfertBetweenAccount && addOrEdit !== 'edit' ? 'Compte Débiteur' : 'Compte' }}</label>
-    <select
-      id="compte"
-      class="form-control"
-      formControlName="compte"
-      [(ngModel)]="operation.compteId"
-      >
-      @for (type of groupedCompteTypes; track type) {
-        <optgroup [label]="type">
-          @for (compte of groupedComptes[type]; track compte) {
-            <option [ngValue]="compte.id">
-              {{ compte.name }}
-            </option>
+        <!-- Montant -->
+        <div class="mb-4">
+          <label for="montant" class="block text-sm font-medium">Montant</label>
+          <input
+            id="montant"
+            type="number"
+            formControlName="montant"
+            class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-secondary focus:border-secondary"
+            [class.border-red-500]="!form.get('montant')?.valid && submitted"
+          />
+          @if (!form.get('montant')?.valid && submitted) {
+            <div class="text-sm text-red-600 mt-1">
+              Un montant supérieur ou égal 0,01 € est obligatoire.
+            </div>
           }
-        </optgroup>
-      }
-    </select>
-  </div>
-  @if (!form.get('compte')?.valid && submitted) {
-    <div class="alert alert-danger">
-      <p>Un compte est obligatoire.</p>
-    </div>
-  }
+        </div>
 
-  @if (transfertBetweenAccount && addOrEdit != 'edit') {
-    <div class="form-group mt-2">
-      <label for="compteReceveur">Compte Receveur</label>
-      <select
-        id="compteReceveur"
-        class="form-control"
-        formControlName="compteReceveur"
-        [(ngModel)]="operation.compteReceveur"
-        >
-        @for (type of groupedCompteTypes; track type) {
-          <optgroup [label]="type">
-            @for (compte of groupedComptes[type]; track compte) {
-              <option [ngValue]="compte.id">
-                {{ compte.name }}
-              </option>
-            }
-          </optgroup>
+        <!-- Date opération -->
+        <div class="mb-4">
+          <label for="operationDate" class="block text-sm font-medium">Date de l'opération</label>
+          <input
+            id="operationDate"
+            type="date"
+            formControlName="operationDate"
+            [value]="operationDateForInput"
+            (change)="form.get('operationDate')?.setValue($event.target.value)"
+            class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-secondary focus:border-secondary"
+          />
+
+          @if (!form.get('operationDate')?.valid && submitted) {
+            <div class="text-sm text-red-600 mt-1">
+              Une date est obligatoire.
+            </div>
+          }
+        </div>
+
+        <!-- Dépense / Entrée -->
+        @if (!operation.isTransfert) {
+          <div class="flex items-center gap-3 mb-4">
+            <span>Dépense</span>
+            <input type="checkbox" formControlName="type" class="h-5 w-5 rounded border-gray-300" />
+<!--            <app-slide-toggle [formControlName]="'type'"></app-slide-toggle>-->
+            <span>Entrée</span>
+          </div>
         }
-      </select>
-    </div>
-  }
 
-  <div class="form-group mt-2">
-    <label for="description1">Description</label>
-    <input
-      id="description1"
-      class="form-control"
-      formControlName="description1"
-      [(ngModel)]="operation.description1"
-      />
+        <!-- Catégorie -->
+<!--        @if (!transfertBetweenAccount()) {-->
+          @if (!operation.isTransfert) {
+          <div class="mb-4">
+            <label for="categorie" class="block text-sm font-medium">Catégorie</label>
+            <select
+              id="categorie"
+              formControlName="categorie"
+              class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-secondary focus:border-secondary"
+              [class.border-red-500]="!form.get('categorie')?.valid && submitted"
+            >
+              @for (categorie of categorieList; track categorie) {
+                <option [ngValue]="categorie">{{ categorie }}</option>
+              }
+            </select>
+            @if (!form.get('categorie')?.valid && submitted) {
+              <div class="text-sm text-red-600 mt-1">
+                Une catégorie de dépense est obligatoire.
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Compte -->
+        <div class="mb-4">
+          <label for="compte" class="block text-sm font-medium">
+            {{ operation.isTransfert && addOrEdit !== 'edit' ? 'Compte Débiteur' : 'Compte' }}
+          </label>
+          <select
+            id="compte"
+            formControlName="compte"
+            class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-secondary focus:border-secondary"
+            [class.border-red-500]="!form.get('compte')?.valid && submitted"
+          >
+            @for (type of groupedCompteTypes; track type) {
+              <optgroup [label]="type">
+                @for (compte of groupedComptes[type]; track compte) {
+                  <option [ngValue]="compte.id">{{ compte.name }}</option>
+                }
+              </optgroup>
+            }
+          </select>
+          @if (!form.get('compte')?.valid && submitted) {
+            <div class="text-sm text-red-600 mt-1">Un compte est obligatoire.</div>
+          }
+        </div>
+
+        <!-- Compte receveur -->
+        @if (operation.isTransfert) {
+<!--        @if (transfertBetweenAccount() && addOrEdit != 'edit') {-->
+<!--          <div class="mb-4" [class.hidden]="operation.isTransfert">-->
+          <div class="mb-4 block">
+            <label for="compteReceveur" class="block text-sm font-medium">Compte Receveur</label>
+            <select
+              id="compteReceveur"
+              formControlName="compteReceveur"
+              class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-secondary focus:border-secondary"
+            >
+              @for (type of groupedCompteTypes; track type) {
+                <optgroup [label]="type">
+                  @for (compte of groupedComptes[type]; track compte) {
+                    <option [ngValue]="compte.id">{{ compte.name }}</option>
+                  }
+                </optgroup>
+              }
+            </select>
+          </div>
+        }
+
+        <!-- Description -->
+        <div class="mb-4">
+          <label for="description1" class="block text-sm font-medium">Description</label>
+          <input
+            id="description1"
+            formControlName="description1"
+            class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-secondary focus:border-secondary"
+            [class.border-red-500]="!form.get('description1')?.valid && submitted"
+          />
+          @if (!form.get('description1')?.valid && submitted) {
+            <div class="text-sm text-red-600 mt-1">Une description est obligatoire.</div>
+          }
+        </div>
+
+        <!-- Transfert entre comptes -->
+        @if (addOrEdit != 'edit' && compteList.length >= 2) {
+          <div class="mb-4 flex items-center gap-2">
+            <span>Pas de transfert entre compte</span>
+            <input
+              type="checkbox"
+              formControlName="isTransfert"
+              (change)="changeTransfert($event)"
+              class="h-5 w-5 rounded border-gray-300"
+            />
+            <span>Transfert entre 2 compte internes</span>
+          </div>
+        }
+
+        <!-- Submit -->
+        <div class="flex justify-center mt-6">
+          <button type="submit" class="btn-primary w-full">{{ buttonLabel }}</button>
+        </div>
+
+      </form>
+    </div>
   </div>
-  @if (!form.get('description1')?.valid && submitted) {
-    <div class="alert alert-danger">
-      <p>Une description est obligatoire.</p>
-    </div>
-  }
-
-  @if (addOrEdit != 'edit' && compteList.length >= 2) {
-    <div class="mt-2">
-      Pas de transfert entre compte
-      <mat-slide-toggle
-        class="example-margin"
-        color="primary"
-        formControlName="isTransfert"
-        [(ngModel)]="operation.isTransfert"
-        (change)="changeTransfert($event)"
-        >
-      </mat-slide-toggle>
-      Transfert entre 2 compte internes
-    </div>
-  }
-
-  <div class="row col-md-4 mx-auto my-4">
-    <button type="submit" class="btn btn-dark btn-lg">
-      {{ buttonLabel }}
-    </button>
-  </div>
-</form>
+</div>

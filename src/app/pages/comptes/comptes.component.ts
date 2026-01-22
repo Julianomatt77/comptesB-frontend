@@ -67,13 +67,7 @@ interface MonthlyHistory {
   imports: [
     FormsModule,
     ReactiveFormsModule,
-    MatFormField,
-    MatInput,
     FaIconComponent,
-    MatLabel,
-    MatSelect,
-    MatOption,
-    MatOptgroup,
     PieChartModule,
     DecimalPipe,
     DatePipe

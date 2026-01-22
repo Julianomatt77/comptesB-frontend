@@ -112,11 +112,11 @@
   }
 
   h1 {
-    @apply text-3xl ml-2 py-5;
+    @apply text-4xl ml-2 py-5;
   }
 
   h2 {
-    @apply text-2xl py-4;
+    @apply text-3xl py-4;
   }
 
   h3 {

@@ -70,7 +70,6 @@
 
   <section id="dataToPrint" class="flex flex-col lg:flex-row gap-4 mt-2 pb-5">
     <section class="w-full lg:w-7/12">
-    <!--  Recap montants opérations du mois + télécharger-->
       <!-- Affichage des opérations -->
       <article id="liste-operations" class="w-full">
         <summary id="operations-summary" class="flex justify-between flex-wrap">
@@ -117,7 +116,47 @@
           </div>
         </div>
 
-        <div class="flex justify-evenly flex-wrap gap-4 mt-4">
+<!--        Pagination-->
+        <section id="pagination" class="my-2">
+          <div class="flex justify-center items-center flex-wrap my-2">
+            <label>
+              Opérations par page :
+              <select [value]="pageSize()" (change)="setPageSize($event)" class="rounded p-2">
+                @for (size of [6,12,50]; track size) {
+                  <option [value]="size">{{ size }}</option>
+                }
+              </select>
+              / {{ totalItems()}}
+            </label>
+          </div>
+
+          <div class="flex justify-center items-center flex-wrap">
+            @if (currentPage() > 0) {
+              <button (click)="goToFirstPage()" [disabled]="currentPage() <= 0" class="mx-2 rounded" role="button" title="Aller à la première page">
+                <fa-icon [icon]="faAnglesLeft" class="cursor-pointer"></fa-icon>
+              </button>
+
+              <button (click)="prevPage()" [disabled]="currentPage() <= 0" class="mx-2 rounded" role="button" title="Aller à la page précédente">
+                <fa-icon [icon]="faAngleLeft" class="cursor-pointer"></fa-icon>
+              </button>
+            }
+
+            <span class="mx-2">Page {{ currentPage() + 1 }} / {{ totalPages() }}</span>
+
+            @if (currentPage() + 1 < totalPages()) {
+              <button (click)="nextPage()" [disabled]="currentPage() + 1 >= totalPages()" class="mx-2 rounded" role="button" title="Aller à la page suivante">
+                <fa-icon [icon]="faAngleRight" class="cursor-pointer"></fa-icon>
+              </button>
+
+              <button (click)="goToLastPage()" [disabled]="currentPage() + 1 >= totalPages()" class="mx-2 rounded" role="button" title="Aller à la dernière page">
+                <fa-icon [icon]="faAnglesRight" class="cursor-pointer"></fa-icon>
+              </button>
+            }
+          </div>
+        </section>
+
+<!--        Liste des opérations-->
+        <section class="flex justify-evenly flex-wrap gap-4 mt-4">
           @for (card of paginatedOperations(); track card.id) {
             <div class="card my-2 mx-1 w-full lg:w-5/12 p-0">
               <h5 class="px-4 py-2 border-b font-medium text-center rounded-t-lg" [class]="card.classCSS">
@@ -155,7 +194,7 @@
               </div>
             </div>
           }
-        </div>
+        </section>
       </article>
 
       <section id="pagination" class="my-2">
