@@ -5,11 +5,9 @@ import {
   ChangeDetectionStrategy,
   signal,
   computed,
-  effect,
   DOCUMENT,
   Renderer2
 } from '@angular/core';
-import { MatTableDataSource, MatTable, MatColumnDef, MatHeaderCellDef, MatHeaderCell, MatCellDef, MatCell, MatHeaderRowDef, MatHeaderRow, MatRowDef, MatRow } from '@angular/material/table';
 import { CookieService } from 'ngx-cookie-service';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CompteService} from 'src/app/services/compte.service';
@@ -23,7 +21,7 @@ import {
 import { DecimalPipe } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { LineChartModule } from '@swimlane/ngx-charts';
-import {CurrentAccountsRecap, SavingsAccountsRecap, YearlyAccountRecap} from "../../interfaces/recap";
+import {CurrentAccountsRecap, MonthlyRecapItem, SavingsAccountsRecap, YearlyAccountRecap} from "../../interfaces/recap";
 
 @Component({
   selector: 'app-recap',
@@ -35,16 +33,6 @@ import {CurrentAccountsRecap, SavingsAccountsRecap, YearlyAccountRecap} from "..
     ReactiveFormsModule,
     FaIconComponent,
     LineChartModule,
-    MatTable,
-    MatColumnDef,
-    MatHeaderCellDef,
-    MatHeaderCell,
-    MatCellDef,
-    MatCell,
-    MatHeaderRowDef,
-    MatHeaderRow,
-    MatRowDef,
-    MatRow,
     DecimalPipe
   ]
 })
@@ -60,6 +48,8 @@ export class RecapComponent implements OnInit {
   readonly userId = signal<number>(0);
   readonly isLoading = signal(true);
   readonly selectedYear = signal(new Date().getFullYear().toString());
+  toggleCourant = signal(false);
+  toggleEpargne = signal(false);
 
   // Données du recap
   readonly currentAccountsRecap = signal<CurrentAccountsRecap | null>(null);
@@ -117,21 +107,12 @@ export class RecapComponent implements OnInit {
 
     return [{
       name: 'Comptes Courants',
-      series: currentData.map((item: { month: any; solde: any; }) => ({
+      series: currentData.map((item: MonthlyRecapItem) => ({
         name: item.month,
-        value: item.solde
+        value: item.solde ?? 0
       }))
     }];
   });
-
-  // Configuration pour les tables
-  dataSource = new MatTableDataSource(this.operationPerYear());
-  dataSourceEpargne = new MatTableDataSource(this.epargnePerYear());
-  dataSourceEpargneYearly = new MatTableDataSource(this.yearlyArray());
-
-  columnsToDisplay = ['month', 'soldeInitial', 'economie', 'soldeFinal'];
-  columnsToDisplayEpargne = ['month', 'investi', 'economie', 'solde'];
-  columnsToDisplayYearly = ['compte', 'soldeInitial', 'soldeFinal', 'evolution'];
 
   form!: FormGroup;
   width = 0;
@@ -158,12 +139,6 @@ export class RecapComponent implements OnInit {
   faDownload = faDownload;
   faFilter = faFilter;
 
-  // Effect pour mettre à jour les datasources quand les données changent
-  private updateDataSourcesEffect = effect(() => {
-    this.dataSource.data = this.operationPerYear();
-    this.dataSourceEpargne.data = this.epargnePerYear();
-    this.dataSourceEpargneYearly.data = this.yearlyArray();
-  });
 
   constructor() {
     this.renderer.addClass(this.document.body, 'bg-light');
@@ -233,15 +208,27 @@ export class RecapComponent implements OnInit {
 
       filename = `${this.selectedYear()}_epargne.csv`;
     } else if (type === 'comptes') {
-      arrayToExport = this.operationPerYear().map((data: { month: any; economie: any; solde: any; }) => ({
+      arrayToExport = this.operationPerYear().map((data: MonthlyRecapItem) => ({
         Mois: data.month,
+        'solde initial': data.soldeInitial,
         Economie: data.economie,
-        Solde: data.solde,
+        Solde: data.soldeFinal ?? 0
       }));
+
 
       filename = `${this.selectedYear()}_comptes.csv`;
     }
 
     this.operationService.exportToCSV(arrayToExport, filename);
+  }
+
+  toggleCourantSection() {
+    this.toggleCourant.set(!this.toggleCourant());
+    this.toggleEpargne.set(false);
+  }
+
+  toggleEpargneSection() {
+    this.toggleEpargne.set(!this.toggleEpargne());
+    this.toggleCourant.set(false);
   }
 }

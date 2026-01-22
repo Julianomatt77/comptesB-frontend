@@ -7,9 +7,11 @@ export interface Recap {
 
 export interface MonthlyRecapItem {
   month: string;
-  monthNumber: number;
+  monthNumber?: number;
   economie: number;
-  solde: number;
+  solde?: number;
+  soldeInitial: number;
+  soldeFinal: number;
 }
 
 export interface MonthlyRecapSavingsItem {
