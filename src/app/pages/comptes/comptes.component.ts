@@ -16,8 +16,8 @@ import {
 import { OperationV2 } from 'src/app/models/operation.model';
 import { CompteV2 } from 'src/app/models/compte.model';
 import { OperationService } from 'src/app/services/operation.service';
-import { OperationFormComponent } from '../operation-form/operation-form.component';
-import { CompteFormComponent } from '../compte-form/compte-form.component';
+import { OperationFormComponent } from '../../components/operation-form/operation-form.component';
+import { CompteFormComponent } from '../../components/compte-form/compte-form.component';
 import { CompteService } from 'src/app/services/compte.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
@@ -40,7 +40,7 @@ import {
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { DecimalPipe, DatePipe } from '@angular/common';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { MatSelect } from '@angular/material/select';

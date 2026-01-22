@@ -17,8 +17,8 @@ import { UserService } from 'src/app/services/user.service';
 import { Router } from '@angular/router';
 import { CompteService } from '../../services/compte.service';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { CompteFormComponent } from '../compte-form/compte-form.component';
-import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { CompteFormComponent } from '../../components/compte-form/compte-form.component';
+import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 import {
   faPen,
   faPlusCircle,

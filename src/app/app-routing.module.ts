@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './app.component';
-import { ComptesComponent } from './components/comptes/comptes.component';
-import { DefaultComponent } from './components/default/default.component';
+import { ComptesComponent } from './pages/comptes/comptes.component';
+import { DefaultComponent } from './pages/default/default.component';
 import { ErrorComponent } from './components/error/error.component';
-import { LoginComponent } from './components/login/login.component';
-import { RecapComponent } from './components/recap/recap.component';
-import { RegisterComponent } from './components/register/register.component';
+import { LoginComponent } from './pages/login/login.component';
+import { RecapComponent } from './pages/recap/recap.component';
+import { RegisterComponent } from './pages/register/register.component';
 import { IsLoggedInGuardGuard } from './guards/is-logged-in-guard.guard';
-import { GestionUserComponent } from './components/gestion-user/gestion-user.component';
-import { CguComponent } from './components/cgu/cgu.component';
+import { GestionUserComponent } from './pages/gestion-user/gestion-user.component';
+import { CguComponent } from './pages/cgu/cgu.component';
 
 const routes: Routes = [
   // { path: '', component: AppComponent },
