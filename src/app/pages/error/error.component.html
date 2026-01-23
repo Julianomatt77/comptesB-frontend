@@ -1,0 +1,53 @@
+<section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 px-4">
+  <div class="max-w-2xl w-full text-center">
+    <!-- Logo -->
+    <div class="mb-8 flex justify-center">
+      <img
+        [ngSrc]="'../../../assets/images/logo_compty.png'"
+        alt="Compty Logo"
+        width="150"
+        height="150"
+        priority
+        class="drop-shadow-2xl animate-bounce-slow" />
+    </div>
+
+    <!-- 404 Text -->
+    <div class="relative mb-8">
+      <h1 class="text-9xl font-bold text-primary/20 select-none">404</h1>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <span class="text-4xl font-bold text-primary">Page introuvable</span>
+      </div>
+    </div>
+
+    <!-- Message -->
+    <p class="text-xl text-gray-600 mb-8 max-w-md mx-auto">
+      Oups ! La page que vous recherchez semble avoir disparu dans les comptes...
+    </p>
+
+    <!-- Illustrations -->
+    <div class="flex justify-center gap-4 mb-12 text-6xl">
+      <span class="animate-float" style="animation-delay: 0s">💰</span>
+      <span class="animate-float" style="animation-delay: 0.2s">📊</span>
+      <span class="animate-float" style="animation-delay: 0.4s">💳</span>
+    </div>
+
+    <!-- Action Button -->
+    <div class="space-y-4">
+      <a
+        [routerLink]="['/']"
+        class="inline-block px-8 py-4 bg-primary text-white rounded-lg font-semibold
+                   hover:bg-primary-600 transform hover:scale-105 transition-all duration-300
+                   shadow-lg hover:shadow-xl">
+        Retour à l'accueil
+      </a>
+
+      <p class="text-sm text-gray-500 mt-4">
+        Besoin d'aide ? <a href="mailto:contact@martin-julien-dev.fr" class="text-primary hover:underline">Contactez-nous</a>
+      </p>
+    </div>
+
+    <!-- Decorative Elements -->
+    <div class="absolute top-10 left-10 w-20 h-20 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+    <div class="absolute bottom-10 right-10 w-32 h-32 bg-secondary/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s"></div>
+  </div>
+</section>
