@@ -1,11 +1,17 @@
-<div class="card mb-5 pb-5 pt-5 justify-content-center w-full mx-auto">
-  <div class="flex px-2 items-center">
-    <div class="md:w-7/12">
-      <img src="{{imagePath()}}" class="w-full h-auto" alt="{{alt()}}" />
-    </div>
-    <div class="md:w-5/12 md:px-5 flex flex-col justify-content-evenly">
-      <h5 class="text-start">{{ title() }}</h5>
-      <p class="text-start">{{texte()}}</p>
-    </div>
-  </div>
+<div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition p-6 h-full">
+
+  <img
+    [src]="imagePath()"
+    [alt]="alt()"
+    class="w-full h-40 object-contain mb-6"
+  />
+
+  <h3 class="text-xl font-semibold text-gray-800 mb-3">
+    {{ title() }}
+  </h3>
+
+  <p class="text-gray-600 leading-relaxed">
+    {{ texte() }}
+  </p>
+
 </div>

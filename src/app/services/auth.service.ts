@@ -59,7 +59,7 @@ export class AuthService {
           0.2,
           '/',
           undefined,
-          false,
+          true,
           'Strict'
         );
         this.cookieService.set(
@@ -68,7 +68,7 @@ export class AuthService {
           0.2,
           '/',
           undefined,
-          false,
+          true,
           'Strict'
         );
       }

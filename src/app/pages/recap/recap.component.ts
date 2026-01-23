@@ -186,7 +186,6 @@ export class RecapComponent implements OnInit {
     this.currentAccountsRecap.set(currentAccounts);
     this.savingsAccountsRecap.set(savingsAccounts);
     this.savingsByAccount.set(savingsByAccount || []);
-    console.log(this.currentAccountsRecap())
   }
 
   onResize(event: any): void {

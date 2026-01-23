@@ -1,99 +1,107 @@
-<section class="pb-5">
-  <div class="text-center flex flex-col items-center">
-    <div class="mb-5 flex justify-center items-center">
-      <h1>Compty</h1>
-      <div class="">
-        <img src="../../../assets/images/logo_compty.png" class="logo mx-auto w-28 h-auto" alt="compty-logo" title="Compty logo"/>
-      </div>
-    </div>
-    <div class="mb-5 flex justify-center">
-      <h2 class="w-full mx-auto text-left">Gérer vos comptes et optimisez votre budget</h2>
-    </div>
+<section class="pb-20">
 
-    <div class="flex flex-col w-full mb-5 items-center justify-center gap-3">
-      <p class="w-full md:w-1/2 text-left px-2 pb-2 text-xl">
-        Compty est votre nouvelle application de gestion de comptes
-        bancaires qui vous permet de gérer toutes vos opérations quotidiennes et
-        les exporter au format .csv très simplement.
+  <div class="flex flex-col items-center text-center px-4">
+
+    <!-- HERO -->
+    <div class="mt-16 mb-20 flex flex-col items-center gap-6">
+      <img
+        src="../../../assets/images/logo_compty.png"
+        class="w-32 h-auto"
+        alt="Compty logo"
+      />
+
+      <h1 class="text-5xl font-bold tracking-tight">
+        Compty
+      </h1>
+
+      <p class="text-2xl text-gray-600 max-w-2xl">
+        Gérez vos comptes simplement et reprenez le contrôle de votre budget
       </p>
-      <div class="w-full md:w-1/2">
-        <img
-          src="../../../assets/images/JM-comptesB.JPG"
-          class="w-full h-auto"
-          alt="JM-comptesB.JPG"
-          />
-      </div>
-    </div>
 
-    @if (!isLoggedIn()) {
-      <div class="my-5">
-        <button class="px-4 py-2 rounded-md bg-primary text-white hover:bg-primary-dark text-lg" [routerLink]="['/register']">
-          Inscrivez-vous !
+      @if (!isLoggedIn()) {
+        <button
+          class="mt-6 px-10 py-4 rounded-full bg-primary text-white text-lg font-semibold shadow-lg hover:bg-primary-dark transition"
+          [routerLink]="['/register']"
+        >
+          Créer un compte gratuitement
         </button>
-      </div>
-    }
-
-    <div class="mb-5 flex justify-center">
-      <h2 class="w-full mx-auto">Comment ça marche ?</h2>
+      }
     </div>
 
-    <section class="flex flex-col gap-8 justify-center items-center w-full md:w-1/2">
+    <!-- PRESENTATION -->
+    <div class="flex flex-col md:flex-row items-center gap-12 max-w-6xl mb-24">
+
+      <p class="md:w-1/2 text-left text-lg leading-relaxed text-gray-700">
+        Compty est votre application de gestion de comptes bancaires.
+        Ajoutez vos comptes, suivez vos opérations quotidiennes,
+        visualisez vos dépenses et exportez vos données en toute simplicité.
+      </p>
+
+      <img
+        src="../../../assets/images/JM-comptesB.JPG"
+        class="md:w-1/2 rounded-xl shadow-lg"
+        alt="Aperçu application"
+      />
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <h2 class="text-3xl font-semibold mb-14">
+      Comment ça marche ?
+    </h2>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl">
+
       <app-home-card
-        [imagePath]="'assets/images/02.png'"
-        [alt]="'02.png'"
-        [title]="'Ajouter vos comptes bancaires'"
-        [texte]="'Ajouter un compte bancaire en précisant le solde actuel et le type de compte (courant, épargne, bourse).'"
+        imagePath="assets/images/02.png"
+        alt="Ajouter compte"
+        title="Ajouter vos comptes bancaires"
+        texte="Ajoutez vos comptes en indiquant le solde et le type : courant, épargne ou bourse."
       />
 
       <app-home-card
-        [imagePath]="'assets/images/01.png'"
-        [alt]="'01.png'"
-        [title]="'Ajouter une opération'"
-        [texte]="'Ajouter une opération en précisant la catégorie, le compte bancaire, etc...'"
+        imagePath="assets/images/01.png"
+        alt="Ajouter opération"
+        title="Ajouter une opération"
+        texte="Ajoutez vos dépenses et revenus en les catégorisant facilement."
       />
 
       <app-home-card
-        [imagePath]="'assets/images/03.png'"
-        [alt]="'03.png'"
-        [title]="'Voir toutes vos opérations'"
-        [texte]="'Affichage de la somme de vos dépenses et revenues et mise à jour du solde de vos comptes.'"
+        imagePath="assets/images/03.png"
+        alt="Opérations"
+        title="Visualiser vos opérations"
+        texte="Consultez toutes vos opérations et le solde de vos comptes en temps réel."
       />
 
       <app-home-card
-        [imagePath]="'assets/images/04.png'"
-        [alt]="'04.png'"
-        [title]="'Solde mensuel'"
-        [texte]="'Affichage de la somme de vos dépenses et revenues et mise à jour du solde de vos comptes.'"
+        imagePath="assets/images/04.png"
+        alt="Solde mensuel"
+        title="Solde mensuel"
+        texte="Analysez vos revenus et dépenses mensuelles en un coup d’œil."
       />
 
       <app-home-card
-        [imagePath]="'assets/images/05.png'"
-        [alt]="'05.png'"
-        [title]="'Répartition de vos dépenses'"
-        [texte]="'Affichage d\'un camembert montrant la répartion de vos dépenses par catégorie.'"
+        imagePath="assets/images/05.png"
+        alt="Répartition"
+        title="Répartition des dépenses"
+        texte="Visualisez vos dépenses par catégorie grâce à des graphiques clairs."
       />
 
       <app-home-card
-        [imagePath]="'assets/images/06.png'"
-        [alt]="'06.png'"
-        [title]="'Évolution annuelle de vos comptes'"
-        [texte]="'Suivez l\'évolution annuelle de l\'ensemble de vos comptes.'"
+        imagePath="assets/images/06.png"
+        alt="Évolution annuelle"
+        title="Évolution annuelle"
+        texte="Suivez l’évolution de vos comptes sur l’année complète."
       />
 
       <app-home-card
-        [imagePath]="'assets/images/07.png'"
-        [alt]="'07.png'"
-        [title]="'Évolution annuelle de vos comptes'"
-        [texte]="'Suivez l\'évolution annuelle de l\'ensemble de vos comptes.'"
+        imagePath="assets/images/export.jpg"
+        alt="Export"
+        title="Exporter vos données"
+        texte="Exportez vos opérations et soldes au format CSV pour Excel."
       />
 
-      <app-home-card
-        [imagePath]="'assets/images/export.jpg'"
-        [alt]="'export.jpg'"
-        [title]="'Exporter vos opérations'"
-        [texte]="'Exporter vos opérations et solde de vos comptes en .csv pour ensuite pouvoir les mettre en forme en tableau excel.'"
-      />
     </section>
 
   </div>
+
 </section>
