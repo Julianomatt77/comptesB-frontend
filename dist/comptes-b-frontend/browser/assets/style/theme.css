@@ -1,0 +1,197 @@
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-xs: 390px;
+
+  --radius: 0.5rem;
+  --screenH: calc(100dvh - 20rem);
+
+  --font-text: "Montserrat", sans-serif;
+  --font-title: "Prata", serif;
+
+  /* color tokens aligned with existing CSS vars in src/styles.css if available */
+  --color-destructive: hsl(0 84% 60%);
+  --color-destructive-dark: hsl(0 84% 30%);
+  --color-destructive-light: hsl(0 84% 80%);
+
+  /*--color-primary-50: hsl(5, 100%, 95%);*/
+  /* Fallbacks kept in case app doesn't define color vars yet */
+  --color-surface: #ffffff;
+  --color-warning: #f59e0b;
+  --color-warning-dark: #d97706;
+  --color-border: #e5e7eb;
+  --color-primary-dark: #1d4ed8;
+
+
+  /*--color-background: #f7f7f7;*/
+  /*--color-text: #231F27;*/
+  /*--color-primary: hsl(268, 39%, 48%);*/
+  /*--color-secondary: hsl(269, 48%, 28%);*/
+  /*--color-accent: hsl(268, 58%, 38%);*/
+  --color-secondary-30: hsl(269, 48%, 28%, 30%);
+  --color-primary-40: hsl(268, 39%, 48%, 40%);
+  --color-primary-39: hsl(268, 39%, 48%, 39%);
+
+  --color-text: hsl(198, 63%, 5%);
+  --color-text-50: hsl(199, 62%, 95%);
+  --color-text-100: hsl(198, 65%, 90%);
+  --color-text-200: hsl(198, 63%, 80%);
+  --color-text-300: hsl(198, 63%, 70%);
+  --color-text-400: hsl(198, 63%, 60%);
+  --color-text-500: hsl(198, 63%, 50%);
+  --color-text-600: hsl(198, 63%, 40%);
+  --color-text-700: hsl(198, 63%, 30%);
+  --color-text-800: hsl(198, 63%, 20%);
+  --color-text-900: hsl(198, 65%, 10%);
+  --color-text-950: hsl(199, 62%, 5%);
+
+  --color-background: hsl(192, 56%, 98%);
+  --color-background-50: hsl(189, 54%, 95%);
+  --color-background-100: hsl(192, 57%, 90%);
+  --color-background-200: hsl(192, 57%, 80%);
+  --color-background-300: hsl(192, 56%, 70%);
+  --color-background-400: hsl(192, 56%, 60%);
+  --color-background-500: hsl(192, 56%, 50%);
+  --color-background-600: hsl(192, 56%, 40%);
+  --color-background-700: hsl(192, 56%, 30%);
+  --color-background-800: hsl(192, 57%, 20%);
+  --color-background-900: hsl(192, 57%, 10%);
+  --color-background-950: hsl(193, 54%, 5%);
+
+  --color-primary: hsl(199, 61%, 54%);
+  --color-primary-50: hsl(199, 62%, 95%);
+  --color-primary-100: hsl(199, 61%, 90%);
+  --color-primary-200: hsl(199, 61%, 80%);
+  --color-primary-300: hsl(199, 61%, 70%);
+  --color-primary-400: hsl(199, 61%, 60%);
+  --color-primary-500: hsl(199, 61%, 50%);
+  --color-primary-600: hsl(199, 61%, 40%);
+  --color-primary-700: hsl(199, 61%, 30%);
+  --color-primary-800: hsl(199, 61%, 20%);
+  --color-primary-900: hsl(199, 61%, 10%);
+  --color-primary-950: hsl(199, 62%, 5%);
+
+  --color-secondary: hsl(235, 61%, 72%);
+  --color-secondary-50: hsl(232, 62%, 95%);
+  --color-secondary-100: hsl(234, 61%, 90%);
+  --color-secondary-200: hsl(235, 61%, 80%);
+  --color-secondary-300: hsl(235, 61%, 70%);
+  --color-secondary-400: hsl(235, 61%, 60%);
+  --color-secondary-500: hsl(235, 61%, 50%);
+  --color-secondary-600: hsl(235, 61%, 40%);
+  --color-secondary-700: hsl(235, 61%, 30%);
+  --color-secondary-800: hsl(235, 61%, 20%);
+  --color-secondary-900: hsl(234, 61%, 10%);
+  --color-secondary-950: hsl(236, 62%, 5%);
+
+  --color-accent: hsl(248, 61%, 60%);
+  --color-accent-50: hsl(251, 62%, 95%);
+  --color-accent-100: hsl(248, 61%, 90%);
+  --color-accent-200: hsl(248, 61%, 80%);
+  --color-accent-300: hsl(248, 61%, 70%);
+  --color-accent-400: hsl(248, 61%, 60%);
+  --color-accent-500: hsl(248, 61%, 50%);
+  --color-accent-600: hsl(248, 61%, 40%);
+  --color-accent-700: hsl(248, 61%, 30%);
+  --color-accent-800: hsl(248, 61%, 20%);
+  --color-accent-900: hsl(248, 61%, 10%);
+  --color-accent-950: hsl(248, 62%, 5%);
+}
+
+@layer base {
+  * {
+    @apply m-0 p-0 box-border;
+  }
+
+  html, body {
+    @apply font-text h-full w-full bg-background text-text;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-title font-bold
+  }
+
+  h1 {
+    @apply text-4xl ml-2 py-5;
+  }
+
+  h2 {
+    @apply text-3xl py-4;
+  }
+
+  h3 {
+    @apply text-xl py-3;
+  }
+
+  h4 {
+    @apply text-lg py-2;
+  }
+
+  h5 {
+    @apply text-base py-2;
+  }
+
+  h6 {
+    @apply text-sm py-2;
+  }
+
+  p {
+    @apply text-xs my-1 mx-2;
+  }
+
+  input, select, textarea, option {
+    @apply bg-background-200
+    p-2
+    border border-border
+    rounded-lg;
+  }
+  select {
+    @apply cursor-pointer;
+  }
+
+  input::placeholder, textarea::placeholder {
+    @apply text-gray-500;
+  }
+
+  button {
+    /*@apply inline-flex items-center justify-center px-4 py-2 rounded-md font-medium;*/
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap
+    rounded-lg font-medium transition-colors
+    focus-visible:outline-none cursor-pointer disabled:pointer-events-none
+    disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0
+    px-4 py-2 mx-2
+  }
+  button:hover {
+    @apply  -outline-offset-3 decoration-4 underline underline-offset-2
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary border-primary;
+  }
+  .btn-primary:hover {
+    @apply bg-primary-300 outline-primary-300 outline-3;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary border-secondary;
+  }
+  .btn-secondary:hover {
+    @apply bg-secondary-200 outline-secondary-200 outline-3;
+  }
+
+  .btn-destructive {
+    @apply bg-destructive text-white border border-destructive
+  }
+  .btn-destructive:hover {
+    @apply bg-destructive-light outline-destructive-light text-text outline-3;
+  }
+
+  .card {
+    @apply bg-surface border border-border rounded-lg shadow-sm p-4;
+  }
+  .input {
+    @apply border border-border rounded-md p-2;
+  }
+}

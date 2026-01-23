@@ -1,6 +1,6 @@
 {
-  "name": "comptes-b-frontend",
-  "version": "0.0.0",
+  "name": "Compty",
+  "version": "2.0.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
