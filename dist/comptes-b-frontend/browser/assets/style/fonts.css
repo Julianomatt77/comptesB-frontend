@@ -1,0 +1,13 @@
+@font-face {
+  font-family: "Prata";
+  /*src: url("./assets/fonts/prata/Prata-Regular.ttf") format("truetype");*/
+  src: url("../fonts/prata/Prata-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  /*src: url("assets/fonts/montserrat/static/Montserrat-Regular.ttf")*/
+  src: url("../fonts/montserrat/static/Montserrat-Regular.ttf") format("truetype");
+  font-display: swap;
+}

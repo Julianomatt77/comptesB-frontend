@@ -1,0 +1,33 @@
+<div class="flex items-center gap-3">
+  @if (labelLeft()) {
+    <span
+      class="text-sm font-medium transition-colors duration-200"
+      [class.text-gray-900]="!value()"
+      [class.text-gray-400]="value()">
+      {{ labelLeft() }}
+    </span>
+  }
+
+  <label
+    class="relative inline-flex items-center cursor-pointer"
+    [class.opacity-50]="disabled()"
+    [class.cursor-not-allowed]="disabled()">
+    <input
+      type="checkbox"
+      [checked]="value()"
+      (change)="toggle()"
+      [disabled]="disabled()"
+      class="sr-only peer" />
+    <div class="w-12 h-6 bg-gray-300 rounded-full peer-checked:bg-secondary transition-colors duration-300"></div>
+    <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow-md transform peer-checked:translate-x-6 transition-transform duration-300"></div>
+  </label>
+
+  @if (labelRight()) {
+    <span
+      class="text-sm font-medium transition-colors duration-200"
+      [class.text-gray-900]="value()"
+      [class.text-gray-400]="!value()">
+      {{ labelRight() }}
+    </span>
+  }
+</div>

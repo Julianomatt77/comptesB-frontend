@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { OperationService } from 'src/app/services/operation.service';
 
@@ -6,6 +6,9 @@ import { OperationService } from 'src/app/services/operation.service';
   providedIn: 'root',
 })
 export class DatepickerService {
+  private fb = inject(FormBuilder);
+  private operationService = inject(OperationService);
+
   totalCredit = 0;
   totalDebit = 0;
   form!: FormGroup;
@@ -14,10 +17,7 @@ export class DatepickerService {
   todayMonthString = this.todayMonth.toString();
   dateFiltered = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private operationService: OperationService
-  ) {
+  constructor() {
     this.transformMonth(this.todayMonthString);
 
     this.form = this.fb.group({

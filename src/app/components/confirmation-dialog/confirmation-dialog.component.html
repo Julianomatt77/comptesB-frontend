@@ -4,18 +4,15 @@
 </div>
 <div mat-dialog-actions>
   <button
-    class="mx-5 my-3"
-    mat-button
+    class="btn-primary mx-5 my-3"
     mat-dialog-close
     (click)="dialogRef.close(false)"
   >
     Annuler
   </button>
   <button
-    class="btn btn-danger mx-5 my-3"
-    mat-button
+    class="btn-destructive mx-5 my-3"
     mat-dialog-close
-    cdkFocusInitial
     (click)="dialogRef.close(true)"
   >
     Supprimer

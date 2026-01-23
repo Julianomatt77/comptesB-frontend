@@ -1,0 +1,9 @@
+/* h1 {
+  width: 200px;
+} */
+
+/* Card and logo helpers removed: styles are provided by global theme (theme.css) */
+.logo {
+  width: 100px;
+  margin-left: 20px;
+}

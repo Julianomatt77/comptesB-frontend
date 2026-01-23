@@ -1,48 +1,88 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable, inject, signal, computed } from '@angular/core';
+import {firstValueFrom, Observable} from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 import { environment } from 'src/environments/environment';
-import { User } from '../models/User';
-import { map, tap } from 'rxjs/operators';
-
-// const httpOptions = {
-//   headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
-// };
+import { tap } from 'rxjs/operators';
+import {User} from "../models/user.model";
+import {StorageService} from "./storage.service";
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  // public isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
-  public isAuthenticatedSubject: BehaviorSubject<boolean>;
-  public currentUserSubject = new BehaviorSubject<any>(undefined);
+  private http = inject(HttpClient);
+  private router = inject(Router);
+  private cookieService = inject(CookieService);
+  private storageService = inject(StorageService);
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    private cookieService: CookieService
-  ) {
-    this.isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  private baseUrl = environment.baseUrl;
+
+  private _isAuthenticated = signal(false);
+  public isAuthenticated = this._isAuthenticated.asReadonly();
+
+  private _currentUser = signal<User>({} as User);
+  public currentUser = this._currentUser.asReadonly();
+
+  private readonly _loading = signal(false);
+  readonly loading = computed(() => this._loading());
+
+  private readonly _error = signal<string | null>(null);
+  readonly error = computed(() => this._error());
+
+  initFromCookies(): void {
+    const hasToken = this.cookieService.check('compty-auth-tok');
+    this._isAuthenticated.set(this.storageService.isLoggedIn());
   }
 
-  login(username: string, password?: string): Observable<any> {
-    // this.isAuthenticatedSubject.next(true);
-    return this.http
-      .post(environment.baseUrl + '/auth/login', {
-        username,
-        password,
-      })
-      .pipe(
-        tap(() => {
-          this.isAuthenticatedSubject.next(true);
-        })
-      );
+  async login(username: string, password?: string): Promise<void> {
+    this._loading.set(true);
+    this._error.set(null);
+
+    try {
+      const data: any = await firstValueFrom(this.http.post<any>(
+        `${this.baseUrl}/auth/login`,
+        {
+              username,
+              password,
+            }
+      ));
+      if (data) {
+        this._isAuthenticated.set(true);
+        // this.storageService.saveUser(data);
+        this._currentUser.set(data);
+
+        this.cookieService.set(
+          'compty-auth-tok',
+          data.token,
+          0.2,
+          '/',
+          undefined,
+          true,
+          'Strict'
+        );
+        this.cookieService.set(
+          'compty-userId',
+          data.userId,
+          0.2,
+          '/',
+          undefined,
+          true,
+          'Strict'
+        );
+      }
+    } catch (err: any) {
+      console.error(err)
+      this._error.set(err.error.message)
+    } finally {
+      this._loading.set(false);
+    }
+
   }
 
   register(username: string, email: string, password: string): Observable<any> {
-    this.isAuthenticatedSubject.next(false);
+    this._isAuthenticated.set(false);
     return this.http.post(environment.baseUrl + '/auth/signup', {
       username,
       email,
@@ -52,9 +92,10 @@ export class AuthService {
 
   logout(): Observable<any> {
     this.cookieService.deleteAll('/');
-    this.isAuthenticatedSubject.next(false);
+    // this.storageService.clean();
+    this._isAuthenticated.set(false);
+    this._currentUser.set({} as User);
     this.router.navigateByUrl('/');
-    // this.currentUserSubject.next(new User);
     return this.http.post(environment.baseUrl + '/auth/signout', {});
   }
 }

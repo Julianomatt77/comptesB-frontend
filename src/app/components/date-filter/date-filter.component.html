@@ -1,0 +1,35 @@
+<section class="flex items-center justify-center mb-2 flex-wrap gap-2 w-full">
+  <div class="mx-2">
+    <button
+      role="button"
+      class="btn-primary"
+      (click)="resetFilters.emit()"
+      title="Enlever le filtre par date">
+      Toutes opérations
+    </button>
+  </div>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="flex items-center flex-wrap">
+      <input
+        type="month"
+        class="mt-1 rounded border border-gray-300 p-2"
+        [value]="currentYear() + '-' + currentMonth()"
+        formControlName="rangeDate"
+      />
+      <div class="mx-2">
+        <button
+          id="filterButton"
+          role="button"
+          type="submit"
+          class="bg-background rounded p-2">
+          <fa-icon
+            [icon]="faFilter"
+            class="text-primary"
+            style="font-size: 20px"
+            title="Filtrer par date">
+          </fa-icon>
+        </button>
+      </div>
+    </div>
+  </form>
+</section>

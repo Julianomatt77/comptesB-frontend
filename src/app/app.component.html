@@ -1,8 +1,10 @@
-<meta charset="utf-8" />
-<meta property="og:url" content="https://www.martin-julien-dev.fr" />
+<app-header/>
 
-<app-header class="bg-light" style="z-index: 2 !important"></app-header>
+<section class="w-full">
 
-<router-outlet></router-outlet>
+  <section class="p-2 sm:mt-18" id="content">
+    <router-outlet/>
+  </section>
 
-<app-footer class="bg-light mt-5"></app-footer>
+  <app-footer class="bg-light mt-5" />
+</section>

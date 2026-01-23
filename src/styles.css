@@ -1,49 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
-:root {
-  --text: #231F27; /*    --text: #eae7ef;*/
-  --background: rgba(var(--bs-light-rgb),var(--bs-bg-opacity)); /*    --background: #231F27;*/
-  --primary: hsl(268, 39%, 48%); /*    --primary: #774baa;*/
-  --secondary: hsl(269, 48%, 28%); /*    --secondary: #46256a;*/
-  --accent: hsl(268, 58%, 38%); /*    --accent: #5d2999;*/
-  --secondary30: hsl(269, 48%, 28%, 30%);
-  --primary40: hsl(268, 39%, 48%, 40%);
-  --primary39: hsl(268, 39%, 48%, 39%);
+.password-field {
+  position: relative;
+
+  fa-icon {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 16px;
+  }
 }
 
-html,
-body {
-  height: 100%;
-}
-body {
-  margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-}
-
-@font-face {
-  font-family: "Prata";
-  src: url("assets/fonts/prata/Prata-Regular.ttf") format("truetype");
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Montserrat";
-  src: url("assets/fonts/montserrat/static/Montserrat-Regular.ttf")
-    format("truetype");
-  font-display: swap;
-}
-
-* {
-  font-family: "Montserrat", sans-serif;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: "Prata", serif;
-}
+/*.cursor-pointer {*/
+/*  cursor: pointer;*/
+/*}*/
 
 /****************************************** LOADING ANIMATION  ************/
 .ring {
@@ -116,3 +86,4 @@ h6 {
   }
 }
 /****************************************** FIN LOADING ANIMATION  ************/
+/* Tailwind directives removed per Tailwind v4 upgrade; @apply declarations moved to theme.css */

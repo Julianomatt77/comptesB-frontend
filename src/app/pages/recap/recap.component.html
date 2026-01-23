@@ -1,0 +1,217 @@
+<section class="mt-2 sm:w-7/8  2xl:w-3/4 w-full flex flex-col justify-center items-center mx-auto">
+  <div class="text-center">
+    <h1 class="mb-5 text-2xl font-semibold">
+      Récapitulatif Annuel des comptes
+    </h1>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center items-center">
+      <div class="ring">
+        Loading <span class="loading"></span>
+      </div>
+    </div>
+  }
+
+  @if (!isLoading()) {
+
+    <!-- Sélecteur d'année -->
+    <div class="flex justify-center mb-4">
+      <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()" class="flex items-center gap-4">
+        <select
+          class="bg-gray-100 border border-gray-300 rounded-md px-3 py-2"
+          formControlName="rangeDate"
+        >
+          @for (year of availableYears(); track year) {
+            <option [value]="year">{{ year }}</option>
+          }
+        </select>
+
+        <button type="submit" class="bg-gray-100 p-2 rounded-md">
+          <fa-icon
+            [icon]="faFilter"
+            class="text-primary text-lg"
+            title="Sélection de l'année"
+          ></fa-icon>
+        </button>
+      </form>
+    </div>
+
+    <!-- Accordéon -->
+    <div class="space-y-4 w-full">
+
+      <!-- Comptes courants -->
+      <section class="border rounded-lg">
+        <button
+          type="button"
+          class="w-full m-0 flex justify-between items-center py-3 font-medium"
+          [class.bg-primary-200]="toggleCourant()"
+          (click)="toggleCourantSection()"
+          aria-expanded="{{ toggleCourant() }}"
+          aria-controls="section-courant"
+        >
+          <span>
+            Comptes courants : Evolution =
+            {{ evolutionCompteCourant() | number: '1.0-0':'fr' }} %
+          </span>
+
+          <fa-icon
+            [icon]="faDownload"
+            class="text-primary text-lg"
+            (click)="export('comptes')"
+          ></fa-icon>
+        </button>
+
+        @if (toggleCourant()) {
+          <div class="p-4">
+
+            <div class="flex justify-evenly mb-4">
+              @if (totalDifference() >= 0) {
+                <div class="text-green-600">
+                  Différence <fa-icon [icon]="faArrowUp"></fa-icon>
+                  {{ totalDifference() | number: '1.0-0':'fr' }} €
+                </div>
+              }
+              @if (totalDifference() < 0) {
+                <div class="text-red-600">
+                  Différence <fa-icon [icon]="faArrowDown"></fa-icon>
+                  {{ totalDifference() | number: '1.0-0':'fr' }} €
+                </div>
+              }
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y">
+                <thead class="bg-gray-100">
+                <tr>
+                  <th class="px-4 py-2 text-left">Mois</th>
+                  <th class="px-4 py-2 text-left">Solde Initial</th>
+                  <th class="px-4 py-2 text-left">Economie</th>
+                  <th class="px-4 py-2 text-left">Solde Final</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  @for (row of currentAccountsRecap()?.monthlyRecap; track row.month) {
+                    <tr>
+                      <td class="px-4 py-2">{{ row.month }}</td>
+                      <td class="px-4 py-2"
+                          [class.text-green-600]="row.soldeInitial >= 0"
+                          [class.text-red-600]="row.soldeInitial < 0">
+                        {{ row.soldeInitial | number:'1.00':'fr' }} €
+                      </td>
+                      <td class="px-4 py-2"
+                          [class.text-green-600]="row.economie >= 0"
+                          [class.text-red-600]="row.economie < 0">
+                        {{ row.economie | number:'1.0-0':'fr' }} €
+                      </td>
+                      <td class="px-4 py-2"
+                          [class.text-green-600]="row.soldeFinal >= 0"
+                          [class.text-red-600]="row.soldeFinal < 0">
+                        {{ row.soldeFinal | number:'1.00':'fr' }} €
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        }
+      </section>
+
+      <!-- Epargne -->
+      <section class="border rounded-lg">
+        <button
+          type="button"
+          class="w-full m-0 flex justify-between items-center py-3 font-medium"
+          [class.bg-primary-200]="toggleEpargne()"
+          (click)="toggleEpargneSection()"
+          aria-expanded="{{ toggleEpargne() }}"
+          aria-controls="section-epargne"
+        >
+          <span>
+            Epargne : Evolution =
+            {{ evolutionEpargne() | number: '1.0-0':'fr' }} %
+          </span>
+
+          <fa-icon
+            [icon]="faDownload"
+            class="text-primary text-lg"
+            (click)="export('epargne')"
+          ></fa-icon>
+        </button>
+
+        @if (toggleEpargne()) {
+          <div class="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Mensuel -->
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y">
+                <thead class="bg-gray-100">
+                <tr>
+                  <th class="px-4 py-2">Mois</th>
+                  <th class="px-4 py-2">Investissement</th>
+                  <th class="px-4 py-2">Opérations</th>
+                  <th class="px-4 py-2">Solde</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  @for (row of epargnePerYear(); track row.month) {
+                    <tr>
+                      <td class="px-4 py-2">{{ row.month }}</td>
+                      <td class="px-4 py-2"
+                          [class.text-green-600]="row.investi >= 0"
+                          [class.text-red-600]="row.investi < 0">
+                        {{ row.investi | number:'1.0-0':'fr' }} €
+                      </td>
+                      <td class="px-4 py-2"
+                          [class.text-green-600]="row.economie >= 0"
+                          [class.text-red-600]="row.economie < 0">
+                        {{ row.economie | number:'1.0-0':'fr' }} €
+                      </td>
+                      <td class="px-4 py-2">
+                        {{ row.solde | number:'1.0-0':'fr' }} €
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Annuel -->
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y">
+                <thead class="bg-gray-100">
+                <tr>
+                  <th class="px-4 py-2">Compte</th>
+                  <th class="px-4 py-2">Total Investi</th>
+                  <th class="px-4 py-2">Somme Finale</th>
+                  <th class="px-4 py-2">Evolution</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  @for (row of yearlyArray(); track row.name) {
+                    <tr>
+                      <td class="px-4 py-2">{{ row.name }}</td>
+                      <td class="px-4 py-2">
+                        {{ row.totalInvesti | number:'1.0-2':'fr' }} €
+                      </td>
+                      <td class="px-4 py-2">
+                        {{ row.soldeFinal | number:'1.0-2':'fr' }} €
+                      </td>
+                      <td class="px-4 py-2">
+                        {{ row.evolution | number:'1.0-2':'fr' }} %
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        }
+      </section>
+
+    </div>
+  }
+</section>

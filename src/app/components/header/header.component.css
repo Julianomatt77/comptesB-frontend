@@ -1,0 +1,7 @@
+.open-close-container {
+  transition-property: height, opacity, background-color, color;
+  transition-duration: 1s;
+}
+.open {
+  transition-duration: 0.5s;
+}

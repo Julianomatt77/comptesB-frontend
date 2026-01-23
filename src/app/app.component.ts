@@ -1,20 +1,25 @@
-import { Component, Inject } from '@angular/core';
+import {ChangeDetectionStrategy, Component, DOCUMENT, inject} from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { DOCUMENT } from '@angular/common';
+
+import { HeaderComponent } from './components/header/header.component';
+import { RouterOutlet } from '@angular/router';
+import { FooterComponent } from './components/footer/footer.component';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [HeaderComponent, RouterOutlet, FooterComponent]
 })
 export class AppComponent {
+  private titleService = inject(Title);
+  private metaService = inject(Meta);
+  private document = inject<Document>(DOCUMENT);
+
   title = 'JM-comptesB';
 
-  constructor(
-    private titleService: Title,
-    private metaService: Meta,
-    @Inject(DOCUMENT) private document: Document
-  ) {
+  constructor() {
     this.titleService.setTitle('Compty');
 
     this.metaService.addTags([

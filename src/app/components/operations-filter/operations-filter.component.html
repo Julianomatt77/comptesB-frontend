@@ -1,0 +1,67 @@
+<section class="flex items-center justify-center gap-3 flex-wrap mb-2 w-full">
+  <!-- Filtre par compte -->
+  <form [formGroup]="formAccount" title="Filtrer par compte">
+    <div class="flex items-center">
+      <select
+        formControlName="account"
+        (change)="onAccountChange()"
+        class="rounded border border-gray-300 p-2 mx-2">
+        <option value="">Tous les comptes</option>
+        @for (type of groupedCompteTypes(); track type) {
+          <optgroup [label]="type">
+            @for (compte of groupedComptes()[type]; track compte.id) {
+              <option [value]="compte.id.toString()">{{ compte.name }}</option>
+            }
+          </optgroup>
+        }
+      </select>
+    </div>
+  </form>
+
+  <!-- Filtre par catégorie -->
+  <form [formGroup]="formCategory" title="Filtrer par catégorie">
+    <div class="flex items-center">
+      <select
+        formControlName="category"
+        (change)="onCategoryChange()"
+        class="rounded border border-gray-300 p-2 mx-2">
+        <option value="">Toutes les catégories</option>
+        @for (category of categorieList(); track category) {
+          <option [value]="category">{{ category }}</option>
+        }
+      </select>
+    </div>
+  </form>
+
+  <!-- Filtre par type -->
+  <div>
+    <button
+      class="btn-secondary"
+      [class.ring-2]="selectedType() === true"
+      [class.ring-green-500]="selectedType() === true"
+      (click)="onTypeChange(true)"
+      role="button">
+      Crédits
+    </button>
+  </div>
+  <div>
+    <button
+      class="btn-destructive"
+      [class.ring-2]="selectedType() === false"
+      [class.ring-red-500]="selectedType() === false"
+      (click)="onTypeChange(false)"
+      role="button">
+      Débits
+    </button>
+  </div>
+
+  <!-- Reset filtres -->
+  <div>
+    <button
+      class="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100"
+      (click)="onResetFilters()"
+      role="button">
+      Supprimer les filtres
+    </button>
+  </div>
+</section>

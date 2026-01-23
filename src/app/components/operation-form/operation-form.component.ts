@@ -1,32 +1,38 @@
-import {
-  Component,
-  OnInit,
-  EventEmitter,
-  Output,
-  Input,
-  Inject,
-} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
-import { Operation } from 'src/app/models/Operation';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {Component, OnInit, EventEmitter, Output, Input, inject, ChangeDetectionStrategy, signal} from '@angular/core';
+import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import { OperationService } from 'src/app/services/operation.service';
 import { CompteService } from 'src/app/services/compte.service';
 import { forkJoin } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import {faClose} from '@fortawesome/free-solid-svg-icons';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { DatePipe } from '@angular/common';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import {OperationV2} from "../../models/operation.model";
+import {SlideToggleComponent} from "../../ui/slide-toggle/slide-toggle.component";
 
 @Component({
-  selector: 'app-operation-form',
-  templateUrl: './operation-form.component.html',
-  styleUrls: ['./operation-form.component.css'],
+    selector: 'app-operation-form',
+    templateUrl: './operation-form.component.html',
+    styleUrls: ['./operation-form.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FormsModule, ReactiveFormsModule, FaIconComponent, MatSlideToggleModule, SlideToggleComponent]
 })
 export class OperationFormComponent implements OnInit {
-  @Output() formSubmitted: EventEmitter<Operation>;
+  private fb = inject(FormBuilder);
+  private data = inject(MAT_DIALOG_DATA);
+  private operationService = inject(OperationService);
+  dialogRef = inject<MatDialogRef<OperationFormComponent>>(MatDialogRef);
+  compteService = inject(CompteService);
+  private cookieService = inject(CookieService);
+
+  @Output() formSubmitted: EventEmitter<OperationV2>;
   @Input() id!: string;
 
   form!: FormGroup;
-  operation!: Operation;
-  operationReceveur!: Operation;
+  operation!: OperationV2;
+  operationReceveur!: OperationV2;
   addOrEdit!: string;
   buttonLabel!: string;
   categorieList: string[] = [
@@ -47,7 +53,7 @@ export class OperationFormComponent implements OnInit {
   groupedComptes: { [key: string]: any[] } = {};
   groupedCompteTypes: string[] = [];
   userId!: string;
-  transfertBetweenAccount = false;
+  transfertBetweenAccount = signal(false);
   submitted: boolean = false;
 
   compteId = '';
@@ -55,23 +61,13 @@ export class OperationFormComponent implements OnInit {
   tempMontant = 0;
   tempMontantReceveur = 0;
 
-  operationDateDay!: string;
-  operationDateMonth!: string;
-  operationDateYear!: string;
-  operationdateString!: string;
-
   faClose = faClose;
 
-  constructor(
-    private fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) private data: any,
-    private operationService: OperationService,
-    public dialogRef: MatDialogRef<OperationFormComponent>,
-    public compteService: CompteService,
-    private cookieService: CookieService
-  ) {
-    this.formSubmitted = new EventEmitter<Operation>();
-    this.userId = this.cookieService.get('userId');
+  constructor() {
+    const data = this.data;
+
+    this.formSubmitted = new EventEmitter<OperationV2>();
+    this.userId = this.cookieService.get('compty-userId');
     this.compteList = data.compteList;
 
     // On réorganise l'ordre d'affichage des comptes
@@ -82,7 +78,7 @@ export class OperationFormComponent implements OnInit {
     if (data.addOrEdit == 'edit') {
       this.addOrEdit = 'edit';
       this.buttonLabel = 'Mettre à jour';
-      this.id = data.operation._id;
+      this.id = data.operation.id;
       this.operation = data.operation;
       this.operation.operationDate = new Date(
         this.operation.operationDate.toString()
@@ -90,57 +86,56 @@ export class OperationFormComponent implements OnInit {
     } else {
       this.addOrEdit = 'add';
       this.buttonLabel = 'Ajouter';
-      this.operation = new Operation(
-        '',
-        0,
-        false,
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        new Date(Date.now()),
-        0,
-        false,
-        ''
-      );
-      this.operationReceveur = new Operation(
-        '',
-        0,
-        false,
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-        new Date(Date.now()),
-        0,
-        false,
-        ''
-      );
+      this.operation = {} as OperationV2
+      this.operation.operationDate = new Date(Date.now());
+      this.operationReceveur = {} as OperationV2
+      this.operationReceveur.operationDate = new Date(Date.now());
     }
   }
 
   ngOnInit(): void {
     this.form = this.fb.group({
       montant: [0, [Validators.required, Validators.min(0.01)]],
-      type: false,
+      type: [false],
       categorie: ['', [Validators.required]],
-      compte: ['', [Validators.required]],
-      compteName: '',
-      compteType: '',
+      compte: [this.compteList[0]?.id || '', [Validators.required]],
+      compteReceveur: [''],
       description1: ['', [Validators.required]],
-      description2: '',
-      operationDate: [Date(), [Validators.required]],
-      solde: 0,
-      isTransfert: false,
-      compteReceveur: "",
-      compteReceveurName: ""
+      operationDate: [this.formatDate(this.operation.operationDate), [Validators.required]],
+      isTransfert: [false],
     });
 
+    if (this.addOrEdit  == 'edit') {
+      this.form = this.fb.group({
+        montant: [this.operation.montant, [Validators.required, Validators.min(0.01)]],
+        type: [this.operation.type],
+        categorie: [this.operation.categorie, [Validators.required]],
+        compte: [this.operation.compteId, [Validators.required]],
+        compteReceveur: [''],
+        description1: [this.operation.description1, [Validators.required]],
+        operationDate: [this.formatDate(this.operation.operationDate), [Validators.required]],
+        isTransfert: [false],
+      });
+    }
+
     this.initForm();
+  }
+
+// Format date pour input type="date" (yyyy-MM-dd)
+  private formatDate(date: Date): string {
+    const d = new Date(date);
+    const month = ('0' + (d.getMonth() + 1)).slice(-2);
+    const day = ('0' + d.getDate()).slice(-2);
+    return `${d.getFullYear()}-${month}-${day}`;
+  }
+
+  // Component
+  get operationDateForInput(): string {
+    const date = this.operation.operationDate ?? new Date();
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   }
 
   private initForm(): void {
@@ -165,72 +160,85 @@ export class OperationFormComponent implements OnInit {
 
   onSubmitOperationForm(): void {
     this.submitted = true;
-    if (this.form.valid){
-      const compte = this.compteList.find(compte => compte._id === this.operation.compte)
 
-      this.operation.solde =
-        compte.soldeActuel + (this.operation.montant - this.tempMontant);
+    if (!this.form.valid) return;
 
-      this.compteId = compte._id;
-      compte.soldeActuel = this.operation.solde;
+    // Récupération des valeurs depuis le formulaire
+    const montant = this.form.get('montant')?.value ?? 0;
+    const type = this.form.get('type')?.value ?? false;
+    const categorie = this.form.get('categorie')?.value ?? '';
+    const compteId = this.form.get('compte')?.value;
+    const compteReceveurId = this.form.get('compteReceveur')?.value;
+    const isTransfert = this.form.get('isTransfert')?.value ?? false;
+    const description1 = this.form.get('description1')?.value ?? '';
+    const operationDate = this.form.get('operationDate')?.value ?? new Date();
 
-      this.operation.montant = this.isCredit(
-        this.operation.type,
-        this.operation.montant
-      );
+    // Récupération du compte principal
+    const compte = this.compteList.find(c => c.id === compteId);
+    if (!compte) {
+      console.error('Compte non trouvé pour l’ID:', compteId);
+      return;
+    }
 
-      const compteData = {
-        id: this.compteId,
-        compte: compte,
+    // Préparation de l'opération principale
+    this.operation.type = type;
+    this.operation.montant = type ? +montant : -montant;
+    this.operation.categorie = categorie;
+    this.operation.description1 = description1;
+    this.operation.operationDate = new Date(this.form.get('operationDate')?.value);
+    this.operation.compteId = compteId;
+
+    this.changeDate(this.operation.operationDate)
+
+    // Calcul du solde du compte
+    this.operation.solde = compte.soldeActuel + (this.operation.montant - this.tempMontant);
+    compte.soldeActuel = this.operation.solde;
+
+    // Update du compte principal
+    const updateSolde = this.compteService.updateOneAccount({ id: compteId, compte });
+
+    // Si transfert entre comptes
+    if (isTransfert && compteReceveurId) {
+      const compteReceveur = this.compteList.find(c => c.id === compteReceveurId);
+      if (!compteReceveur) {
+        console.error('Compte receveur non trouvé pour l’ID:', compteReceveurId);
+        return;
+      }
+
+      // Préparation de l'opération receveur
+      this.operationReceveur = {
+        ...this.operationReceveur,
+        compteId: compteReceveurId,
+        type: true,
+        montant: -this.operation.montant,
+        categorie,
+        description1,
+        operationDate,
+        solde: compteReceveur.soldeActuel + (-this.operation.montant - this.tempMontantReceveur),
       };
 
-      let updateSolde = this.compteService.updateOneAccount(compteData);
+      compteReceveur.soldeActuel = this.operationReceveur.solde;
 
-      if (this.transfertBetweenAccount && this.form.get('compteReceveur')?.value) {
-        this.operationReceveur.compte = this.operation.compteReceveur
-        this.operationReceveur.description1 = this.operation.description1
-        this.operationReceveur.categorie = this.operation.categorie
-        this.operationReceveur.operationDate = this.operation.operationDate
-        this.operationReceveur.type = true
+      const updateSoldeReceveur = this.compteService.updateOneAccount({
+        id: compteReceveurId,
+        compte: compteReceveur
+      });
 
-        const compteReceveur = this.compteList.find(compte => compte._id === this.operation.compteReceveur)
-        this.operationReceveur.solde = compteReceveur.soldeActuel + (this.operationReceveur.montant - this.tempMontantReceveur);
-        this.compteReceveurId = compteReceveur._id;
-        compteReceveur.soldeActuel = this.operationReceveur.solde
-        this.operationReceveur.montant = -this.operation.montant
+      // Création des opérations
+      const createOperation = this.operationService.createOperation(this.operation);
+      const createOperationReceveur = this.operationService.createOperation(this.operationReceveur);
 
-        const compteDataReceveur = {
-          id: this.compteReceveurId,
-          compte: compteReceveur,
-        };
+      forkJoin([updateSolde, updateSoldeReceveur, createOperation, createOperationReceveur])
+        .subscribe(() => this.dialogRef.close());
 
-        let updateSoldeReceveur = this.compteService.updateOneAccount(compteDataReceveur);
-        let createOperationReceveur = this.operationService.createOperation(this.operationReceveur);
-        let createOperation = this.operationService.createOperation(this.operation);
-
-        forkJoin([updateSolde, createOperation, updateSoldeReceveur, createOperationReceveur]).subscribe(() => {
-          this.dialogRef.close();
-        });
+    } else {
+      // Pas de transfert, juste création ou mise à jour de l'opération
+      if (this.addOrEdit === 'edit') {
+        const updateOperation = this.operationService.updateOperation(Number(this.id), this.operation);
+        forkJoin([updateSolde, updateOperation]).subscribe(() => this.dialogRef.close());
       } else {
-        if (this.addOrEdit == 'edit') {
-          const data = {
-            id: this.id,
-            operation: this.operation,
-          };
-          let updateOperation = this.operationService.updateOneOperation(data);
-
-          forkJoin([updateSolde, updateOperation]).subscribe(() => {
-            this.dialogRef.close();
-          });
-        } else {
-          let createOperation = this.operationService.createOperation(
-            this.operation
-          );
-
-          forkJoin([updateSolde, createOperation]).subscribe(() => {
-            this.dialogRef.close();
-          });
-        }
+        const createOperation = this.operationService.createOperation(this.operation);
+        forkJoin([updateSolde, createOperation]).subscribe(() => this.dialogRef.close());
       }
     }
   }
@@ -239,14 +247,28 @@ export class OperationFormComponent implements OnInit {
     this.operation.operationDate = e.target.value;
   }
 
-  changeTransfert(e: any){
-    this.transfertBetweenAccount = this.operation.isTransfert
+  changeTransfert(value: boolean | Event): void {
+    const isTransfert = typeof value === 'boolean' ? value : (value.target as HTMLInputElement).checked;
+
+    this.transfertBetweenAccount.set(isTransfert);
     this.operation.categorie = this.categorieList[10];
     this.operation.description1 = this.categorieList[10];
-    this.operation.type = false
+    this.form.get('description1')?.setValue(this.categorieList[10]);
+    this.operation.type = false;
+    this.operation.isTransfert = isTransfert;
 
-    let cat = this.form.get('categorie')
-    cat?.setValue(this.categorieList[10])
+    const cat = this.form.get('categorie');
+    cat?.setValue(this.categorieList[10]);
+  }
+
+  changeDate(date: Date) {
+    const now = new Date();
+    const seconds = now.getSeconds()
+    const minutes = now.getMinutes()
+    const hours = now.getHours()
+
+    date.setHours(hours, minutes, seconds);
+    this.operation.operationDate = date;
   }
 
   closePopup(){

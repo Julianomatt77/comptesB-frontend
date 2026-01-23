@@ -1,0 +1,216 @@
+<section class="max-w-7xl mx-auto px-4 pt-2 bg-gray-100">
+  <div class="text-center">
+    <h1 class="mb-2 text-2xl font-semibold">Gestion du compte</h1>
+  </div>
+
+  @if (!isSuccessful()) {
+    <form
+      [formGroup]="userForm"
+      (ngSubmit)="onSubmit()"
+      novalidate
+    >
+      <div class="mb-4">
+        <label for="username" class="block mb-1 font-medium text-gray-700">
+          Nom d'utilisateur
+        </label>
+        <input
+          id="username"
+          type="text"
+          class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          formControlName="username"
+          [class.border-red-500]="userForm.get('username')?.invalid && (userForm.get('username')?.dirty || userForm.get('username')?.touched)"
+        />
+        @if (userForm.get('username')?.invalid && (userForm.get('username')?.dirty || userForm.get('username')?.touched)) {
+          <div class="mt-1 text-sm text-red-600">
+            @if (userForm.get('username')?.hasError('required')) {
+              <div>Le nom d'utilisateur est obligatoire</div>
+            }
+            @if (userForm.get('username')?.hasError('minlength')) {
+              <div>Le nom d'utilisateur doit avoir au moins 3 caractères</div>
+            }
+            @if (userForm.get('username')?.hasError('maxlength')) {
+              <div>Le nom d'utilisateur doit avoir au maximum 20 caractères</div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="mb-4">
+        <label for="email" class="block mb-1 font-medium text-gray-700">
+          Email
+        </label>
+        <input
+          id="email"
+          type="email"
+          class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          formControlName="email"
+          [class.border-red-500]="userForm.get('email')?.invalid && (userForm.get('email')?.dirty || userForm.get('email')?.touched)"
+        />
+        @if (userForm.get('email')?.invalid && (userForm.get('email')?.dirty || userForm.get('email')?.touched)) {
+          <div class="mt-1 text-sm text-red-600">
+            @if (userForm.get('email')?.hasError('required')) {
+              <div>Une adresse e-mail est obligatoire</div>
+            }
+            @if (userForm.get('email')?.hasError('email')) {
+              <div>L'adresse e-mail doit être valide</div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="mb-4">
+        <label for="password" class="block mb-1 font-medium text-gray-700">
+          Mot de passe
+        </label>
+        <input
+          id="password"
+          type="password"
+          class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          formControlName="password"
+          [class.border-red-500]="userForm.get('password')?.invalid && (userForm.get('password')?.dirty || userForm.get('password')?.touched)"
+        />
+        @if (userForm.get('password')?.invalid && (userForm.get('password')?.dirty || userForm.get('password')?.touched)) {
+          <div class="mt-1 text-sm text-red-600">
+            @if (userForm.get('password')?.hasError('minlength')) {
+              <div>Le mot de passe doit avoir au moins 6 caractères</div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="flex justify-center">
+        <button
+          class="btn-primary mt-3"
+          [disabled]="userForm.invalid"
+        >
+          Modifier mes informations
+        </button>
+      </div>
+
+      @if (isSignUpFailed()) {
+        <div class="mt-4 rounded-md bg-yellow-100 text-yellow-800 px-4 py-3">
+          La modification des informations a échoué<br />{{ errorMessage() }}
+        </div>
+      }
+    </form>
+
+    <div class="flex justify-center">
+      <button
+        class="btn-destructive mt-2"
+        (click)="openConfirmation()"
+      >
+        Supprimer mon compte utilisateur
+      </button>
+    </div>
+  }
+
+  @if (isSuccessful()) {
+    <div class="mt-4 rounded-md bg-green-100 text-green-800 px-4 py-3">
+      Informations modifiées avec succès!
+    </div>
+  }
+
+  @if (!isSuccessful()) {
+    <div class="border-b-4 mt-4"></div>
+  }
+
+  @if (!isSuccessful()) {
+    <div class="mb-5 pb-5">
+      <h2 class="text-center mt-3 text-xl font-semibold">
+        Gestion des comptes bancaires
+      </h2>
+
+      <div class="flex justify-center mb-2">
+        <a href="javascript:;" (click)="AddAccount()">
+          <fa-icon
+            [icon]="faPlus"
+            class="text-primary text-4xl"
+          ></fa-icon>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        @for (compte of compteCourantList(); track compte) {
+          <div class="mt-2">
+            <div class="card">
+              <div class="p-4 text-center">
+                <h5 class="text-lg font-semibold">{{ compte.name }}</h5>
+                <h6 class="text-sm text-gray-500 mb-2">
+                  {{ compte.typeCompte }}
+                </h6>
+                <p class="text-sm text-gray-700">
+                  Solde initial : {{ compte.soldeInitial }}
+                </p>
+                <button (click)="openAccountDetail(compte)">
+                  <fa-icon [icon]="faPen"></fa-icon>
+                </button>
+                <button (click)="openConfirmationAccountDeletion(compte)">
+                  <fa-icon [icon]="faTrashCan" class="text-red-600"></fa-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="border-b-2 mt-2"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        @for (compte of compteEpargneList(); track compte) {
+          <div class="mt-2">
+            <div class="card">
+              <div class="p-4 text-center">
+                <h5 class="text-lg font-semibold">{{ compte.name }}</h5>
+                <h6 class="text-sm text-gray-500 mb-2">
+                  {{ compte.typeCompte }}
+                </h6>
+                <p class="text-sm text-gray-700">
+                  Solde initial : {{ compte.soldeInitial }}
+                </p>
+                <button (click)="openAccountDetail(compte)">
+                  <fa-icon [icon]="faPen"></fa-icon>
+                </button>
+                <button (click)="openConfirmationAccountDeletion(compte)">
+                  <fa-icon [icon]="faTrashCan" class="text-red-600"></fa-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="border-b-4 mt-4"></div>
+
+      <div class="mb-5 pb-5">
+        <h2 class="text-center mt-3 text-xl font-semibold">
+          Comptes inactifs
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          @for (compte of notActiveCompteList(); track compte) {
+            <div class="mt-2">
+              <div class="card">
+                <div class="p-4 text-center">
+                  <h5 class="text-lg font-semibold">{{ compte.name }}</h5>
+                  <h6 class="text-sm text-gray-500 mb-2">
+                    {{ compte.typeCompte }}
+                  </h6>
+                  <p class="text-sm text-gray-700">
+                    Solde initial : {{ compte.soldeInitial }}
+                  </p>
+                  <button
+                    class="btn-primary"
+                    (click)="reactivateAccount(compte)"
+                    [title]="'Réactiver le compte ' + compte.name"
+                  >
+                    Réactiver
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</section>

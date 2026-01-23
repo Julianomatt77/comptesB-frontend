@@ -1,0 +1,290 @@
+<section id="operationsPage" class="mt-2 sm:w-7/8  2xl:w-3/4 w-full flex flex-col justify-center items-center mx-auto">
+  <header class="text-center">
+    <h1 class="mb-2">Récapitulatif des opérations</h1>
+  </header>
+
+  @if (isLoading()) {
+    <div class="ring">Loading
+      <span class="loading"></span>
+    </div>
+  } @else {
+  <!--  Filtres-->
+    <app-date-filter
+      [currentYear]="todayYear()"
+      [currentMonth]="todayMonthString()"
+      (dateChange)="onDateChange($event)"
+      (resetFilters)="resetDateFilters()">
+    </app-date-filter>
+
+    <!-- Filtres des opérations -->
+    <app-operations-filter
+      [groupedComptes]="groupedComptes()"
+      [groupedCompteTypes]="groupedCompteTypes()"
+      [categorieList]="categorieList"
+      (accountChange)="onAccountFilterChange($event)"
+      (categoryChange)="onCategoryFilterChange($event)"
+      (typeChange)="onTypeFilterChange($event)"
+      (resetFilters)="resetOperationsFilters()">
+    </app-operations-filter>
+
+  <section id="dataToPrint" class="flex flex-col lg:flex-row gap-4 mt-2 pb-5">
+    <section class="w-full lg:w-7/12">
+      <!-- Affichage des opérations -->
+      <article id="liste-operations" class="w-full">
+        <summary id="operations-summary" class="flex justify-between flex-wrap">
+          <div class="text-green-800 w-1/2 lg:w-1/4">
+            Crédit = <fa-icon [icon]="faArrowUp"></fa-icon>
+            {{ totalCredit() | number: "1.0-2":"fr" }}€
+          </div>
+          <div class="text-destructive w-1/2 lg:w-1/4">
+            Débit = <fa-icon [icon]="faArrowDown"></fa-icon>
+            {{ totalDebit() | number: "1.0-2":"fr" }}€
+          </div>
+          @if (totalCredit() + totalDebit() >= 0) {
+            <div class="text-green-800 w-1/2 lg:w-1/3">
+              Différence = <fa-icon [icon]="faArrowUp"></fa-icon>
+              {{ totalCredit() + totalDebit() | number: "1.0-2":"fr" }}€
+            </div>
+          } @else {
+            <div class="text-destructive w-1/2 lg:w-1/3">
+              Différence = <fa-icon [icon]="faArrowDown"></fa-icon>
+              {{ totalCredit() + totalDebit() | number: "1.0-2":"fr" }}€
+            </div>
+          }
+
+        </summary>
+        <!--  Ajouter une opération et télécharger-->
+        <div class="flex justify-evenly items-center mt-4">
+          <div>
+            <a href="javascript:;" (click)="AddOperation()">
+            <fa-icon
+              [icon]="faPlus"
+              class="text-primary text-6xl hover:text-primary-300"
+              title="Ajouter une opération"
+              ></fa-icon>
+            </a>
+          </div>
+          <div class="">
+            <a href="javascript:;" (click)="export('operations')">
+              <fa-icon
+                [icon]="faDownload"
+                class="text-primary text-2xl hover:text-primary-300"
+                title="Télécharger les opérations"
+              ></fa-icon>
+            </a>
+          </div>
+        </div>
+
+<!--        Pagination-->
+        <section id="pagination" class="my-2">
+          <div class="flex justify-center items-center flex-wrap my-2">
+            <label>
+              Opérations par page :
+              <select [value]="pageSize()" (change)="setPageSize($event)" class="rounded p-2">
+                @for (size of [6,12,50]; track size) {
+                  <option [value]="size">{{ size }}</option>
+                }
+              </select>
+              / {{ totalItems()}}
+            </label>
+          </div>
+
+          <div class="flex justify-center items-center flex-wrap">
+            @if (currentPage() > 0) {
+              <button (click)="goToFirstPage()" [disabled]="currentPage() <= 0" class="mx-2 rounded" role="button" title="Aller à la première page">
+                <fa-icon [icon]="faAnglesLeft" class="cursor-pointer"></fa-icon>
+              </button>
+
+              <button (click)="prevPage()" [disabled]="currentPage() <= 0" class="mx-2 rounded" role="button" title="Aller à la page précédente">
+                <fa-icon [icon]="faAngleLeft" class="cursor-pointer"></fa-icon>
+              </button>
+            }
+
+            <span class="mx-2">Page {{ currentPage() + 1 }} / {{ totalPages() }}</span>
+
+            @if (currentPage() + 1 < totalPages()) {
+              <button (click)="nextPage()" [disabled]="currentPage() + 1 >= totalPages()" class="mx-2 rounded" role="button" title="Aller à la page suivante">
+                <fa-icon [icon]="faAngleRight" class="cursor-pointer"></fa-icon>
+              </button>
+
+              <button (click)="goToLastPage()" [disabled]="currentPage() + 1 >= totalPages()" class="mx-2 rounded" role="button" title="Aller à la dernière page">
+                <fa-icon [icon]="faAnglesRight" class="cursor-pointer"></fa-icon>
+              </button>
+            }
+          </div>
+        </section>
+
+<!--        Liste des opérations-->
+        <section class="flex justify-evenly flex-wrap gap-4 mt-4">
+          @for (card of paginatedOperations(); track card.id) {
+            <div class="card my-2 mx-1 w-full lg:w-5/12 p-0">
+              <h5 class="px-4 py-2 border-b font-medium text-center rounded-t-lg" [class]="card.classCSS">
+                {{ card.categorie }}
+              </h5>
+              <div class="px-4 py-2">
+                <h4 class="text-lg font-semibold text-center">{{ card.description1 }}</h4>
+                @if (card.montant >= 0) {
+                  <div class="text-green-800 flex justify-center flex-wrap">
+                    <fa-icon [icon]="faArrowUp" class="mx-2"></fa-icon>
+                    <span class="badge-montant">{{ card.montant | number: "1.0-2":"fr" }}€</span>
+                  </div>
+                } @else {
+                  <div class="text-destructive flex justify-center flex-wrap">
+                    <fa-icon [icon]="faArrowDown" class="mx-2"></fa-icon>
+                    <span class="badge-montant">{{ card.montant | number: "1.0-2":"fr" }}€</span>
+                  </div>
+                }
+                  <div class="flex justify-between py-2">
+                    <div>{{ card.operationDate | date: "d MMMM y" }}</div>
+                    <div>{{ card.compteName }}</div>
+                  </div>
+                  <div class="flex justify-between">
+                  <div>
+                    <button (click)="openOperationDetail(card)" class="px-2 py-1 rounded-md" title="Mettre à jour l'opération" role="button">
+                       <fa-icon [icon]="faPen" class="text-primary-600 hover:text-primary-400"></fa-icon>
+                     </button>
+                  </div>
+                  <div>
+                    <button (click)="openConfirmation(card)" class="px-2 py-1 rounded-md" title="Supprimer l'opération" role="button">
+                       <fa-icon [icon]="faTrashCan" class="text-destructive hover:text-destructive-light"></fa-icon>
+                     </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </section>
+      </article>
+
+      <section id="pagination" class="my-2">
+        <div class="flex justify-center items-center flex-wrap my-2">
+          <label>
+            Opérations par page :
+            <select [value]="pageSize()" (change)="setPageSize($event)" class="rounded p-2">
+              @for (size of [6,12,50]; track size) {
+                <option [value]="size">{{ size }}</option>
+              }
+            </select>
+            / {{ totalItems()}}
+          </label>
+        </div>
+
+        <div class="flex justify-center items-center flex-wrap">
+          @if (currentPage() > 0) {
+            <button (click)="goToFirstPage()" [disabled]="currentPage() <= 0" class="mx-2 rounded" role="button" title="Aller à la première page">
+              <fa-icon [icon]="faAnglesLeft" class="cursor-pointer"></fa-icon>
+            </button>
+
+            <button (click)="prevPage()" [disabled]="currentPage() <= 0" class="mx-2 rounded" role="button" title="Aller à la page précédente">
+              <fa-icon [icon]="faAngleLeft" class="cursor-pointer"></fa-icon>
+            </button>
+          }
+
+          <span class="mx-2">Page {{ currentPage() + 1 }} / {{ totalPages() }}</span>
+
+          @if (currentPage() + 1 < totalPages()) {
+            <button (click)="nextPage()" [disabled]="currentPage() + 1 >= totalPages()" class="mx-2 rounded" role="button" title="Aller à la page suivante">
+              <fa-icon [icon]="faAngleRight" class="cursor-pointer"></fa-icon>
+            </button>
+
+            <button (click)="goToLastPage()" [disabled]="currentPage() + 1 >= totalPages()" class="mx-2 rounded" role="button" title="Aller à la dernière page">
+              <fa-icon [icon]="faAnglesRight" class="cursor-pointer"></fa-icon>
+            </button>
+          }
+        </div>
+      </section>
+    </section>
+
+    <aside class="w-full lg:w-1/3">
+    <!--  Ajout de compte + télécharger comptes-->
+      <div class="flex justify-evenly items-center mt-4">
+        <div>
+          <a href="javascript:;" (click)="AddAccount()">
+            <fa-icon
+              [icon]="faPlus"
+              class="text-primary"
+              style="font-size: 20px"
+              title="Ajouter un compte"
+            ></fa-icon>
+          </a>
+        </div>
+        <div>
+          <a href="javascript:;" (click)="export('comptes')" class="mx-5">
+            <fa-icon
+              [icon]="faDownload"
+              class="text-primary"
+              style="font-size: 20px"
+              title="Télécharger les comptes"
+            ></fa-icon>
+          </a>
+        </div>
+      </div>
+
+    <!--  Récap des comptes-->
+      <div>
+        <table class="min-w-full divide-y divide-gray-200 hidden md:table">
+          <thead>
+          <tr class="bg-gray-50 font-bold">
+            <th scope="col" class="px-6 py-3 text-left uppercase tracking-wider">Compte</th>
+            <th scope="col" class="px-6 py-3 text-left uppercase tracking-wider">Solde</th>
+            <th scope="col" class="px-6 py-3 text-left uppercase tracking-wider">Crédit</th>
+            <th scope="col" class="px-6 py-3 text-left uppercase tracking-wider">Débit</th>
+          </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            @for (compte of monthlyHistoryPerAccount(); track compte.name) {
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">{{ compte.name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ compte.soldeFin | number:"1.0-2":"fr" }}€</td>
+                <td class="px-6 py-4 whitespace-nowrap text-green-500">{{ compte.totalCredit | number:"1.0-2":"fr" }}€</td>
+                <td class="px-6 py-4 whitespace-nowrap text-red-500">{{ compte.totalDebit | number:"1.0-2":"fr" }}€</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+<!--      Table version mobile-->
+      <div class="md:hidden space-y-4">
+        @for (compte of monthlyHistoryPerAccount(); track compte.name) {
+          <div class="border rounded-lg p-4 grid grid-cols-2 gap-y-2 text-sm">
+            <div class="font-semibold col-span-2">
+              {{ compte.name }}
+            </div>
+
+            <div class="text-gray-500">Solde</div>
+            <div class="text-right">
+              {{ compte.soldeFin | number:"1.0-2":"fr" }}€
+            </div>
+
+            <div class="text-gray-500">Crédit</div>
+            <div class="text-right text-green-500">
+              {{ compte.totalCredit | number:"1.0-2":"fr" }}€
+            </div>
+
+            <div class="text-gray-500">Débit</div>
+            <div class="text-right text-red-500">
+              {{ compte.totalDebit | number:"1.0-2":"fr" }}€
+            </div>
+          </div>
+        }
+      </div>
+
+
+    <!--  Graphique par catégorie-->
+      <div class="mb-5">
+        <ngx-charts-pie-chart
+          class="pt-0 mt-0"
+          id="printChart"
+          (window:resize)="onResize($event)"
+          [results]="spendByCategory()"
+          [legend]="false"
+          [legendTitle]="'Dépense par catégorie'"
+          [view]="[width(), 400]"
+          [labels]="true"
+        >
+        </ngx-charts-pie-chart>
+      </div>
+    </aside>
+  </section>
+  }
+</section>

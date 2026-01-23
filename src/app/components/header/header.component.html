@@ -1,81 +1,73 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light pt-2 pb-2">
-  <div class="container-fluid">
-    <button
-      class="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <span class="navbar-toggler-icon"></span>
+<button (click)="toggleMenu()" class="z-11 cursor-pointer fixed items-center p-2 mt-2 ms-3 sm:hidden text-sm rounded-lg hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-600">
+  @if (!mobileMenuOpen()) {
+    <fa-icon [icon]="faBars" class="text-2xl text-indigo-600"></fa-icon>
+  } @else {
+    <fa-icon [icon]="faXmark" class="text-2xl text-indigo-600"></fa-icon>
+  }
+</button>
+
+<header class="bg-background open-close-container fixed z-10 top-0 left-0 w-full hidden mb-4 sm:h-auto h-screen sm:block"
+        [class.hidden]="!mobileMenuOpen()"
+        [class.open]="mobileMenuOpen()">
+  <nav class="px-4 py-3 overflow-x-auto flex sm:gap-2 gap-8 w-full sm:h-auto h-full sm:justify-between justify-start items-center sm:flex-row flex-col" aria-label="Main navigation">
+    <button class="sm:ml-5" role="button">
+      <a [routerLink]="['/']"
+         class="flex items-center gap-2"
+         aria-label="Home"
+         (click)="mobileMenuOpen() && toggleMenu()"
+      >
+        <fa-icon [icon]="faHouseChimney" class="text-indigo-600 text-4xl hover:text-indigo-400"></fa-icon>
+      </a>
     </button>
-    <div
-      class="collapse navbar-collapse justify-content-evenly align-items-center"
-      id="navbarSupportedContent"
-    >
-      <ul class="navbar-nav d-flex justify-content-evenly w-100">
-        <li class="nav-item mt-2" title="Page d'accueil">
-          <a [routerLink]="['/']">
-            <fa-icon [icon]="faHouseChimney" style="font-size: 30px"></fa-icon>
-          </a>
-        </li>
-
-        <li class="nav-item mt-2" title="Liste des opérations">
-          <button
-            mat-raised-button
-            color="primary"
-            *ngIf="isLoggedIn"
-            [routerLink]="['/comptes']"
-          >
-            Opérations
-          </button>
-        </li>
-
-        <li class="nav-item mt-2" title="Récapitulatif">
-          <button
-            mat-raised-button
-            color="warn"
-            *ngIf="isLoggedIn"
-            [routerLink]="['/recap']"
-          >
-            Récapitulatif
-          </button>
-        </li>
-
-        <li class="nav-item mt-2" title="Dépenses communes">
-          <button
-            mat-raised-button
-            color="accent"
-            *ngIf="isLoggedIn"
-            [routerLink]="['/depensesCommunes']"
-          >
-            Dépenses Communes
-          </button>
-        </li>
-        <li class="nav-item mt-2">
-          <a *ngIf="isLoggedIn" [routerLink]="['/gestionUser']" title="Editer le compte utilisateur">
-            <fa-icon [icon]="faUserPen" style="font-size: 30px"></fa-icon>
-          </a>
-        </li>
-
-        <li class="nav-item mt-2">
-          <a *ngIf="isLoggedIn" href="" (click)="logout()" title="Se déconnecter">
-            <fa-icon
-              [icon]="faUserSlash"
-              class="text-danger"
-              style="font-size: 30px"
-            ></fa-icon>
-          </a>
-        </li>
-
-        <li class="nav-item mt-2">
-          <a *ngIf="!isLoggedIn" [routerLink]="['/login']" title="Se connecter">
-            <fa-icon [icon]="faUser" style="font-size: 30px"></fa-icon>
-          </a>
-        </li>
-      </ul>
+    <div class="flex gap-8 sm:flex-row flex-col">
+      @if (isLoggedIn()) {
+        <button role="button">
+          <a [routerLink]="['/comptes']"
+             title="Aller aux opérations"
+             class="items-center px-3 py-2 rounded-md font-medium bg-primary hover:bg-primary-400 text-md"
+             aria-label="Opérations"
+             (click)="mobileMenuOpen() && toggleMenu()"
+          >Opérations</a>
+        </button>
+      }
+      @if (isLoggedIn()) {
+        <button role="button">
+          <a [routerLink]="['/recap']"
+             title="Aller au récapitulatif des comptes"
+             class=" items-center px-3 py-2 rounded-md font-medium bg-secondary hover:bg-secondary-400 text-md"
+             aria-label="Récapitulatif"
+             (click)="mobileMenuOpen() && toggleMenu()"
+          >Récapitulatif</a>
+        </button>
+      }
     </div>
-  </div>
-</nav>
+    <div class="flex gap-8 sm:flex-row flex-col">
+      @if (isLoggedIn()) {
+        <button role="button" >
+          <a [routerLink]="['/gestionUser']"
+             title="Editer le compte utilisateur"
+             class=" items-center px-3 py-2 rounded-md text-sm font-medium text-text"
+             aria-label="Editer le compte utilisateur"
+             (click)="mobileMenuOpen() && toggleMenu()"
+          >
+            <fa-icon [icon]="faUserPen" class="text-primary-dark text-4xl hover:text-indigo-400"></fa-icon>
+          </a>
+        </button>
+      }
+      @if (isLoggedIn()) {
+        <button role="button">
+          <a href="" (click)="logout()" title="Se déconnecter" class="items-center px-3 py-2 rounded-md text-sm font-medium text-text" aria-label="Se déconnecter">
+            <fa-icon [icon]="faUserSlash" class="text-destructive text-4xl hover:text-red-300"></fa-icon>
+          </a>
+        </button>
+      }
+      @if (!isLoggedIn()) {
+        <button role="button">
+          <a [routerLink]="['/login']" title="Se connecter" class="items-center px-3 py-2 rounded-md text-sm font-medium text-text" aria-label="Se connecter">
+            <fa-icon [icon]="faUser" class="text-primary-dark text-4xl"></fa-icon>
+          </a>
+        </button>
+      }
+    </div>
+  </nav>
+</header>

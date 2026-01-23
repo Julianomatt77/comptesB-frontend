@@ -1,62 +1,75 @@
-<form [formGroup]="form" (ngSubmit)="onSubmitCompteForm()">
-  <div class="d-flex justify-content-end">
-    <div>
-      <a href="javascript:;" (click)="closePopup()" class="">
-        <fa-icon
-          [icon]="faClose"
-          class="text-black"
-          style="font-size: 30px"
-        ></fa-icon>
-      </a>
+<div class="flex justify-center">
+  <div class="w-full m-5">
+    <div class="card p-6">
+      <form [formGroup]="form" (ngSubmit)="onSubmitCompteForm()">
+        <!-- Close button -->
+        <div class="flex justify-end mb-4">
+          <a href="javascript:;" (click)="closePopup()" class="text-black text-2xl">
+            <fa-icon [icon]="faClose"></fa-icon>
+          </a>
+        </div>
+
+        <!-- Nom -->
+        <div class="mb-4">
+          <label for="name" class="block text-sm font-medium">Nom</label>
+          <input
+            id="name"
+            formControlName="name"
+            type="text"
+            class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-secondary focus:border-secondary"
+            [class.border-red-500]="form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)"
+          />
+          @if (form.get('name')?.invalid && (form.get('name')?.touched || form.get('name')?.dirty)) {
+            <div class="text-sm text-red-600 mt-1">
+              @if (form.get('name')?.hasError('required')){ Nom obligatoire<br> }
+              @if (form.get('name')?.hasError('minlength')){ Minimum 3 caractères<br> }
+              @if (form.get('name')?.hasError('maxlength')){ Maximum 20 caractères }
+            </div>
+          }
+        </div>
+
+        <!-- Type de compte -->
+        <div class="mb-4">
+          <label for="typeCompte" class="block text-sm font-medium">Type de compte</label>
+          <select
+            id="typeCompte"
+            formControlName="typeCompte"
+            class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-secondary focus:border-secondary"
+          >
+            @for (typeCompte of typeList; track typeCompte) {
+              <option [ngValue]="typeCompte">{{ typeCompte }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Solde initial -->
+        <div class="mb-4">
+          <label for="soldeInitial" class="block text-sm font-medium">Solde Initial</label>
+          <input
+            id="soldeInitial"
+            formControlName="soldeInitial"
+            type="number"
+            class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:ring-secondary focus:border-secondary"
+            [class.border-red-500]="form.get('soldeInitial')?.invalid && (form.get('soldeInitial')?.touched || form.get('soldeInitial')?.dirty)"
+          />
+          @if (form.get('soldeInitial')?.invalid && (form.get('soldeInitial')?.touched || form.get('soldeInitial')?.dirty)) {
+            <div class="text-sm text-red-600 mt-1">
+              Solde initial invalide
+            </div>
+          }
+        </div>
+
+        <!-- Submit button -->
+        <div class="flex justify-center mt-6">
+          <button
+            type="submit"
+            class="btn-primary w-full"
+            [disabled]="form.invalid"
+          >
+            {{ buttonLabel() }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
-
-  <div class="form-group mt-2">
-    <label for="name">Nom</label>
-    <input
-      id="name"
-      class="form-control"
-      formControlName="name"
-      [(ngModel)]="compte.name"
-    />
-  </div>
-
-  <div class="form-group mt-2">
-    <label for="typeCompte">Type de compte</label>
-    <select
-      id="typeCompte"
-      class="form-control"
-      formControlName="typeCompte"
-      [(ngModel)]="compte.typeCompte"
-    >
-      <option *ngFor="let typeCompte of typeList" [ngValue]="typeCompte">
-        {{ typeCompte }}
-      </option>
-    </select>
-  </div>
-
-  <div class="form-group mt-2">
-    <label for="soldeInitial">Solde Initial</label>
-    <input
-      id="soldeInitial"
-      class="form-control"
-      formControlName="soldeInitial"
-      [(ngModel)]="compte.soldeInitial"
-    />
-  </div>
-  <!-- <div class="form-group mt-2" *ngIf="addOrEdit == 'edit'">
-    <label for="soldeActuel">Solde Actuel</label>
-    <input
-      id="soldeActuel"
-      class="form-control"
-      formControlName="soldeActuel"
-      [(ngModel)]="compte.soldeActuel"
-    />
-  </div> -->
-
-  <div class="row col-4 mx-auto my-4">
-    <button type="submit" class="btn btn-dark btn-lg" [disabled]="form.invalid">
-      {{ buttonLabel }}
-    </button>
-  </div>
-</form>
+</div>

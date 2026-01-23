@@ -1,20 +1,17 @@
-import { Injectable } from '@angular/core';
-import {
-  ActivatedRouteSnapshot,
-  CanActivate,
-  Router,
-  RouterStateSnapshot,
-  UrlTree,
-} from '@angular/router';
+import { Injectable, inject } from '@angular/core';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
-import { mergeMap, Observable } from 'rxjs';
-import { User } from '../models/User';
+import { Observable } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class IsLoggedInGuardGuard implements CanActivate {
+export class IsLoggedInGuardGuard  {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private cookieService = inject(CookieService);
+
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
@@ -23,29 +20,11 @@ export class IsLoggedInGuardGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    // return this.authService.currentUserSubject.pipe(
-    //   mergeMap((user : User) => {
-    //     if (user && user.token) {
-    //       return of(true)
-    //     }
-    //   })
-    // )
-    if (this.cookieService.check('auth-user') === true) {
-      const token = this.cookieService.get('auth-user');
-      const username = this.cookieService.get('username');
-      const userId = this.cookieService.get('userId');
+    if (this.cookieService.check('compty-auth-tok') === true) {
       return true;
     } else {
       window.alert("Vous n'avez pas accès à cette page");
       return false;
     }
-
-    // return this.router.navigate('');
   }
-
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private cookieService: CookieService
-  ) {}
 }
