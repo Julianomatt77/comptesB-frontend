@@ -247,16 +247,18 @@ export class OperationFormComponent implements OnInit {
     this.operation.operationDate = e.target.value;
   }
 
-  changeTransfert(e: any){
-    this.transfertBetweenAccount.set(this.operation.isTransfert)
+  changeTransfert(value: boolean | Event): void {
+    const isTransfert = typeof value === 'boolean' ? value : (value.target as HTMLInputElement).checked;
+
+    this.transfertBetweenAccount.set(isTransfert);
     this.operation.categorie = this.categorieList[10];
     this.operation.description1 = this.categorieList[10];
-    this.form.get('description1')?.setValue(this.categorieList[10])
-    this.operation.type = false
-    this.operation.isTransfert = !this.operation.isTransfert
+    this.form.get('description1')?.setValue(this.categorieList[10]);
+    this.operation.type = false;
+    this.operation.isTransfert = isTransfert;
 
-    let cat = this.form.get('categorie')
-    cat?.setValue(this.categorieList[10])
+    const cat = this.form.get('categorie');
+    cat?.setValue(this.categorieList[10]);
   }
 
   changeDate(date: Date) {

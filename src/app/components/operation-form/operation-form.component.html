@@ -48,17 +48,17 @@
 
         <!-- Dépense / Entrée -->
         @if (!operation.isTransfert) {
-          <div class="flex items-center gap-3 mb-4">
-            <span>Dépense</span>
-            <input type="checkbox" formControlName="type" class="h-5 w-5 rounded border-gray-300" />
-<!--            <app-slide-toggle [formControlName]="'type'"></app-slide-toggle>-->
-            <span>Entrée</span>
+          <div class="mb-4">
+            <app-slide-toggle
+              formControlName="type"
+              [labelLeft]="'Dépense'"
+              [labelRight]="'Entrée d\'argent'">
+            </app-slide-toggle>
           </div>
         }
 
         <!-- Catégorie -->
-<!--        @if (!transfertBetweenAccount()) {-->
-          @if (!operation.isTransfert) {
+        @if (!operation.isTransfert) {
           <div class="mb-4">
             <label for="categorie" class="block text-sm font-medium">Catégorie</label>
             <select
@@ -105,8 +105,6 @@
 
         <!-- Compte receveur -->
         @if (operation.isTransfert) {
-<!--        @if (transfertBetweenAccount() && addOrEdit != 'edit') {-->
-<!--          <div class="mb-4" [class.hidden]="operation.isTransfert">-->
           <div class="mb-4 block">
             <label for="compteReceveur" class="block text-sm font-medium">Compte Receveur</label>
             <select
@@ -141,15 +139,13 @@
 
         <!-- Transfert entre comptes -->
         @if (addOrEdit != 'edit' && compteList.length >= 2) {
-          <div class="mb-4 flex items-center gap-2">
-            <span>Pas de transfert entre compte</span>
-            <input
-              type="checkbox"
+          <div class="mb-4">
+            <app-slide-toggle
               formControlName="isTransfert"
-              (change)="changeTransfert($event)"
-              class="h-5 w-5 rounded border-gray-300"
-            />
-            <span>Transfert entre 2 compte internes</span>
+              [labelLeft]="'Pas de transfert entre compte'"
+              [labelRight]="'Transfert entre 2 comptes internes'"
+              (change)="changeTransfert($event)">
+            </app-slide-toggle>
           </div>
         }
 
