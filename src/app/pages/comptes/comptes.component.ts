@@ -47,6 +47,8 @@ import { MatSelect } from '@angular/material/select';
 import { MatOption, MatOptgroup } from '@angular/material/autocomplete';
 import { PieChartModule } from '@swimlane/ngx-charts';
 import { firstValueFrom } from 'rxjs';
+import {DateFilterComponent} from "../../components/date-filter/date-filter.component";
+import {OperationsFilterComponent} from "../../components/operations-filter/operations-filter.component";
 
 interface OperationDisplay extends OperationV2 {
   classCSS?: string;
@@ -70,7 +72,9 @@ interface MonthlyHistory {
     FaIconComponent,
     PieChartModule,
     DecimalPipe,
-    DatePipe
+    DatePipe,
+    DateFilterComponent,
+    OperationsFilterComponent
   ]
 })
 export class ComptesComponent implements OnInit, OnDestroy {
@@ -329,6 +333,30 @@ export class ComptesComponent implements OnInit, OnDestroy {
     this.todayYear.set(year);
     this.todayMonth.set(parseInt(month, 10));
     this.dateFiltered.set(true);
+  }
+
+  async onDateChange(event: { year: string; month: string }): Promise<void> {
+    this.todayYear.set(event.year);
+    this.todayMonth.set(parseInt(event.month, 10));
+    this.dateFiltered.set(true);
+  }
+
+  onAccountFilterChange(accountId: string): void {
+    this.selectedAccount.set(accountId);
+  }
+
+  onCategoryFilterChange(category: string): void {
+    this.selectedCategory.set(category);
+  }
+
+  onTypeFilterChange(type: boolean | null): void {
+    this.selectedType.set(type);
+  }
+
+  resetOperationsFilters(): void {
+    this.selectedType.set(null);
+    this.selectedCategory.set('');
+    this.selectedAccount.set('');
   }
 
   resetDateFilters(): void {

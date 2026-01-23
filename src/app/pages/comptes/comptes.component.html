@@ -9,64 +9,23 @@
     </div>
   } @else {
   <!--  Filtres-->
-  <section id="operations-date-filter" class="flex items-center justify-center mb-2 flex-wrap gap-2 w-full">
-      <div class="mx-2">
-        <button role="button" class="btn-primary" (click)="resetDateFilters()" title="Enlever le filtre par date">
-          Toutes opérations
-        </button>
-      </div>
-      <form [formGroup]="form" (ngSubmit)="onSubmitChangeDate()">
-        <div class="flex items-center flex-wrap">
-          <input
-            type="month"
-            class="mt-1 rounded border border-gray-300 p-2"
-            [value]="todayYear() + '-' + todayMonthString()"
-            formControlName="rangeDate"
-          />
-          <div class="mx-2">
-            <button id="filterButton" role="button" type="submit" class="bg-background rounded p-2">
-              <fa-icon [icon]="faFilter" class="text-primary" style="font-size: 20px" title="Filtrer par date"></fa-icon>
-            </button>
-          </div>
-        </div>
-      </form>
-    </section>
+    <app-date-filter
+      [currentYear]="todayYear()"
+      [currentMonth]="todayMonthString()"
+      (dateChange)="onDateChange($event)"
+      (resetFilters)="resetDateFilters()">
+    </app-date-filter>
 
-  <section id="operations-filters" class="flex items-center justify-center gap-3 flex-wrap mb-2 w-full">
-    <form [formGroup]="formAccountFiltered" (ngSubmit)="onSubmitAccountFilter()" title="Filtrer par compte">
-      <div class="flex items-center">
-        <select formControlName="account" (selectionChange)="onSubmitAccountFilter()" class="rounded border border-gray-300 p-2 mx-2">
-          <option value="">Tous les comptes</option>
-          @for (type of groupedCompteTypes(); track type) {
-            <optgroup [label]="type">
-              @for (compte of groupedComptes()[type]; track compte.id) {
-                <option [value]="compte.id.toString()">{{ compte.name }}</option>
-              }
-            </optgroup>
-          }
-        </select>
-      </div>
-    </form>
-    <form [formGroup]="formCategoryFiltered" (ngSubmit)="onSubmitCategoryFilter()" title="Filtrer par catégorie" class="flex items-center">
-      <div class="flex items-center">
-        <select formControlName="category" (selectionChange)="onSubmitCategoryFilter()" class="rounded border border-gray-300 p-2 mx-2">
-          <option value="">Toutes les catégories</option>
-          @for (category of categorieList; track category) {
-            <option [value]="category">{{ category }}</option>
-          }
-        </select>
-      </div>
-    </form>
-    <div>
-      <button class="btn-secondary " (click)="typeFilter(true)" role="button">Crédits</button>
-    </div>
-    <div>
-      <button class="btn-destructive" (click)="typeFilter(false)" role="button">Débits</button>
-    </div>
-    <div>
-      <button class="px-4 py-2 rounded-md border border-gray-300" (click)="resetAllFilters()" role="button">Supprimer les filtres</button>
-    </div>
-  </section>
+    <!-- Filtres des opérations -->
+    <app-operations-filter
+      [groupedComptes]="groupedComptes()"
+      [groupedCompteTypes]="groupedCompteTypes()"
+      [categorieList]="categorieList"
+      (accountChange)="onAccountFilterChange($event)"
+      (categoryChange)="onCategoryFilterChange($event)"
+      (typeChange)="onTypeFilterChange($event)"
+      (resetFilters)="resetOperationsFilters()">
+    </app-operations-filter>
 
   <section id="dataToPrint" class="flex flex-col lg:flex-row gap-4 mt-2 pb-5">
     <section class="w-full lg:w-7/12">

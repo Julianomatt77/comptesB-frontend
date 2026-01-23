@@ -19,6 +19,14 @@ export class SlideToggleComponent implements ControlValueAccessor {
   readonly labelLeft = input<string>('');
   readonly labelRight = input<string>('');
   readonly disabled = input<boolean>(false);
+  /*
+  How to use it:
+  <app-slide-toggle
+    formControlName="type"
+    [labelLeft]="'Dépense'"
+    [labelRight]="'Entrée d\'argent'">
+  </app-slide-toggle>
+   */
 
   value = signal(false);
   onChange: (value: boolean) => void = () => {};
