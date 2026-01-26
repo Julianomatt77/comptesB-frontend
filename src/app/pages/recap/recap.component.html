@@ -184,7 +184,8 @@
                 <thead class="bg-gray-100">
                 <tr>
                   <th class="px-4 py-2">Compte</th>
-                  <th class="px-4 py-2">Total Investi</th>
+                  <th class="px-4 py-2">Somme initial</th>
+                  <th class="px-4 py-2">initial + investissements</th>
                   <th class="px-4 py-2">Somme Finale</th>
                   <th class="px-4 py-2">Evolution</th>
                 </tr>
@@ -193,6 +194,9 @@
                   @for (row of yearlyArray(); track row.name) {
                     <tr>
                       <td class="px-4 py-2">{{ row.name }}</td>
+                      <td class="px-4 py-2">
+                        {{ row.soldeInitial| number:'1.0-2':'fr' }} €
+                      </td>
                       <td class="px-4 py-2">
                         {{ row.totalInvesti | number:'1.0-2':'fr' }} €
                       </td>

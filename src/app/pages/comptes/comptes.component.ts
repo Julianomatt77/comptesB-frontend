@@ -501,8 +501,8 @@ export class ComptesComponent implements OnInit, OnDestroy {
     if (type === 'operations') {
       arrayToExport = this.filteredOperations().map(data => ({
         Date: new Date(data.operationDate).toISOString().split('T')[0],
-        Crédit: data.type ? data.montant : '',
-        Débit: !data.type ? Math.abs(data.montant) : '',
+        Crédit: data.type ? data.montant.toString().replace(',', '.') : '',
+        Débit: !data.type ? Math.abs(data.montant).toString().replace(',', '.') : '',
         Catégorie: data.categorie,
         Compte: data.compteName,
         'Description 1': data.description1,
@@ -514,9 +514,9 @@ export class ComptesComponent implements OnInit, OnDestroy {
       arrayToExport = this.monthlyHistoryPerAccount().map(data => ({
         Date: `${this.todayYear()}-${this.todayMonthString()}`,
         Compte: data.name,
-        'Solde initial': Math.round(data.soldeDebut * 100) / 100,
-        'Différence': Math.round((data.totalCredit - data.totalDebit )* 100) / 100,
-        'Solde final': Math.round(data.soldeFin * 100) / 100,
+        'Solde initial': (Math.round(data.soldeDebut * 100) / 100).toString().replace(',', '.'),
+        'Différence': (Math.round((data.totalCredit - data.totalDebit) * 100) / 100).toString().replace(',', '.'),
+        'Solde final': (Math.round(data.soldeFin * 100) / 100).toString().replace(',', '.'),
       }));
 
       filename = `${this.todayYear()}-${this.todayMonthString()}_comptes.csv`;
