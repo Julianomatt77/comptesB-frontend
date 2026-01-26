@@ -37,14 +37,9 @@ import {
   faAngleLeft,
   faAnglesLeft,
 } from '@fortawesome/free-solid-svg-icons';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
-import { MatFormField, MatInput, MatLabel } from '@angular/material/input';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { MatSelect } from '@angular/material/select';
-import { MatOption, MatOptgroup } from '@angular/material/autocomplete';
 import { PieChartModule } from '@swimlane/ngx-charts';
 import { firstValueFrom } from 'rxjs';
 import {DateFilterComponent} from "../../components/date-filter/date-filter.component";
@@ -477,21 +472,6 @@ export class ComptesComponent implements OnInit, OnDestroy {
     this.width.set(event.target.innerWidth >= 991
       ? event.target.innerWidth / 3.3
       : event.target.innerWidth / 1.3);
-  }
-
-  htmltoPDF(): void {
-    const element = this.document.querySelector('#dataToPrint');
-    if (!element) return;
-
-    html2canvas(element as HTMLElement).then(canvas => {
-      const fileWidth = 208;
-      const fileHeight = (canvas.height * fileWidth) / canvas.width;
-      const imgData = canvas.toDataURL('image/png');
-      const pdfFile = new jsPDF('p', 'mm', 'a4');
-
-      pdfFile.addImage(imgData, 'PNG', 0, 0, fileWidth, fileHeight);
-      pdfFile.save(`${this.todayYear()}-${this.todayMonthString()} operations.pdf`);
-    });
   }
 
   export(type: string): void {
