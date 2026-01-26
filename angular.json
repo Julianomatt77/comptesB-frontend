@@ -27,9 +27,7 @@
               "src/assets/style/theme.css",
               "src/styles.css"
             ],
-            "scripts": [
-              "node_modules/bootstrap/dist/js/bootstrap.min.js"
-            ],
+            "scripts": [],
             "browser": "src/main.ts"
           },
           "configurations": {
