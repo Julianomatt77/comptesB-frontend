@@ -1,4 +1,4 @@
-import {Component, OnInit, Renderer2, DOCUMENT, inject, ChangeDetectionStrategy} from '@angular/core';
+import {Component, OnInit, Renderer2, DOCUMENT, inject, ChangeDetectionStrategy, signal} from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
@@ -27,7 +27,7 @@ export class LoginComponent implements OnInit {
     username: null,
     password: null,
   };
-  isLoggedIn = false;
+  isLoggedIn = signal(false);
   isLoginFailed = false;
   errorMessage = '';
   roles: string[] = [];
@@ -42,7 +42,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.storageService.isLoggedIn()) {
-      this.isLoggedIn = true;
+      this.isLoggedIn.set(true);
       this.username = this.storageService.getUser().username;
     }
   }
@@ -55,6 +55,7 @@ export class LoginComponent implements OnInit {
       await this.authService.login(username, password)
       if (this.authService.isAuthenticated()){
         this.storageService.getUser()
+        this.isLoggedIn.set(true);
         setTimeout(() => {
           this.router.navigateByUrl('/comptes');
           this.storageService.getUser()

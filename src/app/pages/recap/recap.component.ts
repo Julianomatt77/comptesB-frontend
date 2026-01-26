@@ -199,21 +199,20 @@ export class RecapComponent implements OnInit {
     if (type === 'epargne') {
       arrayToExport = this.yearlyArray().map(data => ({
         compte: data.name,
-        'solde initial': data.soldeInitial,
-        'total investi': data.totalInvesti,
-        'solde Final': data.soldeFinal,
-        evolution: data.evolution,
+        'solde initial': data.soldeInitial.toString().replace(',', '.'),
+        'total investi': data.totalInvesti.toString().replace(',', '.'),
+        'solde Final': data.soldeFinal.toString().replace(',', '.'),
+        evolution: data.evolution.toString().replace(',', '.'),
       }));
 
       filename = `${this.selectedYear()}_epargne.csv`;
     } else if (type === 'comptes') {
       arrayToExport = this.operationPerYear().map((data: MonthlyRecapItem) => ({
         Mois: data.month,
-        'solde initial': data.soldeInitial,
-        Economie: data.economie,
-        Solde: data.soldeFinal ?? 0
+        'solde initial': data.soldeInitial.toString().replace(',', '.'),
+        Economie: data.economie.toString().replace(',', '.'),
+        Solde: (data.soldeFinal ?? 0).toString().replace(',', '.'),
       }));
-
 
       filename = `${this.selectedYear()}_comptes.csv`;
     }

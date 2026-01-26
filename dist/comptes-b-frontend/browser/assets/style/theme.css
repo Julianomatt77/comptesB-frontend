@@ -6,6 +6,9 @@
   --radius: 0.5rem;
   --screenH: calc(100dvh - 20rem);
 
+  --animate-spin-slow: spin-slow 2s linear infinite;
+  --animate-rotate-slow: rotate-slow 2s linear infinite;
+
   --font-text: "Montserrat", sans-serif;
   --font-title: "Prata", serif;
 
@@ -193,5 +196,68 @@
   }
   .input {
     @apply border border-border rounded-md p-2;
+  }
+
+  /****************************************** LOADING ANIMATION  ************/
+  .ring {
+    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+    w-37.5 h-37.5 bg-transparent
+    border-[3px] border-text rounded-full
+    text-center leading-37.5
+    text-xl text-text
+    tracking-[4px] uppercase;
+    font-family: sans-serif;
+  }
+
+  .ring::before {
+    content: '';
+    @apply absolute top-0 left-0 w-full h-full
+    border-[3px] border-transparent
+    border-t-text border-r-text
+    rounded-full
+    animate-spin-slow;
+  }
+
+  .loading {
+    @apply block absolute top-[calc(50%-1px)] left-1/2
+    w-1/2 h-1 bg-transparent
+    origin-left
+    animate-rotate-slow;
+  }
+
+  .loading::before {
+    content: '';
+    @apply absolute w-4 h-4 rounded-full
+    bg-text -top-1.5 -right-2
+    shadow-[0_0_20px_var(--color-text)];
+  }
+}
+
+@layer utilities {
+  /****************************************** LOADING ANIMATION  ************/
+  @keyframes spin-slow {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes rotate-slow {
+    0% {
+      transform: rotate(45deg);
+    }
+    100% {
+      transform: rotate(405deg);
+    }
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 2s linear infinite;
+  }
+
+  .animate-rotate-slow {
+    animation: rotate-slow 2s linear infinite;
   }
 }

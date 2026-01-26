@@ -65,19 +65,18 @@
             </div>
           </div>
           <div class="flex justify-between mt-5">
-            <button [routerLink]="['/login']" class="hover:bg-secondary w-full border border-gray-300" role="button" title="se connecter">
-              Se connecter
-            </button>
-            <button class="btn-primary w-full" role="button" title="s'enregistrer">S'enregistrer</button>
+            <button class="btn-secondary w-full mx-0" role="button" title="s'enregistrer">S'enregistrer</button>
           </div>
+          <p class="mt-3 text-center">
+            Vous avez déjà un compte ? <a [routerLink]="['/login']" class="underline w-full" title="se connecter">Se connecter</a>
+          </p>
           @if (authService.error()) {
             <div class="mt-3 bg-red-100 text-red-700 px-3 py-2 rounded" role="alert">
               Erreur: {{ authService.error() }}
             </div>
           }
         </form>
-      }
-      @if (isLoggedIn) {
+      } @else {
         <div class="mt-3 bg-green-100 text-green-700 px-3 py-2 rounded">
           Inscription réussie. Vous pouvez vous connecter.
         </div>
