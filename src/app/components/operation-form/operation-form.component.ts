@@ -45,7 +45,7 @@ export class OperationFormComponent implements OnInit {
     'Remboursement',
     'Restaurant',
     'Salaire',
-    'santé',
+    'Santé',
     'Transfert',
     'Voyage',
   ];

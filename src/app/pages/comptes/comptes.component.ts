@@ -37,7 +37,7 @@ import {
   faAngleLeft,
   faAnglesLeft,
 } from '@fortawesome/free-solid-svg-icons';
-import { DecimalPipe, DatePipe } from '@angular/common';
+import {DecimalPipe, DatePipe, TitleCasePipe} from '@angular/common';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { PieChartModule } from '@swimlane/ngx-charts';
@@ -69,7 +69,8 @@ interface MonthlyHistory {
     DecimalPipe,
     DatePipe,
     DateFilterComponent,
-    OperationsFilterComponent
+    OperationsFilterComponent,
+    TitleCasePipe
   ]
 })
 export class ComptesComponent implements OnInit, OnDestroy {
@@ -144,7 +145,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
 
     // Filtre par catégorie
     if (selectedCategory) {
-      filtered = filtered.filter(op => op.categorie === selectedCategory);
+      filtered = filtered.filter(op => op.categorie.toLowerCase() === selectedCategory.toLowerCase());
     }
 
     // Filtre par type
@@ -237,7 +238,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
     'Remboursement',
     'Restaurant',
     'Salaire',
-    'santé',
+    'Santé',
     'Transfert',
     'Voyage',
   ];
@@ -252,20 +253,9 @@ export class ComptesComponent implements OnInit, OnDestroy {
     ['Remboursement', 'remboursement'],
     ['Restaurant', 'restaurant'],
     ['Salaire', 'salaire'],
-    ['santé', 'santé'],
+    ['Santé', 'santé'],
     ['Transfert', 'transfert'],
     ['Voyage', 'voyage'],
-  ];
-
-  columnsToDisplay = [
-    'operationDate',
-    'compte',
-    'montant',
-    'categorie',
-    'description1',
-    'description2',
-    'edition',
-    'suppression',
   ];
 
   form!: FormGroup;
@@ -287,7 +277,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
   faAnglesLeft= faAnglesLeft
 
   constructor() {
-    this.renderer.addClass(this.document.body, 'bg-light');
+    // this.renderer.addClass(this.document.body, 'bg-light');
     const userIdFromCookie = this.cookieService.get('compty-userId');
     this.userId.set(parseInt(userIdFromCookie, 10) || 0);
 

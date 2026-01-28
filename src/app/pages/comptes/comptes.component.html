@@ -40,15 +40,15 @@
             Débit = <fa-icon [icon]="faArrowDown"></fa-icon>
             {{ totalDebit() | number: "1.0-2":"fr" }}€
           </div>
-          @if (totalCredit() + totalDebit() >= 0) {
+          @if (totalCredit() - totalDebit() >= 0) {
             <div class="text-green-800 w-1/2 lg:w-1/3">
               Différence = <fa-icon [icon]="faArrowUp"></fa-icon>
-              {{ totalCredit() + totalDebit() | number: "1.0-2":"fr" }}€
+              {{ totalCredit() - totalDebit() | number: "1.0-2":"fr" }}€
             </div>
           } @else {
             <div class="text-destructive w-1/2 lg:w-1/3">
               Différence = <fa-icon [icon]="faArrowDown"></fa-icon>
-              {{ totalCredit() + totalDebit() | number: "1.0-2":"fr" }}€
+              {{ totalCredit() - totalDebit() | number: "1.0-2":"fr" }}€
             </div>
           }
 
@@ -119,7 +119,7 @@
           @for (card of paginatedOperations(); track card.id) {
             <div class="card my-2 mx-1 w-full lg:w-5/12 p-0">
               <h5 class="px-4 py-2 border-b font-medium text-center rounded-t-lg" [class]="card.classCSS">
-                {{ card.categorie }}
+                {{ card.categorie | titlecase }}
               </h5>
               <div class="px-4 py-2">
                 <h4 class="text-lg font-semibold text-center">{{ card.description1 }}</h4>
