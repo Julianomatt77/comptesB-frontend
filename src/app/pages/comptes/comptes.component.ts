@@ -40,10 +40,10 @@ import {
 import {DecimalPipe, DatePipe, TitleCasePipe} from '@angular/common';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { PieChartModule } from '@swimlane/ngx-charts';
 import { firstValueFrom } from 'rxjs';
 import {DateFilterComponent} from "../../components/date-filter/date-filter.component";
 import {OperationsFilterComponent} from "../../components/operations-filter/operations-filter.component";
+import {PieChartComponent} from "../../ui/pie-chart/pie-chart.component";
 
 interface OperationDisplay extends OperationV2 {
   classCSS?: string;
@@ -65,12 +65,12 @@ interface MonthlyHistory {
     FormsModule,
     ReactiveFormsModule,
     FaIconComponent,
-    PieChartModule,
     DecimalPipe,
     DatePipe,
     DateFilterComponent,
     OperationsFilterComponent,
-    TitleCasePipe
+    TitleCasePipe,
+    PieChartComponent
   ]
 })
 export class ComptesComponent implements OnInit, OnDestroy {
@@ -92,7 +92,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
   readonly selectedCategory = signal('');
   readonly selectedType = signal<boolean | null>(null);
   readonly dateFiltered = signal(true);
-  readonly width = signal(0);
+  // readonly width = signal(0);
 
   readonly pageSize = signal(6);
   readonly currentPage = signal(0);
@@ -281,7 +281,7 @@ export class ComptesComponent implements OnInit, OnDestroy {
     const userIdFromCookie = this.cookieService.get('compty-userId');
     this.userId.set(parseInt(userIdFromCookie, 10) || 0);
 
-    this.width.set(innerWidth >= 991 ? innerWidth / 3.3 : innerWidth / 1.3);
+    // this.width.set(innerWidth >= 991 ? innerWidth / 3.3 : innerWidth / 1.3);
   }
 
   async ngOnInit(): Promise<void> {
@@ -458,11 +458,11 @@ export class ComptesComponent implements OnInit, OnDestroy {
     await this.compteService.deleteAccountAsync(compte.id, this.userId());
   }
 
-  onResize(event: any): void {
-    this.width.set(event.target.innerWidth >= 991
-      ? event.target.innerWidth / 3.3
-      : event.target.innerWidth / 1.3);
-  }
+  // onResize(event: any): void {
+  //   this.width.set(event.target.innerWidth >= 991
+  //     ? event.target.innerWidth / 3.3
+  //     : event.target.innerWidth / 1.3);
+  // }
 
   export(type: string): void {
     let arrayToExport: any[] = [];
