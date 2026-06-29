@@ -273,20 +273,9 @@
         }
       </div>
 
-
     <!--  Graphique par catégorie-->
-      <div class="mb-5">
-        <ngx-charts-pie-chart
-          class="pt-0 mt-0"
-          id="printChart"
-          (window:resize)="onResize($event)"
-          [results]="spendByCategory()"
-          [legend]="false"
-          [legendTitle]="'Dépense par catégorie'"
-          [view]="[width(), 400]"
-          [labels]="true"
-        >
-        </ngx-charts-pie-chart>
+      <div class="my-5">
+        <app-pie-chart [data]="spendByCategory()" [height]="200"/>
       </div>
     </aside>
   </section>

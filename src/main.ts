@@ -12,7 +12,6 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { AppComponent } from './app/app.component';
 
 if (environment.production) {
@@ -21,7 +20,7 @@ if (environment.production) {
 registerLocaleData(localeFr);
 bootstrapApplication(AppComponent, {
     providers: [
-        provideZoneChangeDetection(),importProvidersFrom(BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, MatDialogModule, MatTableModule, MatPaginatorModule, FontAwesomeModule, FontAwesomeModule, NgxChartsModule),
+        provideZoneChangeDetection(),importProvidersFrom(BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, MatDialogModule, MatTableModule, MatPaginatorModule, FontAwesomeModule, FontAwesomeModule),
         { provide: LOCALE_ID, useValue: 'fr-FR' }, tokenInterceptor,
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         provideHttpClient(withInterceptorsFromDi()),

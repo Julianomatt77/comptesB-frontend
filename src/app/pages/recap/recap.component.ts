@@ -20,7 +20,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { DecimalPipe } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { LineChartModule } from '@swimlane/ngx-charts';
 import {CurrentAccountsRecap, MonthlyRecapItem, SavingsAccountsRecap, YearlyAccountRecap} from "../../interfaces/recap";
 
 @Component({
@@ -32,7 +31,6 @@ import {CurrentAccountsRecap, MonthlyRecapItem, SavingsAccountsRecap, YearlyAcco
     FormsModule,
     ReactiveFormsModule,
     FaIconComponent,
-    LineChartModule,
     DecimalPipe
   ]
 })
