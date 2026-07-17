@@ -141,12 +141,10 @@ export class OperationFormComponent implements OnInit {
 
   private initForm(): void {
     if (this.addOrEdit == 'edit') {
-      console.log(this.operation.montant)
       if (this.operation.montant < 0){
         this.operation.montant = -this.operation.montant;
       }
       this.operation.operationDate = new Date(this.operation.operationDate);
-      console.log(this.operation.montant)
       this.tempMontant = this.operation.montant;
     }
   }
