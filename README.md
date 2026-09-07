@@ -5,7 +5,10 @@ Partie frontend (Angular 14) de l'Application web de gestion de comptes bancaire
 -> Gérer vos dépenses quotidiennes
 -> Suivez l'évolution de vos comptes
 -> Suivez l'évolution de votre épargne
--> Exporter vos opérations et solde de vos comptes bancaires au format .csv ou .pdf
+-> Exporter vos opérations et solde de vos comptes bancaires au format .csv
+
+## Déploiement
+- ng build avant le commit
 
 ## Changelog v2 (2026)
 - mise à jour vers Node 24
